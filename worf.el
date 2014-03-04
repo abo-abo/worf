@@ -54,13 +54,18 @@ if the (looking-back \"^*+\") is true.
   :group 'worf
   :lighter " ✇")
 
-(defun worf-copy-heading-id ()
+(defun worf-copy-heading-id (arg)
   "Copy the id link of current heading to kill ring."
-  (interactive)
-  (let ((id (org-id-get nil 'create))
-        (heading (substring-no-properties
-                  (org-get-heading))))
-    (kill-new (format "[[id:%s][%s]]" id heading))))
+  (interactive "P")
+  (let ((heading (substring-no-properties
+                  (org-get-heading)))
+        id)
+    (when arg
+      (org-entry-put nil "CUSTOM_ID" heading))
+    (if (setq id (org-entry-get nil "CUSTOM_ID"))
+        (kill-new (format "[[#%s][%s]]" id heading))
+      (setq id (org-id-get nil 'create))
+      (kill-new (format "[[id:%s][%s]]" id heading)))))
 
 (defun worf-follow ()
   "Follow the link at point."
