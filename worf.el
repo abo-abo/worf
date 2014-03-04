@@ -241,7 +241,8 @@ DEF is modified by `worf--insert-or-call'."
   (worf-define-key map "a" 'worf-out-backward)
   (worf-define-key map "v" 'worf-view)
   (worf-define-key map "8" 'org-insert-heading-respect-content)
-  (worf-define-key map "F" 'worf-attachment))
+  (worf-define-key map "F" 'worf-attachment)
+  (worf-define-key map "V" 'projectile-find-file))
 
 (provide 'worf)
 
