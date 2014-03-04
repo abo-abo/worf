@@ -210,8 +210,9 @@ Otherwise call `self-insert-command'."
 (defvar company-begin-commands '(self-insert-command))
 
 (defun worf-define-key (keymap key def)
-  "Forward to (`define-key' KEYMAP KEY (`lispy-defun' DEF FROM-START))."
-  (let ((func (defalias (intern (concat "special-" (symbol-name def)))
+  "Forward to (`define-key' KEYMAP KEY DEF)
+DEF is modified by `worf--insert-or-call'."
+  (let ((func (defalias (intern (concat "wspecial-" (symbol-name def)))
                   (worf--insert-or-call def))))
     (unless (member func ac-trigger-commands)
       (push func ac-trigger-commands))
