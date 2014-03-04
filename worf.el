@@ -190,6 +190,17 @@ If already there, return it to previous position."
   (interactive)
   (call-interactively 'org-attach-open))
 
+(defun worf-refile (arg)
+  "Interface to refile."
+  (interactive "P")
+  (if arg
+      (let ((org-refile-targets
+             (cl-remove-if
+              (lambda (x) (null (car x)))
+              org-refile-targets)))
+        (call-interactively 'org-refile)))
+  (call-interactively 'org-refile))
+
 (defun worf-reserved ()
   "Do some cybersquatting."
   (interactive)
@@ -233,8 +244,8 @@ DEF is modified by `worf--insert-or-call'."
   ;; ——— Local ————————————————————————————————
   (mapc (lambda (k) (worf-define-key map k 'worf-reserved))
         '("A" "b" "B" "c" "C" "D" "e" "E" "f" "G" "H" "I" "J" "K" "l"
-          "M" "n" "N" "o" "O" "p" "P" "q" "Q" "r" "R" "s" "S" "t" "T"
-          "u" "U" "V" "w" "W" "x" "X" "y" "Y" "z" "Z"))
+          "M" "n" "N" "o" "O" "p" "P" "q" "Q" "R" "s" "S" "t" "T" "u"
+          "U" "w" "W" "x" "X" "y" "Y" "z" "Z"))
   (worf-define-key map "L" 'worf-copy-heading-id)
   (worf-define-key map "d" 'worf-different)
   (worf-define-key map "j" 'worf-down)
@@ -247,7 +258,8 @@ DEF is modified by `worf--insert-or-call'."
   (worf-define-key map "v" 'worf-view)
   (worf-define-key map "8" 'org-insert-heading-respect-content)
   (worf-define-key map "F" 'worf-attachment)
-  (worf-define-key map "V" 'projectile-find-file))
+  (worf-define-key map "V" 'projectile-find-file)
+  (worf-define-key map "r" 'worf-refile))
 
 (provide 'worf)
 
