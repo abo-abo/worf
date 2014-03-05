@@ -214,7 +214,7 @@ If already there, return it to previous position."
   (interactive)
   (call-interactively 'org-attach))
 
-(defun worf-attachment ()
+(defun worf-attach-visit ()
   "Interface to attachments."
   (interactive)
   (call-interactively 'org-attach-open))
@@ -376,30 +376,37 @@ DEF is modified by `worf--insert-or-call'."
   (define-key map (kbd "C-d") 'worf-delete)
   ;; ——— Local ————————————————————————————————
   (mapc (lambda (k) (worf-define-key map k 'worf-reserved))
-        '("A" "b" "B" "c" "C" "D" "e" "E" "f" "G" "H" "I" "J" "K" "l"
-          "M" "n" "N" "o" "O" "p" "P" "q" "Q" "S" "T" "u" "U" "w" "W"
-          "x" "X" "y" "Y" "z" "Z"))
-  (worf-define-key map "L" 'worf-copy-heading-id)
-  (worf-define-key map "d" 'worf-different)
+        '("b" "B" "c" "C" "D" "e" "E" "G" "H" "J" "K" "M" "n" "N" "o"
+          "O" "p" "P" "q" "Q" "S" "T" "u" "U" "w" "W" "x" "X" "y" "Y"
+          "z" "Z"))
+  ;; ——— navigation/structured ————————————————
   (worf-define-key map "j" 'worf-down)
   (worf-define-key map "k" 'worf-up)
-  (worf-define-key map "i" 'worf-tab)
-  (worf-define-key map "I" 'worf-shifttab)
-  (worf-define-key map "g" 'worf-goto)
-  (worf-define-key map "m" 'worf-more)
-  (worf-define-key map "h" 'worf-ace-link)
+  (worf-define-key map "f" 'worf-flow)
+  (worf-define-key map "d" 'worf-different)
   (worf-define-key map "a" 'worf-out-backward)
   (worf-define-key map "l" 'worf-out-forward)
+  ;; ——— navigation/unstructured ——————————————
+  (worf-define-key map "g" 'worf-goto)
+  (worf-define-key map "h" 'worf-ace-link)
+  ;; ——— navigation/misc ——————————————————————
   (worf-define-key map "v" 'worf-view)
-  (worf-define-key map "8" 'org-insert-heading-respect-content)
-  (worf-define-key map "F" 'worf-attachment)
   (worf-define-key map "V" 'worf-visit)
+  ;; ——— hide/show ————————————————————————————
+  (worf-define-key map "i" 'worf-tab)
+  (worf-define-key map "I" 'worf-shifttab)
+  (worf-define-key map "m" 'worf-more)
+  ;; ——— attachments ——————————————————————————
+  (worf-define-key map "F" 'worf-attach-visit)
+  (worf-define-key map "A" 'worf-attach)
+  ;; ——— refile ———————————————————————————————
   (worf-define-key map "r" 'worf-refile-other)
   (worf-define-key map "R" 'worf-refile-this)
-  (worf-define-key map "A" 'worf-attach)
+  ;; ——— misc —————————————————————————————————
+  (worf-define-key map "L" 'worf-copy-heading-id)
+  (worf-define-key map "8" 'org-insert-heading-respect-content)
   (worf-define-key map "t" 'worf-todo)
-  (worf-define-key map "s" 'worf-save)
-  (worf-define-key map "f" 'worf-flow))
+  (worf-define-key map "s" 'worf-save))
 
 (provide 'worf)
 
