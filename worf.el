@@ -200,6 +200,12 @@ If already there, return it to previous position."
               org-refile-targets)))
         (call-interactively 'org-refile)))
   (call-interactively 'org-refile))
+(defun worf-delete (arg)
+  "Delete subtree."
+  (interactive "p")
+  (if (and (looking-at "\\*") (looking-back "^\\**"))
+      (org-cut-subtree)
+    (delete-char arg)))
 
 (defun worf-reserved ()
   "Do some cybersquatting."
@@ -241,6 +247,7 @@ DEF is modified by `worf--insert-or-call'."
   (define-key map "\C-j" 'worf-follow)
   (define-key map (kbd "M-j") 'worf-ace-link)
   (define-key map (kbd "C-M-g") 'worf-goto)
+  (define-key map (kbd "C-d") 'worf-delete)
   ;; ——— Local ————————————————————————————————
   (mapc (lambda (k) (worf-define-key map k 'worf-reserved))
         '("A" "b" "B" "c" "C" "D" "e" "E" "f" "G" "H" "I" "J" "K" "l"
