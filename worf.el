@@ -123,12 +123,18 @@ When ARG is true, add a CUSTOM_ID first."
   (widen))
 
 (defun worf-out-backward ()
-  "Unhide current heading."
+  "Move one level up backwards."
   (interactive)
   (if (looking-at worf-sharp)
       (goto-char (car (worf--bounds-subtree)))
     (ignore-errors
       (org-up-heading-safe))))
+
+(defun worf-out-forward ()
+  "Move one level up forwards."
+  (interactive)
+  (worf-out-backward)
+  (worf-down))
 
 (defun worf-tab ()
   "Hide/show heading."
@@ -376,6 +382,7 @@ DEF is modified by `worf--insert-or-call'."
   (worf-define-key map "m" 'worf-more)
   (worf-define-key map "h" 'worf-ace-link)
   (worf-define-key map "a" 'worf-out-backward)
+  (worf-define-key map "l" 'worf-out-forward)
   (worf-define-key map "v" 'worf-view)
   (worf-define-key map "8" 'org-insert-heading-respect-content)
   (worf-define-key map "F" 'worf-attachment)
