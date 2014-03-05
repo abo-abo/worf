@@ -224,6 +224,11 @@ If already there, return it to previous position."
   (interactive "P")
   (projectile-find-file arg))
 
+(defun worf-todo (arg)
+  "Forward to `org-todo'."
+  (interactive "P")
+  (call-interactively 'org-todo))
+
 (defun worf-reserved ()
   "Do some cybersquatting."
   (interactive)
@@ -285,7 +290,8 @@ DEF is modified by `worf--insert-or-call'."
   (worf-define-key map "V" 'worf-visit)
   (worf-define-key map "r" 'worf-refile-other)
   (worf-define-key map "R" 'worf-refile-this)
-  (worf-define-key map "A" 'worf-attach))
+  (worf-define-key map "A" 'worf-attach)
+  (worf-define-key map "t" 'worf-todo))
 
 (provide 'worf)
 
