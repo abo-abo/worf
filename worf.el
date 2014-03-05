@@ -139,6 +139,9 @@ When ARG is true, add a CUSTOM_ID first."
 (defun worf-tab ()
   "Hide/show heading."
   (interactive)
+  (let ((case-fold-search t))
+    (when (looking-at "#\\+end")
+      (worf--sharp-up)))
   (org-cycle))
 
 (defun worf-shifttab (arg)
