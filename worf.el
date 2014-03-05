@@ -219,6 +219,11 @@ If already there, return it to previous position."
       (org-cut-subtree)
     (delete-char arg)))
 
+(defun worf-visit (arg)
+  "Forward to find file in project."
+  (interactive "P")
+  (projectile-find-file arg))
+
 (defun worf-reserved ()
   "Do some cybersquatting."
   (interactive)
@@ -277,7 +282,7 @@ DEF is modified by `worf--insert-or-call'."
   (worf-define-key map "v" 'worf-view)
   (worf-define-key map "8" 'org-insert-heading-respect-content)
   (worf-define-key map "F" 'worf-attachment)
-  (worf-define-key map "V" 'projectile-find-file)
+  (worf-define-key map "V" 'worf-visit)
   (worf-define-key map "r" 'worf-refile-other)
   (worf-define-key map "R" 'worf-refile-this)
   (worf-define-key map "A" 'worf-attach))
