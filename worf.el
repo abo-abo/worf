@@ -288,13 +288,20 @@ ARG is unused currently."
 ;; ——— Utilities ———————————————————————————————————————————————————————————————
 (defun worf--sharp-down ()
   "Move down to the next #+."
-  (let ((pt (point)))
+  (let ((pt (point))
+        (bnd (worf--bounds-subtree)))
     (forward-char)
-    (while (and (re-search-forward worf-sharp (cdr (worf--bounds-subtree)) t)
+    (while (and (re-search-forward worf-sharp (cdr bnd) t)
                 (worf--invisible-p)))
-    (if (worf--invisible-p)
-        (goto-char pt)
-      (goto-char (match-beginning 0)))))
+    (cond ((worf--invisible-p)
+           (goto-char pt))
+          ((looking-back worf-sharp)
+           (goto-char (match-beginning 0)))
+          (t
+           (if (= (car bnd) (point-min))
+               (ignore-errors
+                 (org-speed-move-safe 'outline-next-visible-heading))
+             (goto-char pt))))))
 
 (defun worf--sharp-up ()
   "Move up to the next #+."
