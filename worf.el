@@ -190,16 +190,15 @@ If already there, return it to previous position."
   (interactive)
   (call-interactively 'org-attach-open))
 
-(defun worf-refile (arg)
-  "Interface to refile."
-  (interactive "P")
-  (if arg
-      (let ((org-refile-targets
+(defun worf-refile-other (arg)
+  "Refile to other file."
+  (interactive "p")
+  (let ((org-refile-targets
              (cl-remove-if
               (lambda (x) (null (car x)))
               org-refile-targets)))
-        (call-interactively 'org-refile)))
-  (call-interactively 'org-refile))
+    (call-interactively 'org-refile)))
+
 (defun worf-delete (arg)
   "Delete subtree."
   (interactive "p")
@@ -266,7 +265,7 @@ DEF is modified by `worf--insert-or-call'."
   (worf-define-key map "8" 'org-insert-heading-respect-content)
   (worf-define-key map "F" 'worf-attachment)
   (worf-define-key map "V" 'projectile-find-file)
-  (worf-define-key map "r" 'worf-refile))
+  (worf-define-key map "r" 'worf-refile-other))
 
 (provide 'worf)
 
