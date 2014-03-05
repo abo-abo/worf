@@ -308,9 +308,14 @@ ARG is unused currently."
   (let ((pt (point)))
     (while (and (re-search-backward worf-sharp (car (worf--bounds-subtree)) t)
                 (worf--invisible-p)))
-    (if (worf--invisible-p)
-        (goto-char pt)
-      (goto-char (match-beginning 0)))))
+    (cond ((worf--invisible-p)
+           (prog1 nil
+             (goto-char pt)))
+          ((= pt (point))
+           nil)
+          (t
+           (goto-char
+            (match-beginning 0))))))
 
 (defun worf--pretty-heading (str lvl)
   "Prettify heading STR or level LVL."
