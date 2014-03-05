@@ -185,6 +185,11 @@ If already there, return it to previous position."
       (setq worf-view-line window-line)
       (recenter 0))))
 
+(defun worf-attach ()
+  "Interface to attachments."
+  (interactive)
+  (call-interactively 'org-attach))
+
 (defun worf-attachment ()
   "Interface to attachments."
   (interactive)
@@ -274,7 +279,8 @@ DEF is modified by `worf--insert-or-call'."
   (worf-define-key map "F" 'worf-attachment)
   (worf-define-key map "V" 'projectile-find-file)
   (worf-define-key map "r" 'worf-refile-other)
-  (worf-define-key map "R" 'worf-refile-this))
+  (worf-define-key map "R" 'worf-refile-this)
+  (worf-define-key map "A" 'worf-attach))
 
 (provide 'worf)
 
