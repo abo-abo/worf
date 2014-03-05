@@ -141,6 +141,12 @@ When ARG is true, add a CUSTOM_ID first."
   (interactive)
   (org-cycle))
 
+(defun worf-shifttab (arg)
+  "Hide/show everything.
+Forward to `org-shifttab' with ARG."
+  (interactive "P")
+  (org-shifttab arg))
+
 (defun worf-goto ()
   "Jump to a heading with `helm'."
   (interactive)
@@ -378,6 +384,7 @@ DEF is modified by `worf--insert-or-call'."
   (worf-define-key map "j" 'worf-down)
   (worf-define-key map "k" 'worf-up)
   (worf-define-key map "i" 'worf-tab)
+  (worf-define-key map "I" 'worf-shifttab)
   (worf-define-key map "g" 'worf-goto)
   (worf-define-key map "m" 'worf-more)
   (worf-define-key map "h" 'worf-ace-link)
