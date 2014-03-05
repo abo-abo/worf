@@ -264,16 +264,26 @@ ARG is unused currently."
   "Return bounds of the current subtree as a cons."
   (save-excursion
     (save-match-data
-      (cons
-       (progn
-         (org-back-to-heading t)
-         (point))
-       (progn
-         (org-end-of-subtree t t)
-         (when (and (org-at-heading-p)
-                    (not (eobp)))
-           (backward-char 1))
-         (point))))))
+      (condition-case e
+          (cons
+           (progn
+             (org-back-to-heading t)
+             (point))
+           (progn
+             (org-end-of-subtree t t)
+             (when (and (org-at-heading-p)
+                        (not (eobp)))
+               (backward-char 1))
+             (point)))
+        (error
+         (if (string-match
+              "^Before first headline"
+              (error-message-string e))
+             (cons (point-min)
+                   (progn
+                     (org-speed-move-safe 'outline-next-visible-heading)
+                     (point)))
+           (signal (car e) (cdr e))))))))
 
 ;; ——— Utilities ———————————————————————————————————————————————————————————————
 (defun worf--sharp-down ()
