@@ -109,8 +109,10 @@ When ARG is true, add a CUSTOM_ID first."
   (interactive)
   (if (looking-at worf-sharp)
       (worf--sharp-up)
-    (ignore-errors
-      (org-speed-move-safe 'outline-previous-visible-heading))))
+    (unless (ignore-errors
+              (org-speed-move-safe 'outline-previous-visible-heading) t)
+      (backward-char)
+      (worf--sharp-up))))
 
 (defun worf-flow ()
   "Move point current heading's first #+."
