@@ -40,6 +40,9 @@
 (require 'org)
 (require 'org-id)
 
+(defvar worf-sharp "^#\\+"
+  "Shortcut for the org's #+ regex.")
+
 (defvar worf-mode-map (make-sparse-keymap))
 
 ;;;###autoload
@@ -54,8 +57,10 @@ if the (looking-back \"^*+\") is true.
   :group 'worf
   :lighter " ✇")
 
+;; ——— Interactive —————————————————————————————————————————————————————————————
 (defun worf-copy-heading-id (arg)
-  "Copy the id link of current heading to kill ring."
+  "Copy the id link of current heading to kill ring.
+When ARG is true, add a CUSTOM_ID first."
   (interactive "P")
   (let ((heading (substring-no-properties
                   (org-get-heading)))
@@ -94,34 +99,39 @@ if the (looking-back \"^*+\") is true.
 (defun worf-down ()
   "Move one heading down."
   (interactive)
-  (ignore-errors
-    (org-speed-move-safe 'outline-next-visible-heading)))
+  (if (looking-at worf-sharp)
+      (worf--sharp-down)
+    (ignore-errors
+      (org-speed-move-safe 'outline-next-visible-heading))))
 
 (defun worf-up ()
   "Move one heading up."
   (interactive)
-  (ignore-errors
-    (org-speed-move-safe 'outline-previous-visible-heading)))
+  (if (looking-at worf-sharp)
+      (worf--sharp-up)
+    (ignore-errors
+      (org-speed-move-safe 'outline-previous-visible-heading))))
+
+(defun worf-flow ()
+  "Move point current heading's first #+."
+  (interactive)
+  (org-narrow-to-subtree)
+  (when (re-search-forward worf-sharp (cdr (worf--bounds-subtree)) t)
+    (goto-char (match-beginning 0)))
+  (widen))
 
 (defun worf-out-backward ()
   "Unhide current heading."
   (interactive)
-  (ignore-errors
-    (org-up-heading-safe)))
+  (if (looking-at worf-sharp)
+      (goto-char (car (worf--bounds-subtree)))
+    (ignore-errors
+      (org-up-heading-safe))))
 
 (defun worf-tab ()
   "Hide/show heading."
   (interactive)
   (org-cycle))
-
-(defun worf--pretty-heading (str lvl)
-  "Prettify heading STR or level LVL."
-  (setq str (propertize str 'face (nth (1- lvl) org-level-faces)))
-  (while (string-match org-bracket-link-regexp str)
-    (setq str (replace-match
-               (propertize (match-string 3 str) 'face 'org-link)
-               nil nil str)))
-  str)
 
 (defun worf-goto ()
   "Jump to a heading with `helm'."
@@ -196,7 +206,8 @@ If already there, return it to previous position."
   (call-interactively 'org-attach-open))
 
 (defun worf-refile-other (arg)
-  "Refile to other file."
+  "Refile to other file.
+ARG is unused currently."
   (interactive "p")
   (let ((org-refile-targets
              (cl-remove-if
@@ -205,7 +216,7 @@ If already there, return it to previous position."
     (call-interactively 'org-refile)))
 
 (defun worf-refile-this (arg)
-  "Interface to refile."
+  "Interface to refile with :maxlevel set to ARG."
   (interactive "p")
   (when (= arg 1)
     (setq arg 5))
@@ -213,25 +224,25 @@ If already there, return it to previous position."
     (call-interactively 'org-refile)))
 
 (defun worf-delete (arg)
-  "Delete subtree."
+  "Delete subtree or ARG chars."
   (interactive "p")
   (if (and (looking-at "\\*") (looking-back "^\\**"))
       (org-cut-subtree)
     (delete-char arg)))
 
 (defun worf-visit (arg)
-  "Forward to find file in project."
+  "Forward to find file in project with ARG."
   (interactive "P")
   (projectile-find-file arg))
 
 (defun worf-todo (arg)
-  "Forward to `org-todo'."
+  "Forward to `org-todo' with ARG."
   (interactive "P")
-  (call-interactively 'org-todo))
+  (org-todo arg))
 
-(defun worf-save (arg)
-  "Forward to `org-save'."
-  (interactive "P")
+(defun worf-save ()
+  "Save buffer."
+  (interactive)
   (save-buffer))
 
 (defun worf-reserved ()
@@ -239,7 +250,59 @@ If already there, return it to previous position."
   (interactive)
   (message "Nothing here, move along."))
 
-;; ——— keys setup ——————————————————————————————————————————————————————————————
+;; ——— Predicates ——————————————————————————————————————————————————————————————
+(defun worf--invisible-p ()
+  "Test if point is hidden by an `org-block' overlay."
+  (cl-some (lambda (ov) (eq (overlay-get ov 'invisible)
+                       'org-hide-block))
+           (overlays-at (point))))
+
+;; ——— Pure ————————————————————————————————————————————————————————————————————
+(defun worf--bounds-subtree ()
+  "Return bounds of the current subtree as a cons."
+  (save-excursion
+    (save-match-data
+      (cons
+       (progn
+         (org-back-to-heading t)
+         (point))
+       (progn
+         (org-end-of-subtree t t)
+         (when (and (org-at-heading-p)
+                    (not (eobp)))
+           (backward-char 1))
+         (point))))))
+
+;; ——— Utilities ———————————————————————————————————————————————————————————————
+(defun worf--sharp-down ()
+  "Move down to the next #+."
+  (let ((pt (point)))
+    (forward-char)
+    (while (and (re-search-forward worf-sharp (cdr (worf--bounds-subtree)) t)
+                (worf--invisible-p)))
+    (if (worf--invisible-p)
+        (goto-char pt)
+      (goto-char (match-beginning 0)))))
+
+(defun worf--sharp-up ()
+  "Move up to the next #+."
+  (let ((pt (point)))
+    (while (and (re-search-backward worf-sharp (car (worf--bounds-subtree)) t)
+                (worf--invisible-p)))
+    (if (worf--invisible-p)
+        (goto-char pt)
+      (goto-char (match-beginning 0)))))
+
+(defun worf--pretty-heading (str lvl)
+  "Prettify heading STR or level LVL."
+  (setq str (propertize str 'face (nth (1- lvl) org-level-faces)))
+  (while (string-match org-bracket-link-regexp str)
+    (setq str (replace-match
+               (propertize (match-string 3 str) 'face 'org-link)
+               nil nil str)))
+  str)
+
+;; ——— Key bindings ————————————————————————————————————————————————————————————
 (defun worf--insert-or-call (def)
   "Return a lambda to call DEF if position is special.
 Otherwise call `self-insert-command'."
@@ -297,8 +360,13 @@ DEF is modified by `worf--insert-or-call'."
   (worf-define-key map "R" 'worf-refile-this)
   (worf-define-key map "A" 'worf-attach)
   (worf-define-key map "t" 'worf-todo)
-  (worf-define-key map "s" 'worf-save))
+  (worf-define-key map "s" 'worf-save)
+  (worf-define-key map "f" 'worf-flow))
 
 (provide 'worf)
+
+;;; Local Variables:
+;;; outline-regexp: ";; ———"
+;;; End:
 
 ;;; worf.el ends here
