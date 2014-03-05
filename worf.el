@@ -229,6 +229,11 @@ If already there, return it to previous position."
   (interactive "P")
   (call-interactively 'org-todo))
 
+(defun worf-save (arg)
+  "Forward to `org-save'."
+  (interactive "P")
+  (save-buffer))
+
 (defun worf-reserved ()
   "Do some cybersquatting."
   (interactive)
@@ -273,8 +278,8 @@ DEF is modified by `worf--insert-or-call'."
   ;; ——— Local ————————————————————————————————
   (mapc (lambda (k) (worf-define-key map k 'worf-reserved))
         '("A" "b" "B" "c" "C" "D" "e" "E" "f" "G" "H" "I" "J" "K" "l"
-          "M" "n" "N" "o" "O" "p" "P" "q" "Q" "s" "S" "t" "T" "u" "U"
-          "w" "W" "x" "X" "y" "Y" "z" "Z"))
+          "M" "n" "N" "o" "O" "p" "P" "q" "Q" "S" "T" "u" "U" "w" "W"
+          "x" "X" "y" "Y" "z" "Z"))
   (worf-define-key map "L" 'worf-copy-heading-id)
   (worf-define-key map "d" 'worf-different)
   (worf-define-key map "j" 'worf-down)
@@ -291,7 +296,8 @@ DEF is modified by `worf--insert-or-call'."
   (worf-define-key map "r" 'worf-refile-other)
   (worf-define-key map "R" 'worf-refile-this)
   (worf-define-key map "A" 'worf-attach)
-  (worf-define-key map "t" 'worf-todo))
+  (worf-define-key map "t" 'worf-todo)
+  (worf-define-key map "s" 'worf-save))
 
 (provide 'worf)
 
