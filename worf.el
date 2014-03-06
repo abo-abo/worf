@@ -379,9 +379,8 @@ DEF is modified by `worf--insert-or-call'."
   (define-key map (kbd "C-d") 'worf-delete)
   ;; ——— Local ————————————————————————————————
   (mapc (lambda (k) (worf-define-key map k 'worf-reserved))
-        '("b" "B" "c" "C" "D" "e" "E" "G" "H" "J" "K" "M" "n" "N" "o"
-          "O" "p" "P" "q" "Q" "S" "T" "u" "U" "w" "W" "x" "X" "y" "Y"
-          "z" "Z"))
+        '("b" "B" "c" "C" "D" "e" "E" "G" "H" "J" "K" "M" "n" "o" "O"
+          "p" "P" "q" "Q" "S" "T" "u" "U" "w" "x" "X" "y" "Y" "z" "Z"))
   ;; ——— navigation/structured ————————————————
   (worf-define-key map "j" 'worf-down)
   (worf-define-key map "k" 'worf-up)
@@ -409,7 +408,10 @@ DEF is modified by `worf--insert-or-call'."
   (worf-define-key map "L" 'worf-copy-heading-id)
   (worf-define-key map "8" 'org-insert-heading-respect-content)
   (worf-define-key map "t" 'worf-todo)
-  (worf-define-key map "s" 'worf-save))
+  (worf-define-key map "s" 'worf-save)
+  ;; ——— narrow/widen —————————————————————————
+  (worf-define-key map "N" 'org-narrow-to-subtree)
+  (worf-define-key map "W" 'widen))
 
 (provide 'worf)
 
