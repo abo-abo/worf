@@ -136,13 +136,18 @@ When ARG is true, add a CUSTOM_ID first."
   (worf-out-backward)
   (worf-down))
 
-(defun worf-tab ()
-  "Hide/show heading."
-  (interactive)
-  (let ((case-fold-search t))
-    (when (looking-at "#\\+end")
-      (worf--sharp-up)))
-  (org-cycle))
+(defun worf-tab (arg)
+  "Hide/show heading.
+When ARG isn't 1, call (`org-shifttab' ARG)."
+  (interactive "p")
+  (let ((v (this-command-keys-vector)))
+    (if (and (= 2 (length v))
+             (string-match "[0-9]" (concat v)))
+        (org-shifttab arg)
+      (let ((case-fold-search t))
+        (when (looking-at "#\\+end")
+          (worf--sharp-up))
+        (org-cycle)))))
 
 (defun worf-shifttab (arg)
   "Hide/show everything.
