@@ -157,10 +157,13 @@ Forward to `org-shifttab' with ARG."
   (let ((candidates
          (org-map-entries
           (lambda ()
-            (let ((comp (org-heading-components)))
+            (let ((comp (org-heading-components))
+                  (h (org-get-heading)))
               (cons (format "%d%s%s" (car comp)
                             (make-string (1+ (* 2 (1- (car comp)))) ?\ )
-                            ;; (worf--pretty-heading (nth 4 comp) (car comp))
+                            (if (get-text-property 0 'fontified h)
+                                h
+                              (worf--pretty-heading (nth 4 comp) (car comp)))
                             (org-get-heading))
                     (point))))))
         helm-update-blacklist-regexps
