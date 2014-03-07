@@ -201,7 +201,7 @@ Forward to `org-shifttab' with ARG."
             (action . (lambda (x) (goto-char x)
                          (call-interactively 'show-branches)
                          (worf-more)))
-            (pattern-transformer . regexp-quote)))))
+            (pattern-transformer . worf--pattern-transformer)))))
 
 (defun worf-keyword ()
   "Set the current keyword.
@@ -351,6 +351,12 @@ ARG is unused currently."
            (signal (car e) (cdr e))))))))
 
 ;; ——— Utilities ———————————————————————————————————————————————————————————————
+(defun worf--pattern-transformer (x)
+  "Transform X to make 1-9 select the heading level in `worf-goto'."
+  (if (string-match "[1-9]" x)
+      (setq x (format "^%s" x))
+    x))
+
 (defun worf--sharp-down ()
   "Move down to the next #+."
   (let ((pt (point))
