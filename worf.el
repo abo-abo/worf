@@ -252,8 +252,13 @@ ARG is unused currently."
 
 (defun worf-visit (arg)
   "Forward to find file in project with ARG."
-  (interactive "P")
-  (projectile-find-file arg))
+  (interactive "p")
+  (cond ((= arg 1)
+         (projectile-find-file nil))
+        ((= arg 2)
+         (projectile-find-file-other-window))
+        (t
+         (projectile-find-file arg))))
 
 (defun worf-todo (arg)
   "Forward to `org-todo' with ARG."
