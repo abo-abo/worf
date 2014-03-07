@@ -414,12 +414,15 @@ DEF is modified by `worf--insert-or-call'."
   (worf-define-key map "R" 'worf-refile-this)
   ;; ——— misc —————————————————————————————————
   (worf-define-key map "L" 'worf-copy-heading-id)
-  (worf-define-key map "8" 'org-insert-heading-respect-content)
+  (worf-define-key map "+" 'org-insert-heading-respect-content)
   (worf-define-key map "t" 'worf-todo)
   (worf-define-key map "s" 'worf-save)
   ;; ——— narrow/widen —————————————————————————
   (worf-define-key map "N" 'org-narrow-to-subtree)
-  (worf-define-key map "W" 'widen))
+  (worf-define-key map "W" 'widen)
+  ;; ——— digit argument ———————————————————————
+  (mapc (lambda (x) (worf-define-key map (format "%d" x) 'digit-argument))
+        (number-sequence 0 9)))
 
 (provide 'worf)
 
