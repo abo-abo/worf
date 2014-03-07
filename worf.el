@@ -57,6 +57,20 @@ if the (looking-back \"^*+\") is true.
   :group 'worf
   :lighter " ✇")
 
+;; ——— Macros ——————————————————————————————————————————————————————————————————
+(defmacro dotimes-protect (n &rest bodyform)
+  "Execute N times the BODYFORM unless an error is signaled.
+Return nil couldn't execute BODYFORM at least once.
+Otherwise return t."
+  (declare (indent 1))
+  `(let ((i 0)
+         out)
+     (ignore-errors
+       (while (<= (incf i) ,n)
+         ,@bodyform
+         (setq out t)))
+     out))
+
 ;; ——— Interactive —————————————————————————————————————————————————————————————
 (defun worf-copy-heading-id (arg)
   "Copy the id link of current heading to kill ring.
@@ -96,23 +110,31 @@ When ARG is true, add a CUSTOM_ID first."
          (end-of-line))
         (t (org-self-insert-command 1))))
 
-(defun worf-down ()
-  "Move one heading down."
-  (interactive)
-  (if (looking-at worf-sharp)
-      (worf--sharp-down)
-    (ignore-errors
-      (org-speed-move-safe 'outline-next-visible-heading))))
+(defun worf-down (arg)
+  "Move ARG headings down."
+  (interactive "p")
+  (cond (worf--current-keyword
+         (dotimes-protect arg
+           (worf--next-keyword worf--current-keyword)))
+        ((looking-at worf-sharp)
+         (worf--sharp-down))
+        (t
+         (ignore-errors
+           (org-speed-move-safe 'outline-next-visible-heading)))))
 
-(defun worf-up ()
-  "Move one heading up."
-  (interactive)
-  (if (looking-at worf-sharp)
-      (worf--sharp-up)
-    (unless (ignore-errors
-              (org-speed-move-safe 'outline-previous-visible-heading) t)
-      (backward-char)
-      (worf--sharp-up))))
+(defun worf-up (arg)
+  "Move ARG headings up."
+  (interactive "p")
+  (cond (worf--current-keyword
+         (dotimes-protect arg
+           (worf--prev-keyword worf--current-keyword)))
+        ((looking-at worf-sharp)
+         (worf--sharp-up))
+        (t
+         (unless (ignore-errors
+                   (org-speed-move-safe 'outline-previous-visible-heading) t)
+           (backward-char)
+           (worf--sharp-up)))))
 
 (defun worf-flow ()
   "Move point current heading's first #+."
@@ -134,7 +156,7 @@ When ARG is true, add a CUSTOM_ID first."
   "Move one level up forwards."
   (interactive)
   (worf-out-backward)
-  (worf-down))
+  (worf-down 1))
 
 (defun worf-tab (arg)
   "Hide/show heading.
@@ -180,6 +202,21 @@ Forward to `org-shifttab' with ARG."
                          (call-interactively 'show-branches)
                          (worf-more)))
             (pattern-transformer . regexp-quote)))))
+
+(defun worf-keyword ()
+  "Set the current keyword.
+All next `worf-down' and `worf-up' will move by this keyword.
+When the chain is broken, the keyword is unset."
+  (interactive)
+  (let ((c (read-char "[t]odo, [d]one, [n]ext, [c]ancelled")))
+    (message
+     (setq worf--current-keyword
+           (cl-case c
+             (?t "TODO")
+             (?d "DONE")
+             (?n "NEXT")
+             (?c "CANCELLED"))))
+    (add-hook 'post-command-hook 'worf--invalidate-keyword)))
 
 (defun worf-ace-link ()
   "Visit a link within current heading by ace jumping."
@@ -354,6 +391,48 @@ ARG is unused currently."
                nil nil str)))
   str)
 
+(defun worf--prev-keyword (str)
+  "Move to the prev keyword STR within parent heading."
+  (let ((pt (point))
+        (bnd
+         (save-excursion
+           (worf-out-backward)
+           (worf--bounds-subtree))))
+    (unless (catch 'break
+              (while t
+                (outline-previous-visible-heading 1)
+                (if (string= str (nth 2 (org-heading-components)))
+                    (throw 'break t)
+                  (when (<= (point) (car bnd))
+                    (throw 'break nil)))))
+      (goto-char pt))))
+
+(defun worf--next-keyword (str)
+  "Move to the next keyword STR within parent heading."
+  (let ((pt (point))
+        (bnd
+         (save-excursion
+           (worf-out-backward)
+           (worf--bounds-subtree))))
+    (unless (catch 'break
+              (while t
+                (outline-next-visible-heading 1)
+                (if (string= str (nth 2 (org-heading-components)))
+                    (throw 'break t)
+                  (when (>= (point) (cdr bnd))
+                    (throw 'break nil)))))
+      (goto-char pt))))
+
+(defvar worf--current-keyword nil)
+
+(defun worf--invalidate-keyword ()
+  (unless (memq this-command '(special-worf-keyword
+                               special-worf-down
+                               special-worf-up
+                               special-digit-argument))
+    (setq worf--current-keyword nil)
+    (remove-hook 'post-command-hook 'worf--invalidate-keyword)))
+
 ;; ——— Key bindings ————————————————————————————————————————————————————————————
 (defun worf--insert-or-call (def)
   "Return a lambda to call DEF if position is special.
@@ -376,7 +455,7 @@ Otherwise call `self-insert-command'."
 (defun worf-define-key (keymap key def)
   "Forward to (`define-key' KEYMAP KEY DEF)
 DEF is modified by `worf--insert-or-call'."
-  (let ((func (defalias (intern (concat "wspecial-" (symbol-name def)))
+  (let ((func (defalias (intern (concat "special-" (symbol-name def)))
                   (worf--insert-or-call def))))
     (unless (member func ac-trigger-commands)
       (push func ac-trigger-commands))
@@ -392,7 +471,7 @@ DEF is modified by `worf--insert-or-call'."
   (define-key map (kbd "C-d") 'worf-delete)
   ;; ——— Local ————————————————————————————————
   (mapc (lambda (k) (worf-define-key map k 'worf-reserved))
-        '("b" "B" "c" "C" "D" "e" "E" "G" "H" "J" "K" "M" "n" "o" "O"
+        '("b" "B" "c" "C" "D" "e" "E" "G" "H" "J" "M" "n" "o" "O"
           "p" "P" "q" "Q" "S" "T" "u" "U" "w" "x" "X" "y" "Y" "z" "Z"))
   ;; ——— navigation/structured ————————————————
   (worf-define-key map "j" 'worf-down)
@@ -425,6 +504,8 @@ DEF is modified by `worf--insert-or-call'."
   ;; ——— narrow/widen —————————————————————————
   (worf-define-key map "N" 'org-narrow-to-subtree)
   (worf-define-key map "W" 'widen)
+  ;; ——— misc —————————————————————————————————
+  (worf-define-key map "K" 'worf-keyword)
   ;; ——— digit argument ———————————————————————
   (mapc (lambda (x) (worf-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9)))
