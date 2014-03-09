@@ -85,6 +85,8 @@ Otherwise return t."
          (org-metaup))
         ((eq (worf-mod-change) 'tree)
          (org-shiftmetaup))
+        ((eq (worf-mod-change) 'priority)
+         (org-shiftup))
         ((looking-at worf-sharp)
          (worf--sharp-up))
         (t
@@ -103,6 +105,11 @@ Otherwise return t."
          (org-metadown))
         ((eq (worf-mod-change) 'tree)
          (org-shiftmetadown))
+        ((eq (worf-mod-change) 'priority)
+         (org-shiftdown))
+        ((worf-mod-delete)
+         (org-cut-subtree arg)
+         (setq worf--delete nil))
         ((looking-at worf-sharp)
          (worf--sharp-down))
         (t
@@ -297,7 +304,7 @@ ARG is unused currently."
   (let ((org-refile-targets `((nil :maxlevel . ,arg))))
     (call-interactively 'org-refile)))
 
-;; ——— Keyword mode ————————————————————————————————————————————————————————————
+;; ——— Keyword adverb/noun —————————————————————————————————————————————————————
 (defvar worf--keyword nil
   "Current `org-mode' keyword, i.e. one of \"TODO\", \"DONE\" etc.")
 
@@ -341,9 +348,10 @@ When the chain is broken, the keyword is unset."
   "Turn off `worf--keyword' modifier."
   (when (worf-mod-keyword)
     (setq worf--keyword nil)
-    (message "keyword mode off")))
+    ;; (message "keyword mode off")
+    ))
 
-;; ——— Change mode —————————————————————————————————————————————————————————————
+;; ——— Change verb —————————————————————————————————————————————————————————————
 (defvar worf--change nil
   "Current change mode. Can be 'tree, 'heading or nil.")
 
@@ -357,20 +365,28 @@ When the chain is broken, the keyword is unset."
   (if (looking-at worf-sharp)
       (org-edit-special)
     (setq worf--change 'heading)
-    (message "change heading on")
+    ;; (message "change heading on")
     (add-hook 'post-command-hook 'worf--invalidate-change)))
 
 (defun worf-change-tree ()
   "Operate on tree."
   (interactive)
   (setq worf--change 'tree)
-  (message "change tree on")
+  ;; (message "change tree on")
+  (add-hook 'post-command-hook 'worf--invalidate-change))
+
+(defun worf-change-priority ()
+  "Change priority."
+  (interactive)
+  (setq worf--change 'priority)
+  ;; (message "change priority on")
   (add-hook 'post-command-hook 'worf--invalidate-change))
 
 (defun worf--invalidate-change ()
   (unless (memq this-command
                 '(special-worf-change-heading
                   special-worf-change-tree-or-todo
+                  special-worf-change-priority
                   special-worf-up
                   special-worf-down
                   special-worf-right
@@ -382,8 +398,36 @@ When the chain is broken, the keyword is unset."
 (defun worf--change-off ()
   "Turn off `worf--change' modifier."
   (when (worf-mod-change)
-    (message "change %s off" (worf-mod-change))
+    ;; (message "change %s off" (worf-mod-change))
     (setq worf--change nil)))
+
+;; ——— Delete verb —————————————————————————————————————————————————————————————
+(defvar worf--delete nil
+  "Current delete mode. t or nil.")
+
+(defsubst worf-mod-delete ()
+  "Return current delete mode."
+  worf--delete)
+
+(defun worf-delete ()
+  "Delete verb."
+  (interactive)
+  (worf-quit)
+  (setq worf--delete t))
+
+;; ——— Nouns ———————————————————————————————————————————————————————————————————
+(defun worf-property ()
+  "Operate on property."
+  (interactive)
+  (cond ((worf-mod-change)
+         (call-interactively 'org-set-property))
+
+        ((worf-mod-delete)
+         (call-interactively 'org-delete-property)
+         (setq worf--delete nil))
+
+        (t
+         (error "Not in change or delete mode"))))
 
 ;; ——— Misc ————————————————————————————————————————————————————————————————————
 (defun worf-add ()
@@ -394,7 +438,7 @@ When the chain is broken, the keyword is unset."
     (insert (worf-mod-keyword) " ")
     (worf--keyword-off)))
 
-(defun worf-delete (arg)
+(defun worf-delete-subtree (arg)
   "Delete subtree or ARG chars."
   (interactive "p")
   (if (and (looking-at "\\*") (looking-back "^\\**"))
@@ -575,7 +619,7 @@ DEF is modified by `worf--insert-or-call'."
   (define-key map "\C-j" 'worf-follow)
   (define-key map (kbd "M-j") 'worf-ace-link)
   (define-key map (kbd "C-M-g") 'worf-goto)
-  (define-key map (kbd "C-d") 'worf-delete)
+  (define-key map (kbd "C-d") 'worf-delete-subtree)
   ;; ——— Local ————————————————————————————————
   (mapc (lambda (k) (worf-define-key map k 'worf-reserved))
         '("b" "B" "C" "d" "D" "e" "E" "f" "G" "H" "J" "M" "n" "O" "p"
@@ -610,8 +654,12 @@ DEF is modified by `worf--insert-or-call'."
   ;; ——— modifiers ————————————————————————————
   (worf-define-key map "t" 'worf-change-tree-or-todo)
   (worf-define-key map "c" 'worf-change-heading)
+  (worf-define-key map "d" 'worf-delete)
+  (worf-define-key map "P" 'worf-change-priority)
   (worf-define-key map "w" 'worf-keyword)
   (worf-define-key map "q" 'worf-quit)
+  ;; ——— nouns ————————————————————————————————
+  (worf-define-key map "p" 'worf-property)
   ;; ——— misc —————————————————————————————————
   (worf-define-key map "u" 'undo)
   ;; ——— digit argument ———————————————————————
