@@ -311,11 +311,7 @@ When the chain is broken, the keyword is unset."
   (unless (memq this-command worf--invalidate-list)
     (push this-command worf--invalidate-list))
   (if worf-mode-heading
-      (save-excursion
-        (beginning-of-line)
-        (re-search-forward " ")
-        (insert keyword " ")
-        (just-one-space))
+      (org-todo keyword)
     (setq worf--keyword keyword))
   (add-hook 'post-command-hook 'worf--invalidate-keyword))
 
