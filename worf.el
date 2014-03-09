@@ -573,7 +573,7 @@ DEF is modified by `worf--insert-or-call'."
   (define-key map (kbd "C-d") 'worf-delete)
   ;; ——— Local ————————————————————————————————
   (mapc (lambda (k) (worf-define-key map k 'worf-reserved))
-        '("b" "B" "C" "D" "e" "E" "G" "H" "J" "M" "n" "o" "O" "p" "P"
+        '("b" "B" "C" "D" "e" "E" "G" "H" "J" "M" "n" "O" "p" "P"
           "Q" "S" "T" "u" "U" "w" "x" "X" "y" "Y" "z" "Z"))
   ;; ——— navigation/arrows ————————————————————
   (worf-define-key map "j" 'worf-down)
@@ -585,7 +585,7 @@ DEF is modified by `worf--insert-or-call'."
   (worf-define-key map "d" 'worf-different)
   ;; ——— navigation/unstructured ——————————————
   (worf-define-key map "g" 'worf-goto)
-  (worf-define-key map "a" 'worf-ace-link)
+  (worf-define-key map "o" 'worf-ace-link)
   ;; ——— navigation/misc ——————————————————————
   (worf-define-key map "v" 'worf-view)
   (worf-define-key map "V" 'worf-visit)
@@ -601,7 +601,7 @@ DEF is modified by `worf--insert-or-call'."
   (worf-define-key map "R" 'worf-refile-this)
   ;; ——— misc —————————————————————————————————
   (worf-define-key map "L" 'worf-copy-heading-id)
-  (worf-define-key map "+" 'worf-add)
+  (worf-define-key map "a" 'worf-add)
   (worf-define-key map "t" 'worf-todo-or-tree)
   (worf-define-key map "s" 'worf-save)
   ;; ——— narrow/widen —————————————————————————
