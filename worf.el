@@ -450,7 +450,7 @@ Otherwise call `self-insert-command'."
      (let (cmd)
        (cond ((or (and (looking-at "\\*") (looking-back "^\\**"))
                   (looking-at "^#\\+"))
-              (,def ,@(help-function-arglist def)))
+              (,def ,@(delq '&rest (delq '&optional (help-function-arglist def)))))
 
              (t
               (org-self-insert-command 1))))))
