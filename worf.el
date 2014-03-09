@@ -398,35 +398,29 @@ ARG is unused currently."
   str)
 
 (defun worf--prev-keyword (str)
-  "Move to the prev keyword STR within parent heading."
-  (let ((pt (point))
-        (bnd
-         (save-excursion
-           (worf-out-backward)
-           (worf--bounds-subtree))))
+  "Move to the prev keyword STR within current file."
+  (reveal-mode 1)
+  (let ((pt (point)))
     (unless (catch 'break
               (while t
-                (outline-previous-visible-heading 1)
-                (if (string= str (nth 2 (org-heading-components)))
-                    (throw 'break t)
-                  (when (<= (point) (car bnd))
-                    (throw 'break nil)))))
+                (outline-previous-heading)
+                (when (= (point) (point-min))
+                  (throw 'break nil))
+                (when (string= str (nth 2 (org-heading-components)))
+                  (throw 'break t))))
       (goto-char pt))))
 
 (defun worf--next-keyword (str)
-  "Move to the next keyword STR within parent heading."
-  (let ((pt (point))
-        (bnd
-         (save-excursion
-           (worf-out-backward)
-           (worf--bounds-subtree))))
+  "Move to the next keyword STR within current file."
+  (reveal-mode 1)
+  (let ((pt (point)))
     (unless (catch 'break
               (while t
-                (outline-next-visible-heading 1)
-                (if (string= str (nth 2 (org-heading-components)))
-                    (throw 'break t)
-                  (when (>= (point) (cdr bnd))
-                    (throw 'break nil)))))
+                (outline-next-heading)
+                (when (= (point) (point-max))
+                  (throw 'break nil))
+                (when (string= str (nth 2 (org-heading-components)))
+                  (throw 'break t))))
       (goto-char pt))))
 
 (defvar worf--current-keyword nil)
