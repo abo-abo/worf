@@ -110,6 +110,9 @@ Otherwise return t."
         ((worf-mod-delete)
          (org-cut-subtree arg)
          (setq worf--delete nil))
+        ((worf-mod-yank)
+         (org-copy-subtree arg)
+         (setq worf--yank nil))
         ((looking-at worf-sharp)
          (worf--sharp-down))
         (t
@@ -415,6 +418,20 @@ When the chain is broken, the keyword is unset."
   (worf-quit)
   (setq worf--delete t))
 
+;; ——— Yank verb ———————————————————————————————————————————————————————————————
+(defvar worf--yank nil
+  "Current yank mode. t or nil.")
+
+(defsubst worf-mod-yank ()
+  "Return current yank mode."
+  worf--yank)
+
+(defun worf-yank ()
+  "Yank verb."
+  (interactive)
+  (worf-quit)
+  (setq worf--yank t))
+
 ;; ——— Nouns ———————————————————————————————————————————————————————————————————
 (defun worf-property ()
   "Operate on property."
@@ -622,8 +639,8 @@ DEF is modified by `worf--insert-or-call'."
   (define-key map (kbd "C-d") 'worf-delete-subtree)
   ;; ——— Local ————————————————————————————————
   (mapc (lambda (k) (worf-define-key map k 'worf-reserved))
-        '("b" "B" "C" "d" "D" "e" "E" "f" "G" "H" "J" "M" "n" "O" "p"
-          "P" "Q" "S" "T" "U" "w" "x" "X" "y" "Y" "z" "Z"))
+        '("b" "B" "C" "D" "e" "E" "f" "G" "H" "J" "M" "n" "O" "P" "Q"
+          "S" "T" "U" "w" "x" "X" "Y" "z" "Z"))
   ;; ——— navigation/arrows ————————————————————
   (worf-define-key map "j" 'worf-down)
   (worf-define-key map "k" 'worf-up)
@@ -655,6 +672,7 @@ DEF is modified by `worf--insert-or-call'."
   (worf-define-key map "t" 'worf-change-tree-or-todo)
   (worf-define-key map "c" 'worf-change-heading)
   (worf-define-key map "d" 'worf-delete)
+  (worf-define-key map "y" 'worf-yank)
   (worf-define-key map "P" 'worf-change-priority)
   (worf-define-key map "w" 'worf-keyword)
   (worf-define-key map "q" 'worf-quit)
