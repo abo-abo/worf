@@ -136,6 +136,14 @@ When ARG is true, add a CUSTOM_ID first."
            (backward-char)
            (worf--sharp-up)))))
 
+(defun worf-add ()
+  "Add a new heading below."
+  (interactive)
+  (org-insert-heading-respect-content)
+  (when worf--current-keyword
+    (insert worf--current-keyword " ")
+    (setq worf--current-keyword nil)))
+
 (defun worf-flow ()
   "Move point current heading's first #+."
   (interactive)
@@ -504,7 +512,7 @@ DEF is modified by `worf--insert-or-call'."
   (worf-define-key map "R" 'worf-refile-this)
   ;; ——— misc —————————————————————————————————
   (worf-define-key map "L" 'worf-copy-heading-id)
-  (worf-define-key map "+" 'org-insert-heading-respect-content)
+  (worf-define-key map "+" 'worf-add)
   (worf-define-key map "t" 'worf-todo)
   (worf-define-key map "s" 'worf-save)
   ;; ——— narrow/widen —————————————————————————
