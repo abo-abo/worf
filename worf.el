@@ -255,7 +255,13 @@ When the chain is broken, the keyword is unset."
          (?c "CANCELLED"))))))
   (unless (memq this-command worf--invalidate-list)
     (push this-command worf--invalidate-list))
-  (setq worf-mode-keyword keyword)
+  (if worf-mode-heading
+      (save-excursion
+        (beginning-of-line)
+        (re-search-forward " ")
+        (insert keyword " ")
+        (just-one-space))
+    (setq worf-mode-keyword keyword))
   (add-hook 'post-command-hook 'worf--invalidate-keyword))
 
 (defun worf-ace-link ()
