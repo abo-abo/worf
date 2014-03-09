@@ -110,18 +110,6 @@ When ARG is true, add a CUSTOM_ID first."
          (end-of-line))
         (t (org-self-insert-command 1))))
 
-(defun worf-down (arg)
-  "Move ARG headings down."
-  (interactive "p")
-  (cond (worf--current-keyword
-         (dotimes-protect arg
-           (worf--next-keyword worf--current-keyword)))
-        ((looking-at worf-sharp)
-         (worf--sharp-down))
-        (t
-         (ignore-errors
-           (org-speed-move-safe 'outline-next-visible-heading)))))
-
 (defun worf-up (arg)
   "Move ARG headings up."
   (interactive "p")
@@ -135,6 +123,32 @@ When ARG is true, add a CUSTOM_ID first."
                    (org-speed-move-safe 'outline-previous-visible-heading) t)
            (backward-char)
            (worf--sharp-up)))))
+
+(defun worf-down (arg)
+  "Move ARG headings down."
+  (interactive "p")
+  (cond (worf--current-keyword
+         (dotimes-protect arg
+           (worf--next-keyword worf--current-keyword)))
+        ((looking-at worf-sharp)
+         (worf--sharp-down))
+        (t
+         (ignore-errors
+           (org-speed-move-safe 'outline-next-visible-heading)))))
+
+(defun worf-right ()
+  "Move one level up forwards."
+  (interactive)
+  (worf-left)
+  (worf-down 1))
+
+(defun worf-left ()
+  "Move one level up backwards."
+  (interactive)
+  (if (looking-at worf-sharp)
+      (goto-char (car (worf--bounds-subtree)))
+    (ignore-errors
+      (org-up-heading-safe))))
 
 (defun worf-add ()
   "Add a new heading below."
@@ -151,20 +165,6 @@ When ARG is true, add a CUSTOM_ID first."
   (when (re-search-forward worf-sharp (cdr (worf--bounds-subtree)) t)
     (goto-char (match-beginning 0)))
   (widen))
-
-(defun worf-out-backward ()
-  "Move one level up backwards."
-  (interactive)
-  (if (looking-at worf-sharp)
-      (goto-char (car (worf--bounds-subtree)))
-    (ignore-errors
-      (org-up-heading-safe))))
-
-(defun worf-out-forward ()
-  "Move one level up forwards."
-  (interactive)
-  (worf-out-backward)
-  (worf-down 1))
 
 (defun worf-tab (arg)
   "Hide/show heading.
@@ -487,16 +487,17 @@ DEF is modified by `worf--insert-or-call'."
   (mapc (lambda (k) (worf-define-key map k 'worf-reserved))
         '("b" "B" "c" "C" "D" "e" "E" "G" "H" "J" "M" "n" "o" "O"
           "p" "P" "q" "Q" "S" "T" "u" "U" "w" "x" "X" "y" "Y" "z" "Z"))
-  ;; ——— navigation/structured ————————————————
+  ;; ——— navigation/arrows ————————————————————
   (worf-define-key map "j" 'worf-down)
   (worf-define-key map "k" 'worf-up)
+  (worf-define-key map "h" 'worf-left)
+  (worf-define-key map "l" 'worf-right)
+  ;; ——— navigation/structured ————————————————
   (worf-define-key map "f" 'worf-flow)
   (worf-define-key map "d" 'worf-different)
-  (worf-define-key map "a" 'worf-out-backward)
-  (worf-define-key map "l" 'worf-out-forward)
   ;; ——— navigation/unstructured ——————————————
   (worf-define-key map "g" 'worf-goto)
-  (worf-define-key map "h" 'worf-ace-link)
+  (worf-define-key map "a" 'worf-ace-link)
   ;; ——— navigation/misc ——————————————————————
   (worf-define-key map "v" 'worf-view)
   (worf-define-key map "V" 'worf-visit)
