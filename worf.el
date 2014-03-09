@@ -136,11 +136,18 @@ When ARG is true, add a CUSTOM_ID first."
          (ignore-errors
            (org-speed-move-safe 'outline-next-visible-heading)))))
 
+(defvar worf-regex "^\\(?:\\*\\|#\\+\\)")
+
 (defun worf-right ()
-  "Move one level up forwards."
+  "Move right."
   (interactive)
-  (worf-left)
-  (worf-down 1))
+  (let ((pt (point)))
+    (org-narrow-to-subtree)
+    (forward-char)
+    (if (re-search-forward worf-regex nil t)
+        (goto-char (match-beginning 0))
+      (goto-char pt))
+    (widen)))
 
 (defun worf-left ()
   "Move one level up backwards."
