@@ -56,6 +56,8 @@
   (make-sparse-keymap))
 (defvar worf-change-shift-mode-map
   (make-sparse-keymap))
+(defvar worf-keyword-map
+  (make-sparse-keymap))
 
 ;;;###autoload
 (define-minor-mode worf-mode
@@ -76,7 +78,8 @@ if the (looking-back \"^*+\") is true.
   :lighter " [change]"
   (cond (worf-change-mode
          (worf-change-tree-mode -1)
-         (worf-change-shift-mode -1))
+         (worf-change-shift-mode -1)
+         (worf-keyword-mode -1))
         (t
          nil)))
 
@@ -101,6 +104,35 @@ if the (looking-back \"^*+\") is true.
          (worf-change-tree-mode -1))
         (t
          nil)))
+
+(defvar worf-keyword-mode-lighter "")
+
+(define-minor-mode worf-keyword-mode
+    "Minor mode that makes j/k to move by keywords."
+  :keymap worf-keyword-map
+  :group 'worf
+  :lighter worf-keyword-mode-lighter
+  (cond (worf-keyword-mode
+         (let ((keyword
+                (let ((c (read-char "[t]odo, [d]one, [n]ext, [c]ancelled")))
+                  (message
+                   (cl-case c
+                     (?t "TODO")
+                     (?d "DONE")
+                     (?n "NEXT")
+                     (?c "CANCELLED"))))))
+           (if worf-change-mode
+               (progn
+                 (org-todo keyword)
+                 (worf-change-mode -1)
+                 (worf-keyword-mode -1))
+             (setq worf--keyword keyword)
+             (setq worf-keyword-mode-lighter
+                   (format " [keyword %s]" keyword)))
+           ;; (add-hook 'post-command-hook 'worf--invalidate-keyword)
+           ))
+        (t
+         (setq worf--keyword nil))))
 
 ;; ——— Macros ——————————————————————————————————————————————————————————————————
 (defmacro dotimes-protect (n &rest bodyform)
@@ -448,6 +480,7 @@ When ARG is true, add a CUSTOM_ID first."
   (worf-change-mode -1)
   (worf-change-tree-mode -1)
   (worf-change-shift-mode -1)
+  (worf-keyword-mode -1)
   (worf--mode-keyword-off))
 
 (defun worf-todo (arg)
@@ -596,13 +629,6 @@ DEF is modified by `worf--insert-or-call'."
       (push func company-begin-commands))
     (define-key keymap (kbd key) func)))
 
-(let ((map worf-change-shift-mode-map))
-  (worf-define-key map "j" 'org-shiftdown)
-  (worf-define-key map "k" 'org-shiftup)
-  (worf-define-key map "h" 'org-shiftleft)
-  (worf-define-key map "l" 'org-shiftright)
-  (worf-define-key map "t" 'worf-change-tree-mode))
-
 (let ((map worf-change-mode-map))
   (worf-define-key map "j" 'org-metadown)
   (worf-define-key map "k" 'org-metaup)
@@ -617,6 +643,13 @@ DEF is modified by `worf--insert-or-call'."
   (worf-define-key map "h" 'org-shiftmetaleft)
   (worf-define-key map "l" 'org-shiftmetaright)
   (worf-define-key map "s" 'worf-change-shift-mode))
+
+(let ((map worf-change-shift-mode-map))
+  (worf-define-key map "j" 'org-shiftdown)
+  (worf-define-key map "k" 'org-shiftup)
+  (worf-define-key map "h" 'org-shiftleft)
+  (worf-define-key map "l" 'org-shiftright)
+  (worf-define-key map "t" 'worf-change-tree-mode))
 
 (let ((map worf-mode-map))
   ;; ——— Global ———————————————————————————————
@@ -661,7 +694,8 @@ DEF is modified by `worf--insert-or-call'."
   (worf-define-key map "c" 'worf-change-mode)
   (worf-define-key map "d" 'worf-delete)
   (worf-define-key map "y" 'worf-yank)
-  (worf-define-key map "w" 'worf-keyword)
+  ;; (worf-define-key map "w" 'worf-keyword)
+  (worf-define-key map "w" 'worf-keyword-mode)
   (worf-define-key map "q" 'worf-quit)
   ;; ——— nouns ————————————————————————————————
   (worf-define-key map "p" 'worf-property)
