@@ -216,6 +216,8 @@ When the chain is broken, the keyword is unset."
          (?d "DONE")
          (?n "NEXT")
          (?c "CANCELLED"))))))
+  (unless (memq this-command worf--invalidate-list)
+    (push this-command worf--invalidate-list))
   (setq worf--current-keyword keyword)
   (add-hook 'post-command-hook 'worf--invalidate-keyword))
 
