@@ -153,7 +153,7 @@ Otherwise return t."
             (let ((comp (org-heading-components))
                   (h (org-get-heading)))
               (cons (format "%d%s%s" (car comp)
-                            (make-string (1+ (* 2 (1- (car comp)))) ?\)
+                            (make-string (1+ (* 2 (1- (car comp)))) ?\ )
                             (if (get-text-property 0 'fontified h)
                                 h
                               (worf--pretty-heading (nth 4 comp) (car comp)))
@@ -167,7 +167,7 @@ Otherwise return t."
             (action . (lambda (x) (goto-char x)
                          (call-interactively 'show-branches)
                          (worf-more)))
-            (pattern-transformer . worf--pattern-transformer))))))
+            (pattern-transformer . worf--pattern-transformer)))))
 
 ;; ——— View ————————————————————————————————————————————————————————————————————
 (defun worf-tab (arg)
