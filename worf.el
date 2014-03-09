@@ -318,12 +318,30 @@ When the chain is broken, the keyword is unset."
          (?d "DONE")
          (?n "NEXT")
          (?c "CANCELLED"))))))
-  (unless (memq this-command worf--invalidate-list)
-    (push this-command worf--invalidate-list))
+  (unless (memq this-command worf--keyword-no-invalidate-list)
+    (push this-command worf--keyword-no-invalidate-list))
   (if (worf-mod-change)
       (org-todo keyword)
     (setq worf--keyword keyword))
   (add-hook 'post-command-hook 'worf--invalidate-keyword))
+
+(defvar worf--keyword-no-invalidate-list
+  '(special-worf-keyword
+    worf-keyword
+    special-worf-up
+    special-worf-down
+    special-digit-argument))
+
+(defun worf--invalidate-keyword ()
+  (unless (memq this-command worf--keyword-no-invalidate-list)
+    (worf--mode-keyword-off)
+    (remove-hook 'post-command-hook 'worf--invalidate-keyword)))
+
+(defun worf--mode-keyword-off ()
+  "Turn off `worf--keyword' modifier."
+  (when (worf-mod-keyword)
+    (setq worf--keyword nil)
+    (message "keyword mode off")))
 
 ;; ——— Change mode —————————————————————————————————————————————————————————————
 (defvar worf--change nil
@@ -348,6 +366,24 @@ When the chain is broken, the keyword is unset."
   (setq worf--change 'tree)
   (message "change tree on")
   (add-hook 'post-command-hook 'worf--invalidate-change))
+
+(defun worf--invalidate-change ()
+  (unless (memq this-command
+                '(special-worf-change-heading
+                  special-worf-change-tree-or-todo
+                  special-worf-up
+                  special-worf-down
+                  special-worf-right
+                  special-worf-left
+                  special-digit-argument))
+    (worf--change-off)
+    (remove-hook 'post-command-hook 'worf--invalidate-change)))
+
+(defun worf--change-off ()
+  "Turn off `worf--change' modifier."
+  (when (worf-mod-change)
+    (message "change %s off" (worf-mod-change))
+    (setq worf--change nil)))
 
 ;; ——— Misc ————————————————————————————————————————————————————————————————————
 (defun worf-add ()
@@ -385,49 +421,12 @@ When ARG is true, add a CUSTOM_ID first."
   (worf--change-off)
   (worf--mode-keyword-off))
 
-(defun worf-todo-or-tree (arg)
+(defun worf-change-tree-or-todo (arg)
   "Forward to `org-todo' with ARG."
   (interactive "P")
   (if (eq (worf-mod-change) 'heading)
       (worf-change-tree)
     (org-todo arg)))
-
-(defun worf--change-off ()
-  "Turn off `worf--change' modifier."
-  (when (worf-mod-change)
-    (message "change %s off" (worf-mod-change))
-    (setq worf--change nil)))
-
-(defun worf--mode-keyword-off ()
-  "Turn off `worf--keyword' modifier."
-  (when (worf-mod-keyword)
-    (setq worf--keyword nil)
-    (message "keyword mode off")))
-
-(defun worf--invalidate-change ()
-  (unless (memq this-command
-                '(special-worf-change-heading
-                  special-worf-change-tree
-                  special-worf-up
-                  special-worf-down
-                  special-worf-right
-                  special-worf-left
-                  special-digit-argument
-                  special-worf-todo-or-tree))
-    (worf-quit)
-    (remove-hook 'post-command-hook 'worf--invalidate-change)))
-
-(defvar worf--invalidate-list
-  '(special-worf-keyword
-    worf-keyword
-    special-worf-down
-    special-worf-up
-    special-digit-argument))
-
-(defun worf--invalidate-keyword ()
-  (unless (memq this-command worf--invalidate-list)
-    (worf--mode-keyword-off)
-    (remove-hook 'post-command-hook 'worf--invalidate-keyword)))
 
 (defun worf-reserved ()
   "Do some cybersquatting."
@@ -589,31 +588,31 @@ DEF is modified by `worf--insert-or-call'."
   ;; ——— navigation/unstructured ——————————————
   (worf-define-key map "g" 'worf-goto)
   (worf-define-key map "o" 'worf-ace-link)
-  ;; ——— navigation/misc ——————————————————————
-  (worf-define-key map "v" 'worf-view)
-  (worf-define-key map "V" 'worf-visit)
   ;; ——— hide/show ————————————————————————————
   (worf-define-key map "i" 'worf-tab)
   (worf-define-key map "I" 'worf-shifttab)
   (worf-define-key map "m" 'worf-more)
-  ;; ——— attachments ——————————————————————————
+  (worf-define-key map "v" 'worf-view)
+  ;; ——— files ————————————————————————————————
   (worf-define-key map "F" 'worf-attach-visit)
   (worf-define-key map "A" 'worf-attach)
+  (worf-define-key map "V" 'worf-visit)
   ;; ——— refile ———————————————————————————————
   (worf-define-key map "r" 'worf-refile-other)
   (worf-define-key map "R" 'worf-refile-this)
   ;; ——— misc —————————————————————————————————
   (worf-define-key map "L" 'worf-copy-heading-id)
   (worf-define-key map "a" 'worf-add)
-  (worf-define-key map "t" 'worf-todo-or-tree)
   (worf-define-key map "s" 'worf-save)
   ;; ——— narrow/widen —————————————————————————
   (worf-define-key map "N" 'org-narrow-to-subtree)
   (worf-define-key map "W" 'widen)
-  ;; ——— misc —————————————————————————————————
-  (worf-define-key map "w" 'worf-keyword)
+  ;; ——— modifiers ————————————————————————————
+  (worf-define-key map "t" 'worf-change-tree-or-todo)
   (worf-define-key map "c" 'worf-change-heading)
+  (worf-define-key map "w" 'worf-keyword)
   (worf-define-key map "q" 'worf-quit)
+  ;; ——— misc —————————————————————————————————
   (worf-define-key map "u" 'undo)
   ;; ——— digit argument ———————————————————————
   (mapc (lambda (x) (worf-define-key map (format "%d" x) 'digit-argument))
