@@ -203,20 +203,21 @@ Forward to `org-shifttab' with ARG."
                          (worf-more)))
             (pattern-transformer . worf--pattern-transformer)))))
 
-(defun worf-keyword ()
+(defun worf-keyword (keyword)
   "Set the current keyword.
 All next `worf-down' and `worf-up' will move by this keyword.
 When the chain is broken, the keyword is unset."
-  (interactive)
-  (let ((c (read-char "[t]odo, [d]one, [n]ext, [c]ancelled")))
-    (message
-     (setq worf--current-keyword
-           (cl-case c
-             (?t "TODO")
-             (?d "DONE")
-             (?n "NEXT")
-             (?c "CANCELLED"))))
-    (add-hook 'post-command-hook 'worf--invalidate-keyword)))
+  (interactive
+   (let ((c (read-char "[t]odo, [d]one, [n]ext, [c]ancelled")))
+     (list
+      (message
+       (cl-case c
+         (?t "TODO")
+         (?d "DONE")
+         (?n "NEXT")
+         (?c "CANCELLED"))))))
+  (setq worf--current-keyword keyword)
+  (add-hook 'post-command-hook 'worf--invalidate-keyword))
 
 (defun worf-ace-link ()
   "Visit a link within current heading by ace jumping."
@@ -424,12 +425,15 @@ ARG is unused currently."
       (goto-char pt))))
 
 (defvar worf--current-keyword nil)
+(defvar worf--invalidate-list
+  '(special-worf-keyword
+    worf-keyword
+    special-worf-down
+    special-worf-up
+    special-digit-argument))
 
 (defun worf--invalidate-keyword ()
-  (unless (memq this-command '(special-worf-keyword
-                               special-worf-down
-                               special-worf-up
-                               special-digit-argument))
+  (unless (memq this-command worf--invalidate-list)
     (setq worf--current-keyword nil)
     (remove-hook 'post-command-hook 'worf--invalidate-keyword)))
 
