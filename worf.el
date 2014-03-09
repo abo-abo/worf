@@ -608,7 +608,7 @@ DEF is modified by `worf--insert-or-call'."
   (worf-define-key map "N" 'org-narrow-to-subtree)
   (worf-define-key map "W" 'widen)
   ;; ——— misc —————————————————————————————————
-  (worf-define-key map "K" 'worf-keyword)
+  (worf-define-key map "w" 'worf-keyword)
   (worf-define-key map "c" 'worf-change-heading)
   (worf-define-key map "q" 'worf-quit)
   ;; ——— digit argument ———————————————————————
