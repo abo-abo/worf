@@ -574,7 +574,7 @@ DEF is modified by `worf--insert-or-call'."
   ;; ——— Local ————————————————————————————————
   (mapc (lambda (k) (worf-define-key map k 'worf-reserved))
         '("b" "B" "C" "D" "e" "E" "G" "H" "J" "M" "n" "O" "p" "P"
-          "Q" "S" "T" "u" "U" "w" "x" "X" "y" "Y" "z" "Z"))
+          "Q" "S" "T" "U" "w" "x" "X" "y" "Y" "z" "Z"))
   ;; ——— navigation/arrows ————————————————————
   (worf-define-key map "j" 'worf-down)
   (worf-define-key map "k" 'worf-up)
@@ -611,6 +611,7 @@ DEF is modified by `worf--insert-or-call'."
   (worf-define-key map "w" 'worf-keyword)
   (worf-define-key map "c" 'worf-change-heading)
   (worf-define-key map "q" 'worf-quit)
+  (worf-define-key map "u" 'undo)
   ;; ——— digit argument ———————————————————————
   (mapc (lambda (x) (worf-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9)))
