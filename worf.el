@@ -113,9 +113,13 @@ When ARG is true, add a CUSTOM_ID first."
 (defun worf-up (arg)
   "Move ARG headings up."
   (interactive "p")
-  (cond (worf--current-keyword
+  (cond (worf-mode-keyword
          (dotimes-protect arg
-           (worf--prev-keyword worf--current-keyword)))
+           (worf--prev-keyword worf-mode-keyword)))
+        (worf-mode-heading
+         (org-metaup))
+        (worf-mode-tree
+         (org-shiftmetaup))
         ((looking-at worf-sharp)
          (worf--sharp-up))
         (t
@@ -127,9 +131,13 @@ When ARG is true, add a CUSTOM_ID first."
 (defun worf-down (arg)
   "Move ARG headings down."
   (interactive "p")
-  (cond (worf--current-keyword
+  (cond (worf-mode-keyword
          (dotimes-protect arg
-           (worf--next-keyword worf--current-keyword)))
+           (worf--next-keyword worf-mode-keyword)))
+        (worf-mode-heading
+         (org-metadown))
+        (worf-mode-tree
+         (org-shiftmetadown))
         ((looking-at worf-sharp)
          (worf--sharp-down))
         (t
@@ -141,29 +149,43 @@ When ARG is true, add a CUSTOM_ID first."
 (defun worf-right ()
   "Move right."
   (interactive)
-  (let ((pt (point)))
-    (org-narrow-to-subtree)
-    (forward-char)
-    (if (re-search-forward worf-regex nil t)
-        (goto-char (match-beginning 0))
-      (goto-char pt))
-    (widen)))
+  (cond (worf-mode-heading
+         (org-metaright))
+
+        (worf-mode-tree
+         (org-shiftmetaright))
+
+        (t
+         (let ((pt (point)))
+           (org-narrow-to-subtree)
+           (forward-char)
+           (if (re-search-forward worf-regex nil t)
+               (goto-char (match-beginning 0))
+             (goto-char pt))
+           (widen)))))
 
 (defun worf-left ()
   "Move one level up backwards."
   (interactive)
-  (if (looking-at worf-sharp)
-      (goto-char (car (worf--bounds-subtree)))
-    (ignore-errors
-      (org-up-heading-safe))))
+  (cond (worf-mode-heading
+         (org-metaleft))
+
+        (worf-mode-tree
+         (org-shiftmetaleft))
+
+        (t
+         (if (looking-at worf-sharp)
+             (goto-char (car (worf--bounds-subtree)))
+           (ignore-errors
+             (org-up-heading-safe))))))
 
 (defun worf-add ()
   "Add a new heading below."
   (interactive)
   (org-insert-heading-respect-content)
-  (when worf--current-keyword
-    (insert worf--current-keyword " ")
-    (setq worf--current-keyword nil)))
+  (when worf-mode-keyword
+    (insert worf-mode-keyword " ")
+    (setq worf-mode-keyword nil)))
 
 (defun worf-flow ()
   "Move point current heading's first #+."
@@ -233,7 +255,7 @@ When the chain is broken, the keyword is unset."
          (?c "CANCELLED"))))))
   (unless (memq this-command worf--invalidate-list)
     (push this-command worf--invalidate-list))
-  (setq worf--current-keyword keyword)
+  (setq worf-mode-keyword keyword)
   (add-hook 'post-command-hook 'worf--invalidate-keyword))
 
 (defun worf-ace-link ()
@@ -320,15 +342,74 @@ ARG is unused currently."
         (t
          (projectile-find-file arg))))
 
-(defun worf-todo (arg)
+(defun worf-todo-or-tree (arg)
   "Forward to `org-todo' with ARG."
   (interactive "P")
-  (org-todo arg))
+  (if worf-mode-heading
+      (worf-change-tree)
+    (org-todo arg)))
 
 (defun worf-save ()
   "Save buffer."
   (interactive)
   (save-buffer))
+
+(defun worf-quit ()
+  "Remove modifiers of `worf-change-heading' or `worf-keyword'"
+  (interactive)
+  (worf--mode-heading-off)
+  (worf--mode-tree-off)
+  (worf--mode-keyword-off))
+
+(defvar worf-mode-heading nil)
+
+(defun worf-change-heading ()
+  "Start changing the heading."
+  (interactive)
+  (worf--mode-tree-off)
+  (setq worf-mode-heading t)
+  (message "change heading on")
+  (add-hook 'post-command-hook 'worf--invalidate-change))
+
+(defvar worf-mode-tree nil)
+
+(defun worf-change-tree ()
+  "Operate on tree."
+  (worf--mode-heading-off)
+  (setq worf-mode-tree t)
+  (message "change tree on")
+  (add-hook 'post-command-hook 'worf--invalidate-change))
+
+(defun worf--mode-tree-off ()
+  "Turn off `worf-mode-tree' modifier."
+  (when worf-mode-tree
+    (setq worf-mode-tree nil)
+    (message "change heading off")))
+
+(defun worf--mode-heading-off ()
+  "Turn off `worf-mode-heading' modifier."
+  (when worf-mode-heading
+    (setq worf-mode-heading nil)
+    (message "change heading off")))
+
+(defun worf--mode-keyword-off ()
+  "Turn off `worf-mode-keyword' modifier."
+  (when worf-mode-keyword
+    (setq worf-mode-keyword nil)
+    (message "keyword mode off")))
+
+(defun worf--invalidate-change ()
+  (unless (memq this-command
+                '(special-worf-change-heading
+                  special-worf-change-tree
+                  special-worf-up
+                  special-worf-down
+                  special-worf-right
+                  special-worf-left
+                  special-digit-argument
+                  special-worf-todo-or-tree))
+    (worf-quit)
+    (remove-hook 'post-command-hook 'worf--invalidate-change)))
 
 (defun worf-reserved ()
   "Do some cybersquatting."
@@ -441,7 +522,7 @@ ARG is unused currently."
                   (throw 'break t))))
       (goto-char pt))))
 
-(defvar worf--current-keyword nil)
+(defvar worf-mode-keyword nil)
 (defvar worf--invalidate-list
   '(special-worf-keyword
     worf-keyword
@@ -451,7 +532,7 @@ ARG is unused currently."
 
 (defun worf--invalidate-keyword ()
   (unless (memq this-command worf--invalidate-list)
-    (setq worf--current-keyword nil)
+    (setq worf-mode-keyword nil)
     (remove-hook 'post-command-hook 'worf--invalidate-keyword)))
 
 ;; ——— Key bindings ————————————————————————————————————————————————————————————
@@ -492,8 +573,8 @@ DEF is modified by `worf--insert-or-call'."
   (define-key map (kbd "C-d") 'worf-delete)
   ;; ——— Local ————————————————————————————————
   (mapc (lambda (k) (worf-define-key map k 'worf-reserved))
-        '("b" "B" "c" "C" "D" "e" "E" "G" "H" "J" "M" "n" "o" "O"
-          "p" "P" "q" "Q" "S" "T" "u" "U" "w" "x" "X" "y" "Y" "z" "Z"))
+        '("b" "B" "C" "D" "e" "E" "G" "H" "J" "M" "n" "o" "O" "p" "P"
+          "Q" "S" "T" "u" "U" "w" "x" "X" "y" "Y" "z" "Z"))
   ;; ——— navigation/arrows ————————————————————
   (worf-define-key map "j" 'worf-down)
   (worf-define-key map "k" 'worf-up)
@@ -521,13 +602,15 @@ DEF is modified by `worf--insert-or-call'."
   ;; ——— misc —————————————————————————————————
   (worf-define-key map "L" 'worf-copy-heading-id)
   (worf-define-key map "+" 'worf-add)
-  (worf-define-key map "t" 'worf-todo)
+  (worf-define-key map "t" 'worf-todo-or-tree)
   (worf-define-key map "s" 'worf-save)
   ;; ——— narrow/widen —————————————————————————
   (worf-define-key map "N" 'org-narrow-to-subtree)
   (worf-define-key map "W" 'widen)
   ;; ——— misc —————————————————————————————————
   (worf-define-key map "K" 'worf-keyword)
+  (worf-define-key map "c" 'worf-change-heading)
+  (worf-define-key map "q" 'worf-quit)
   ;; ——— digit argument ———————————————————————
   (mapc (lambda (x) (worf-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9)))
