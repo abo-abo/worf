@@ -170,6 +170,13 @@ Otherwise return t."
   (cond ((worf-mod-keyword)
          (dotimes-protect arg
            (worf--prev-keyword (worf-mod-keyword))))
+        ((worf-mod-delete)
+         (let ((pt (point)))
+           (when (ignore-errors
+                   (org-speed-move-safe
+                    'outline-previous-visible-heading) t)
+             (kill-region pt (point))))
+         (setq worf--delete nil))
         ((looking-at worf-sharp)
          (worf--sharp-up))
         (t
