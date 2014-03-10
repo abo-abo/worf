@@ -57,6 +57,9 @@
 (defvar worf-change-shift-mode-map
   (make-sparse-keymap))
 
+(defvar worf-change-shiftcontrol-mode-map
+  (make-sparse-keymap))
+
 (defvar worf-change-tree-mode-map
   (make-sparse-keymap))
 
@@ -142,7 +145,8 @@ DEF is modified by `worf--insert-or-call'."
   (mapc (lambda (map) (worf-define-key map key mode))
         (list worf-change-mode-map
               worf-change-tree-mode-map
-              worf-change-shift-mode-map)))
+              worf-change-shift-mode-map
+              worf-change-shiftcontrol-mode-map)))
 
 ;; ——— Verbs: change ———————————————————————————————————————————————————————————
 (define-minor-mode worf-change-mode
@@ -153,6 +157,7 @@ DEF is modified by `worf--insert-or-call'."
   (cond (worf-change-mode
          (worf-change-tree-mode -1)
          (worf-change-shift-mode -1)
+         (worf-change-shiftcontrol-mode -1)
          (worf-keyword-mode -1))
         (t
          nil)))
@@ -172,7 +177,8 @@ DEF is modified by `worf--insert-or-call'."
   :lighter " [change/tree]"
   (cond (worf-change-tree-mode
          (worf-change-mode -1)
-         (worf-change-shift-mode -1))
+         (worf-change-shift-mode -1)
+         (worf-change-shiftcontrol-mode -1))
         (t
          nil)))
 
@@ -191,7 +197,8 @@ DEF is modified by `worf--insert-or-call'."
   :lighter " [change/shift]"
   (cond (worf-change-shift-mode
          (worf-change-mode -1)
-         (worf-change-tree-mode -1))
+         (worf-change-tree-mode -1)
+         (worf-change-shiftcontrol-mode -1))
         (t
          nil)))
 
@@ -201,6 +208,27 @@ DEF is modified by `worf--insert-or-call'."
   (worf-define-key map "h" 'org-shiftleft)
   (worf-define-key map "l" 'org-shiftright)
   (worf--set-change-switches "s" 'worf-change-shift-mode))
+
+;; ——— Verbs: change control shift —————————————————————————————————————————————
+(define-minor-mode worf-change-shiftcontrol-mode
+    "Minor mode that makes h/j/k/l correspond to `org-shiftcontrolleft' etc."
+  :keymap worf-change-shiftcontrol-mode-map
+  :group 'worf
+  :lighter " [change/shiftcontrol]"
+  (cond (worf-change-shiftcontrol-mode
+         (worf-change-mode -1)
+         (worf-change-tree-mode -1)
+         (worf-change-shift-mode -1))
+        (t
+         nil)))
+
+(let ((map worf-change-shiftcontrol-mode-map))
+  (worf-define-key map "j" 'org-shiftcontroldown)
+  (worf-define-key map "k" 'org-shiftcontrolup)
+  (worf-define-key map "h" 'org-shiftcontrolleft)
+  (worf-define-key map "l" 'org-shiftcontrolright)
+  (worf--set-change-switches "r" 'worf-change-shiftcontrol-mode))
+
 
 ;; ——— Verbs: clock ————————————————————————————————————————————————————————————
 (defvar worf-clock-mode-map
@@ -561,6 +589,7 @@ When ARG is true, add a CUSTOM_ID first."
   (worf-change-mode -1)
   (worf-change-tree-mode -1)
   (worf-change-shift-mode -1)
+  (worf-change-shiftcontrol-mode -1)
   (worf-keyword-mode -1)
   (worf-clock-mode -1))
 
