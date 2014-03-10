@@ -88,6 +88,24 @@ Otherwise return t."
          (setq out t)))
      out))
 
+(defmacro worf-defverb (name)
+  (let ((sym-var (intern (format "worf--%s" name)))
+        (sym-get (intern (format "worf-mod-%s" name)))
+        (sym-fun (intern (format "worf-%s" name)))
+        (doc-var (format "Current %s mode. Boolean." name))
+        (doc-get (format "Return current %s mode." name))
+        (doc-fun (format "%s verb." (capitalize name))))
+    `(progn
+       (defvar ,sym-var nil ,doc-var)
+       (defsubst ,sym-get ()
+         ,doc-get
+         ,sym-var)
+       (defun ,sym-fun ()
+         ,doc-fun
+         (interactive)
+         (worf-quit)
+         (setq ,sym-var t)))))
+
 ;; ——— Key binding machinery ———————————————————————————————————————————————————
 (defun worf--insert-or-call (def)
   "Return a lambda to call DEF if position is special.
@@ -268,32 +286,10 @@ When the chain is broken, the keyword is unset."
   (worf-define-key map "w" 'worf-keyword))
 
 ;; ——— Verbs: delete ———————————————————————————————————————————————————————————
-(defvar worf--delete nil
-  "Current delete mode. t or nil.")
-
-(defsubst worf-mod-delete ()
-  "Return current delete mode."
-  worf--delete)
-
-(defun worf-delete ()
-  "Delete verb."
-  (interactive)
-  (worf-quit)
-  (setq worf--delete t))
+(worf-defverb "delete")
 
 ;; ——— Verbs: yank —————————————————————————————————————————————————————————————
-(defvar worf--yank nil
-  "Current yank mode. t or nil.")
-
-(defsubst worf-mod-yank ()
-  "Return current yank mode."
-  worf--yank)
-
-(defun worf-yank ()
-  "Yank verb."
-  (interactive)
-  (worf-quit)
-  (setq worf--yank t))
+(worf-defverb "yank")
 
 ;; ——— Nouns: arrows ———————————————————————————————————————————————————————————
 (defun worf-up (arg)
@@ -373,9 +369,9 @@ When the chain is broken, the keyword is unset."
   "Add a new heading below."
   (interactive)
   (org-insert-heading-respect-content)
-  (when (worf-mod-keyword)
+  (when worf-keyword-mode
     (insert (worf-mod-keyword) " ")
-    (worf--keyword-off)))
+    (worf-keyword-mode -1)))
 
 ;; ——— Other movement ——————————————————————————————————————————————————————————
 (defun worf-beginning-of-line ()
@@ -562,8 +558,7 @@ When ARG is true, add a CUSTOM_ID first."
   (worf-change-tree-mode -1)
   (worf-change-shift-mode -1)
   (worf-keyword-mode -1)
-  (worf-clock-mode -1)
-  (worf--mode-keyword-off))
+  (worf-clock-mode -1))
 
 (defun worf-todo (arg)
   "Forward to `org-todo' with ARG."
