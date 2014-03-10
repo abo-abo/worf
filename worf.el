@@ -397,8 +397,7 @@ When already at beginning of line, move back to heading."
                             (make-string (1+ (* 2 (1- (car comp)))) ?\ )
                             (if (get-text-property 0 'fontified h)
                                 h
-                              (worf--pretty-heading (nth 4 comp) (car comp)))
-                            (org-get-heading))
+                              (worf--pretty-heading (nth 4 comp) (car comp))))
                     (point))))))
         helm-update-blacklist-regexps
         helm-candidate-number-limit)
@@ -643,12 +642,15 @@ When ARG is true, add a CUSTOM_ID first."
 
 (defun worf--pretty-heading (str lvl)
   "Prettify heading STR or level LVL."
+  (setq str (or str ""))
   (setq str (propertize str 'face (nth (1- lvl) org-level-faces)))
-  (while (string-match org-bracket-link-regexp str)
-    (setq str (replace-match
-               (propertize (match-string 3 str) 'face 'org-link)
-               nil nil str)))
-  str)
+  (let (desc)
+    (while (and (string-match org-bracket-link-regexp str)
+                (stringp (setq desc (match-string 3 str))))
+      (setq str (replace-match
+                 (propertize desc 'face 'org-link)
+                 nil nil str)))
+    str))
 
 (defun worf--prev-keyword (str)
   "Move to the prev keyword STR within current file."
