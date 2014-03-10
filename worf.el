@@ -46,19 +46,20 @@
 (defvar worf-regex "^\\(?:\\*\\|#\\+\\)"
   "Shortcut for worf's special regex.")
 
+;; ——— Minor mode ——————————————————————————————————————————————————————————————
 (defvar worf-mode-map
   (make-sparse-keymap))
 
-;; ——— Verbs ———————————————————————————————————————————————————————————————————
 (defvar worf-change-mode-map
   (make-sparse-keymap))
-(defvar worf-change-tree-mode-map
-  (make-sparse-keymap))
+
 (defvar worf-change-shift-mode-map
   (make-sparse-keymap))
-(defvar worf-keyword-map
+
+(defvar worf-change-tree-mode-map
   (make-sparse-keymap))
-(defvar worf-clock-mode-map
+
+(defvar worf-keyword-mode-map
   (make-sparse-keymap))
 
 ;;;###autoload
@@ -72,82 +73,6 @@ if the (looking-back \"^*+\") is true.
   :keymap worf-mode-map
   :group 'worf
   :lighter " ✇")
-
-(define-minor-mode worf-change-mode
-    "Minor mode for editing headings."
-  :keymap worf-change-mode-map
-  :group 'worf
-  :lighter " [change]"
-  (cond (worf-change-mode
-         (worf-change-tree-mode -1)
-         (worf-change-shift-mode -1)
-         (worf-keyword-mode -1))
-        (t
-         nil)))
-
-(define-minor-mode worf-change-tree-mode
-    "Minor mode for editing whole heading trees."
-  :keymap worf-change-tree-mode-map
-  :group 'worf
-  :lighter " [change/tree]"
-  (cond (worf-change-tree-mode
-         (worf-change-mode -1)
-         (worf-change-shift-mode -1))
-        (t
-         nil)))
-
-(define-minor-mode worf-change-shift-mode
-    "Minor mode that makes h/j/k/l correspond to `org-shiftleft' etc."
-  :keymap worf-change-shift-mode-map
-  :group 'worf
-  :lighter " [change/shift]"
-  (cond (worf-change-shift-mode
-         (worf-change-mode -1)
-         (worf-change-tree-mode -1))
-        (t
-         nil)))
-
-(define-minor-mode worf-clock-mode
-    "Minor mode for operating on clock."
-  :keymap worf-clock-mode-map
-  :group 'worf
-  :lighter " [clock]"
-  (cond (worf-clock-mode
-         (worf-change-mode -1)
-         (worf-change-tree-mode -1)
-         (worf-change-shift-mode -1)
-         (worf-keyword-mode -1))
-        (t
-         nil)))
-
-(defvar worf-keyword-mode-lighter "")
-
-(define-minor-mode worf-keyword-mode
-    "Minor mode that makes j/k to move by keywords."
-  :keymap worf-keyword-map
-  :group 'worf
-  :lighter worf-keyword-mode-lighter
-  (cond (worf-keyword-mode
-         (let ((keyword
-                (let ((c (read-char "[t]odo, [d]one, [n]ext, [c]ancelled")))
-                  (message
-                   (cl-case c
-                     (?t "TODO")
-                     (?d "DONE")
-                     (?n "NEXT")
-                     (?c "CANCELLED"))))))
-           (if worf-change-mode
-               (progn
-                 (org-todo keyword)
-                 (worf-change-mode -1)
-                 (worf-keyword-mode -1))
-             (setq worf--keyword keyword)
-             (setq worf-keyword-mode-lighter
-                   (format " [keyword %s]" keyword)))
-           ;; (add-hook 'post-command-hook 'worf--invalidate-keyword)
-           ))
-        (t
-         (setq worf--keyword nil))))
 
 ;; ——— Macros ——————————————————————————————————————————————————————————————————
 (defmacro dotimes-protect (n &rest bodyform)
@@ -163,7 +88,219 @@ Otherwise return t."
          (setq out t)))
      out))
 
-;; ——— Arrows ——————————————————————————————————————————————————————————————————
+;; ——— Key binding machinery ———————————————————————————————————————————————————
+(defun worf--insert-or-call (def)
+  "Return a lambda to call DEF if position is special.
+Otherwise call `self-insert-command'."
+  `(lambda ,(help-function-arglist def)
+     ,(format "Call `%s' when special, self-insert otherwise.\n\n%s"
+              (symbol-name def) (documentation def))
+     ,(interactive-form def)
+     (let (cmd)
+       (cond ((or (and (looking-at "\\*") (looking-back "^\\**"))
+                  (looking-at "^#\\+"))
+              (,def ,@(delq '&rest (delq '&optional (help-function-arglist def)))))
+
+             (t
+              (org-self-insert-command 1))))))
+
+(defvar ac-trigger-commands '(self-insert-command))
+(defvar company-begin-commands '(self-insert-command))
+
+(defun worf-define-key (keymap key def)
+  "Forward to (`define-key' KEYMAP KEY DEF)
+DEF is modified by `worf--insert-or-call'."
+  (let ((func (defalias (intern (concat "special-" (symbol-name def)))
+                  (worf--insert-or-call def))))
+    (unless (member func ac-trigger-commands)
+      (push func ac-trigger-commands))
+    (unless (member func company-begin-commands)
+      (push func company-begin-commands))
+    (define-key keymap (kbd key) func)))
+
+;; ——— Verbs: change ———————————————————————————————————————————————————————————
+(define-minor-mode worf-change-mode
+    "Minor mode for editing headings."
+  :keymap worf-change-mode-map
+  :group 'worf
+  :lighter " [change]"
+  (cond (worf-change-mode
+         (worf-change-tree-mode -1)
+         (worf-change-shift-mode -1)
+         (worf-keyword-mode -1))
+        (t
+         nil)))
+
+(let ((map worf-change-mode-map))
+  (worf-define-key map "j" 'org-metadown)
+  (worf-define-key map "k" 'org-metaup)
+  (worf-define-key map "h" 'org-metaleft)
+  (worf-define-key map "l" 'org-metaright)
+  ;; ——— switches —————————————————————————————
+  (mapc (lambda (map)
+          (worf-define-key map "c" 'worf-change-mode))
+        (list worf-change-tree-mode-map
+              worf-change-shift-mode-map)))
+
+;; ——— Verbs: change tree ——————————————————————————————————————————————————————
+(define-minor-mode worf-change-tree-mode
+    "Minor mode for editing whole heading trees."
+  :keymap worf-change-tree-mode-map
+  :group 'worf
+  :lighter " [change/tree]"
+  (cond (worf-change-tree-mode
+         (worf-change-mode -1)
+         (worf-change-shift-mode -1))
+        (t
+         nil)))
+
+(let ((map worf-change-tree-mode-map))
+  (worf-define-key map "j" 'org-shiftmetadown)
+  (worf-define-key map "k" 'org-shiftmetaup)
+  (worf-define-key map "h" 'org-shiftmetaleft)
+  (worf-define-key map "l" 'org-shiftmetaright)
+  ;; ——— switches —————————————————————————————
+  (mapc (lambda (map)
+          (worf-define-key map "t" 'worf-change-tree-mode))
+        (list worf-change-mode-map
+              worf-change-shift-mode-map)))
+
+;; ——— Verbs: change shift —————————————————————————————————————————————————————
+(define-minor-mode worf-change-shift-mode
+    "Minor mode that makes h/j/k/l correspond to `org-shiftleft' etc."
+  :keymap worf-change-shift-mode-map
+  :group 'worf
+  :lighter " [change/shift]"
+  (cond (worf-change-shift-mode
+         (worf-change-mode -1)
+         (worf-change-tree-mode -1))
+        (t
+         nil)))
+
+(let ((map worf-change-shift-mode-map))
+  (worf-define-key map "j" 'org-shiftdown)
+  (worf-define-key map "k" 'org-shiftup)
+  (worf-define-key map "h" 'org-shiftleft)
+  (worf-define-key map "l" 'org-shiftright)
+  ;; ——— switches —————————————————————————————
+  (mapc (lambda (map)
+          (worf-define-key map "s" 'worf-change-shift-mode))
+        (list worf-change-mode-map
+              worf-change-tree-mode-map)))
+
+;; ——— Verbs: clock ————————————————————————————————————————————————————————————
+(defvar worf-clock-mode-map
+  (make-sparse-keymap))
+
+(define-minor-mode worf-clock-mode
+    "Minor mode for operating on clock."
+  :keymap worf-clock-mode-map
+  :group 'worf
+  :lighter " [clock]"
+  (cond (worf-clock-mode
+         (worf-change-mode -1)
+         (worf-change-tree-mode -1)
+         (worf-change-shift-mode -1)
+         (worf-keyword-mode -1))
+        (t
+         nil)))
+
+(let ((map worf-clock-mode-map))
+  (worf-define-key map "i" 'org-clock-in)
+  (worf-define-key map "o" 'org-clock-out))
+
+;; ——— Verbs: keyword ——————————————————————————————————————————————————————————
+(defvar worf-keyword-mode-lighter "")
+
+(defvar worf--keyword nil
+  "Current `org-mode' keyword, i.e. one of \"TODO\", \"DONE\" etc.")
+
+(defsubst worf-mod-keyword ()
+  "Return current keyword."
+  worf--keyword)
+
+(define-minor-mode worf-keyword-mode
+    "Minor mode that makes j/k to move by keywords."
+  :keymap worf-keyword-mode-map
+  :group 'worf
+  :lighter worf-keyword-mode-lighter
+  (cond (worf-keyword-mode
+         (call-interactively 'worf-keyword))
+        (t
+         (setq worf--keyword nil))))
+
+(defun worf-keyword (keyword)
+  "Set the current keyword.
+All next `worf-down' and `worf-up' will move by this keyword.
+When the chain is broken, the keyword is unset."
+  (interactive
+   (progn
+     (setq worf-keyword-mode-lighter " [keyword ?]")
+     (let ((c (read-char "[t]odo, [d]one, [n]ext, [c]ancelled")))
+       (list
+        (message
+         (cl-case c
+           (?t "TODO")
+           (?d "DONE")
+           (?n "NEXT")
+           (?c "CANCELLED")))))))
+  (unless (memq this-command worf--keyword-no-invalidate-list)
+    (push this-command worf--keyword-no-invalidate-list))
+  (if worf-change-mode
+      (progn
+        (org-todo keyword)
+        (worf-change-mode -1)
+        (worf-keyword-mode -1))
+    (setq worf--keyword keyword)
+    (setq worf-keyword-mode-lighter
+          (format " [keyword %s]" keyword))
+    (add-hook 'post-command-hook 'worf--invalidate-keyword)))
+
+(defvar worf--keyword-no-invalidate-list
+  '(special-worf-keyword-mode
+    worf-keyword
+    special-worf-up
+    special-worf-down
+    special-digit-argument))
+
+(defun worf--invalidate-keyword ()
+  (message "%s" this-command)
+  (unless (memq this-command worf--keyword-no-invalidate-list)
+    (worf-keyword-mode -1)
+    (remove-hook 'post-command-hook 'worf--invalidate-keyword)))
+
+(let ((map worf-keyword-mode-map))
+  (worf-define-key map "w" 'worf-keyword))
+
+;; ——— Verbs: delete ———————————————————————————————————————————————————————————
+(defvar worf--delete nil
+  "Current delete mode. t or nil.")
+
+(defsubst worf-mod-delete ()
+  "Return current delete mode."
+  worf--delete)
+
+(defun worf-delete ()
+  "Delete verb."
+  (interactive)
+  (worf-quit)
+  (setq worf--delete t))
+
+;; ——— Verbs: yank —————————————————————————————————————————————————————————————
+(defvar worf--yank nil
+  "Current yank mode. t or nil.")
+
+(defsubst worf-mod-yank ()
+  "Return current yank mode."
+  worf--yank)
+
+(defun worf-yank ()
+  "Yank verb."
+  (interactive)
+  (worf-quit)
+  (setq worf--yank t))
+
+;; ——— Nouns: arrows ———————————————————————————————————————————————————————————
 (defun worf-up (arg)
   "Move ARG headings up."
   (interactive "p")
@@ -221,6 +358,29 @@ Otherwise return t."
       (goto-char (car (worf--bounds-subtree)))
     (ignore-errors
       (org-up-heading-safe))))
+
+;; ——— Nouns: property —————————————————————————————————————————————————————————
+(defun worf-property ()
+  "Operate on property."
+  (interactive)
+  (cond (worf-change-mode
+         (call-interactively 'org-set-property))
+
+        ((worf-mod-delete)
+         (call-interactively 'org-delete-property)
+         (setq worf--delete nil))
+
+        (t
+         (error "Not in change or delete mode"))))
+
+;; ——— Nouns: new heading ——————————————————————————————————————————————————————
+(defun worf-add ()
+  "Add a new heading below."
+  (interactive)
+  (org-insert-heading-respect-content)
+  (when (worf-mod-keyword)
+    (insert (worf-mod-keyword) " ")
+    (worf--keyword-off)))
 
 ;; ——— Other movement ——————————————————————————————————————————————————————————
 (defun worf-beginning-of-line ()
@@ -377,103 +537,7 @@ ARG is unused currently."
   (let ((org-refile-targets `((nil :maxlevel . ,arg))))
     (call-interactively 'org-refile)))
 
-;; ——— Keyword adverb/noun —————————————————————————————————————————————————————
-(defvar worf--keyword nil
-  "Current `org-mode' keyword, i.e. one of \"TODO\", \"DONE\" etc.")
-
-(defsubst worf-mod-keyword ()
-  "Return current keyword."
-  worf--keyword)
-
-(defun worf-keyword (keyword)
-  "Set the current keyword.
-All next `worf-down' and `worf-up' will move by this keyword.
-When the chain is broken, the keyword is unset."
-  (interactive
-   (let ((c (read-char "[t]odo, [d]one, [n]ext, [c]ancelled")))
-     (list
-      (message
-       (cl-case c
-         (?t "TODO")
-         (?d "DONE")
-         (?n "NEXT")
-         (?c "CANCELLED"))))))
-  (unless (memq this-command worf--keyword-no-invalidate-list)
-    (push this-command worf--keyword-no-invalidate-list))
-  (if worf-change-mode
-      (org-todo keyword)
-    (setq worf--keyword keyword))
-  (add-hook 'post-command-hook 'worf--invalidate-keyword))
-
-(defvar worf--keyword-no-invalidate-list
-  '(special-worf-keyword
-    worf-keyword
-    special-worf-up
-    special-worf-down
-    special-digit-argument))
-
-(defun worf--invalidate-keyword ()
-  (unless (memq this-command worf--keyword-no-invalidate-list)
-    (worf--mode-keyword-off)
-    (remove-hook 'post-command-hook 'worf--invalidate-keyword)))
-
-(defun worf--mode-keyword-off ()
-  "Turn off `worf--keyword' modifier."
-  (when (worf-mod-keyword)
-    (setq worf--keyword nil)
-    ;; (message "keyword mode off")
-    ))
-
-;; ——— Delete verb —————————————————————————————————————————————————————————————
-(defvar worf--delete nil
-  "Current delete mode. t or nil.")
-
-(defsubst worf-mod-delete ()
-  "Return current delete mode."
-  worf--delete)
-
-(defun worf-delete ()
-  "Delete verb."
-  (interactive)
-  (worf-quit)
-  (setq worf--delete t))
-
-;; ——— Yank verb ———————————————————————————————————————————————————————————————
-(defvar worf--yank nil
-  "Current yank mode. t or nil.")
-
-(defsubst worf-mod-yank ()
-  "Return current yank mode."
-  worf--yank)
-
-(defun worf-yank ()
-  "Yank verb."
-  (interactive)
-  (worf-quit)
-  (setq worf--yank t))
-
-;; ——— Nouns ———————————————————————————————————————————————————————————————————
-(defun worf-property ()
-  "Operate on property."
-  (interactive)
-  (cond (worf-change-mode
-         (call-interactively 'org-set-property))
-
-        ((worf-mod-delete)
-         (call-interactively 'org-delete-property)
-         (setq worf--delete nil))
-
-        (t
-         (error "Not in change or delete mode"))))
-
 ;; ——— Misc ————————————————————————————————————————————————————————————————————
-(defun worf-add ()
-  "Add a new heading below."
-  (interactive)
-  (org-insert-heading-respect-content)
-  (when (worf-mod-keyword)
-    (insert (worf-mod-keyword) " ")
-    (worf--keyword-off)))
 
 (defun worf-delete-subtree (arg)
   "Delete subtree or ARG chars."
@@ -603,10 +667,11 @@ When ARG is true, add a CUSTOM_ID first."
     (unless (catch 'break
               (while t
                 (outline-previous-heading)
+                (when (and (string= str (nth 2 (org-heading-components)))
+                           (looking-at "^\\*"))
+                  (throw 'break t))
                 (when (= (point) (point-min))
-                  (throw 'break nil))
-                (when (string= str (nth 2 (org-heading-components)))
-                  (throw 'break t))))
+                  (throw 'break nil))))
       (goto-char pt))))
 
 (defun worf--next-keyword (str)
@@ -621,62 +686,6 @@ When ARG is true, add a CUSTOM_ID first."
                 (when (string= str (nth 2 (org-heading-components)))
                   (throw 'break t))))
       (goto-char pt))))
-
-;; ——— Key bindings ————————————————————————————————————————————————————————————
-(defun worf--insert-or-call (def)
-  "Return a lambda to call DEF if position is special.
-Otherwise call `self-insert-command'."
-  `(lambda ,(help-function-arglist def)
-     ,(format "Call `%s' when special, self-insert otherwise.\n\n%s"
-              (symbol-name def) (documentation def))
-     ,(interactive-form def)
-     (let (cmd)
-       (cond ((or (and (looking-at "\\*") (looking-back "^\\**"))
-                  (looking-at "^#\\+"))
-              (,def ,@(delq '&rest (delq '&optional (help-function-arglist def)))))
-
-             (t
-              (org-self-insert-command 1))))))
-
-(defvar ac-trigger-commands '(self-insert-command))
-(defvar company-begin-commands '(self-insert-command))
-
-(defun worf-define-key (keymap key def)
-  "Forward to (`define-key' KEYMAP KEY DEF)
-DEF is modified by `worf--insert-or-call'."
-  (let ((func (defalias (intern (concat "special-" (symbol-name def)))
-                  (worf--insert-or-call def))))
-    (unless (member func ac-trigger-commands)
-      (push func ac-trigger-commands))
-    (unless (member func company-begin-commands)
-      (push func company-begin-commands))
-    (define-key keymap (kbd key) func)))
-
-(let ((map worf-clock-mode-map))
-  (worf-define-key map "i" 'org-clock-in)
-  (worf-define-key map "o" 'org-clock-out))
-
-(let ((map worf-change-mode-map))
-  (worf-define-key map "j" 'org-metadown)
-  (worf-define-key map "k" 'org-metaup)
-  (worf-define-key map "h" 'org-metaleft)
-  (worf-define-key map "l" 'org-metaright)
-  (worf-define-key map "t" 'worf-change-tree-mode)
-  (worf-define-key map "s" 'worf-change-shift-mode))
-
-(let ((map worf-change-tree-mode-map))
-  (worf-define-key map "j" 'org-shiftmetadown)
-  (worf-define-key map "k" 'org-shiftmetaup)
-  (worf-define-key map "h" 'org-shiftmetaleft)
-  (worf-define-key map "l" 'org-shiftmetaright)
-  (worf-define-key map "s" 'worf-change-shift-mode))
-
-(let ((map worf-change-shift-mode-map))
-  (worf-define-key map "j" 'org-shiftdown)
-  (worf-define-key map "k" 'org-shiftup)
-  (worf-define-key map "h" 'org-shiftleft)
-  (worf-define-key map "l" 'org-shiftright)
-  (worf-define-key map "t" 'worf-change-tree-mode))
 
 (let ((map worf-mode-map))
   ;; ——— Global ———————————————————————————————
