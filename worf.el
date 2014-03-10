@@ -304,7 +304,9 @@ When the chain is broken, the keyword is unset."
                    (org-speed-move-safe
                     'outline-previous-visible-heading) t)
              (kill-region pt (point))))
-         (setq worf--delete nil))
+         (setq worf--delete nil)
+         (unless (looking-at worf-regex)
+           (worf-up 1)))
         ((looking-at worf-sharp)
          (worf--sharp-up))
         (t
@@ -321,7 +323,9 @@ When the chain is broken, the keyword is unset."
            (worf--next-keyword (worf-mod-keyword))))
         ((worf-mod-delete)
          (org-cut-subtree arg)
-         (setq worf--delete nil))
+         (setq worf--delete nil)
+         (unless (looking-at worf-regex)
+           (worf-up 1)))
         ((worf-mod-yank)
          (org-copy-subtree arg)
          (setq worf--yank nil))
