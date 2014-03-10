@@ -58,6 +58,8 @@
   (make-sparse-keymap))
 (defvar worf-keyword-map
   (make-sparse-keymap))
+(defvar worf-clock-mode-map
+  (make-sparse-keymap))
 
 ;;;###autoload
 (define-minor-mode worf-mode
@@ -102,6 +104,19 @@ if the (looking-back \"^*+\") is true.
   (cond (worf-change-shift-mode
          (worf-change-mode -1)
          (worf-change-tree-mode -1))
+        (t
+         nil)))
+
+(define-minor-mode worf-clock-mode
+    "Minor mode for operating on clock."
+  :keymap worf-clock-mode-map
+  :group 'worf
+  :lighter " [clock]"
+  (cond (worf-clock-mode
+         (worf-change-mode -1)
+         (worf-change-tree-mode -1)
+         (worf-change-shift-mode -1)
+         (worf-keyword-mode -1))
         (t
          nil)))
 
@@ -481,6 +496,7 @@ When ARG is true, add a CUSTOM_ID first."
   (worf-change-tree-mode -1)
   (worf-change-shift-mode -1)
   (worf-keyword-mode -1)
+  (worf-clock-mode -1)
   (worf--mode-keyword-off))
 
 (defun worf-todo (arg)
@@ -629,6 +645,10 @@ DEF is modified by `worf--insert-or-call'."
       (push func company-begin-commands))
     (define-key keymap (kbd key) func)))
 
+(let ((map worf-clock-mode-map))
+  (worf-define-key map "i" 'org-clock-in)
+  (worf-define-key map "o" 'org-clock-out))
+
 (let ((map worf-change-mode-map))
   (worf-define-key map "j" 'org-metadown)
   (worf-define-key map "k" 'org-metaup)
@@ -689,17 +709,17 @@ DEF is modified by `worf--insert-or-call'."
   ;; ——— narrow/widen —————————————————————————
   (worf-define-key map "N" 'org-narrow-to-subtree)
   (worf-define-key map "W" 'widen)
-  ;; ——— modifiers ————————————————————————————
-  (worf-define-key map "t" 'worf-todo)
+  ;; ——— verbs ————————————————————————————————
   (worf-define-key map "c" 'worf-change-mode)
   (worf-define-key map "d" 'worf-delete)
   (worf-define-key map "y" 'worf-yank)
-  ;; (worf-define-key map "w" 'worf-keyword)
+  (worf-define-key map "C" 'worf-clock-mode)
   (worf-define-key map "w" 'worf-keyword-mode)
   (worf-define-key map "q" 'worf-quit)
   ;; ——— nouns ————————————————————————————————
   (worf-define-key map "p" 'worf-property)
   ;; ——— misc —————————————————————————————————
+  (worf-define-key map "t" 'worf-todo)
   (worf-define-key map "u" 'undo)
   ;; ——— digit argument ———————————————————————
   (mapc (lambda (x) (worf-define-key map (format "%d" x) 'digit-argument))
