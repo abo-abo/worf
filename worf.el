@@ -118,6 +118,13 @@ DEF is modified by `worf--insert-or-call'."
       (push func company-begin-commands))
     (define-key keymap (kbd key) func)))
 
+(defun worf--set-change-switches (key mode)
+  "Bind MODE to KEY for change modes."
+  (mapc (lambda (map) (worf-define-key map key mode))
+        (list worf-change-mode-map
+              worf-change-tree-mode-map
+              worf-change-shift-mode-map)))
+
 ;; ——— Verbs: change ———————————————————————————————————————————————————————————
 (define-minor-mode worf-change-mode
     "Minor mode for editing headings."
@@ -136,11 +143,7 @@ DEF is modified by `worf--insert-or-call'."
   (worf-define-key map "k" 'org-metaup)
   (worf-define-key map "h" 'org-metaleft)
   (worf-define-key map "l" 'org-metaright)
-  ;; ——— switches —————————————————————————————
-  (mapc (lambda (map)
-          (worf-define-key map "c" 'worf-change-mode))
-        (list worf-change-tree-mode-map
-              worf-change-shift-mode-map)))
+  (worf--set-change-switches "c" 'worf-change-mode))
 
 ;; ——— Verbs: change tree ——————————————————————————————————————————————————————
 (define-minor-mode worf-change-tree-mode
@@ -159,11 +162,7 @@ DEF is modified by `worf--insert-or-call'."
   (worf-define-key map "k" 'org-shiftmetaup)
   (worf-define-key map "h" 'org-shiftmetaleft)
   (worf-define-key map "l" 'org-shiftmetaright)
-  ;; ——— switches —————————————————————————————
-  (mapc (lambda (map)
-          (worf-define-key map "t" 'worf-change-tree-mode))
-        (list worf-change-mode-map
-              worf-change-shift-mode-map)))
+  (worf--set-change-switches "t" 'worf-change-tree-mode))
 
 ;; ——— Verbs: change shift —————————————————————————————————————————————————————
 (define-minor-mode worf-change-shift-mode
@@ -182,11 +181,7 @@ DEF is modified by `worf--insert-or-call'."
   (worf-define-key map "k" 'org-shiftup)
   (worf-define-key map "h" 'org-shiftleft)
   (worf-define-key map "l" 'org-shiftright)
-  ;; ——— switches —————————————————————————————
-  (mapc (lambda (map)
-          (worf-define-key map "s" 'worf-change-shift-mode))
-        (list worf-change-mode-map
-              worf-change-tree-mode-map)))
+  (worf--set-change-switches "s" 'worf-change-shift-mode))
 
 ;; ——— Verbs: clock ————————————————————————————————————————————————————————————
 (defvar worf-clock-mode-map
