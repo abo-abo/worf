@@ -39,6 +39,7 @@
 (require 'ace-jump-mode)
 (require 'org)
 (require 'org-id)
+(require 'org-clock)
 
 (defvar worf-sharp "^#\\+"
   "Shortcut for the org's #+ regex.")
