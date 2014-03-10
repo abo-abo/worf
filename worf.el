@@ -110,7 +110,7 @@ Otherwise call `self-insert-command'."
 (defun worf-define-key (keymap key def)
   "Forward to (`define-key' KEYMAP KEY DEF)
 DEF is modified by `worf--insert-or-call'."
-  (let ((func (defalias (intern (concat "special-" (symbol-name def)))
+  (let ((func (defalias (intern (concat "wspecial-" (symbol-name def)))
                   (worf--insert-or-call def))))
     (unless (member func ac-trigger-commands)
       (push func ac-trigger-commands))
@@ -257,11 +257,11 @@ When the chain is broken, the keyword is unset."
     (add-hook 'post-command-hook 'worf--invalidate-keyword)))
 
 (defvar worf--keyword-no-invalidate-list
-  '(special-worf-keyword-mode
+  '(wspecial-worf-keyword-mode
     worf-keyword
-    special-worf-up
-    special-worf-down
-    special-digit-argument))
+    wspecial-worf-up
+    wspecial-worf-down
+    wspecial-digit-argument))
 
 (defun worf--invalidate-keyword ()
   (message "%s" this-command)
