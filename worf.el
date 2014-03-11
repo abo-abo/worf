@@ -47,13 +47,17 @@
 (defvar worf-regex "^\\(?:\\*\\|#\\+\\)"
   "Shortcut for worf's special regex.")
 
-(defun worf--specialp ()
+(defun worf--at-property-p ()
+  "Return t if point is at property."
+  (looking-at "^:"))
+
+(defun worf--special-p ()
   "Return t if point is special.
 When point is special, alphanumeric keys call commands instead of
 calling `self-insert-command'."
   (or (bobp)
       (looking-at worf-regex)
-      (looking-at "^:")
+      (worf--at-property-p)
       (looking-back "^\\*+")))
 
 ;; ——— Minor mode ——————————————————————————————————————————————————————————————
@@ -129,7 +133,7 @@ Otherwise call `self-insert-command'."
                 (symbol-name def) (documentation def))
        ,(interactive-form def)
        (let (cmd)
-         (cond ((worf--specialp)
+         (cond ((worf--special-p)
                 ,(when disable `(,disable -1))
                 (,def ,@(delq '&rest (delq '&optional (help-function-arglist def)))))
 
@@ -344,8 +348,10 @@ When the chain is broken, the keyword is unset."
                     'outline-previous-visible-heading) t)
              (kill-region pt (point))))
          (setq worf--delete nil)
-         (unless (worf--specialp)
+         (unless (worf--special-p)
            (worf-up 1)))
+        ((worf--at-property-p)
+         (worf--prev-property arg))
         ((looking-at worf-sharp)
          (worf--sharp-up))
         (t
@@ -353,6 +359,23 @@ When the chain is broken, the keyword is unset."
                    (org-speed-move-safe 'outline-previous-visible-heading) t)
            (backward-char)
            (worf--sharp-up)))))
+
+(defun worf--next-property (arg)
+  "Move to the next property line."
+  (interactive "p")
+  (let ((bnd (worf--bounds-subtree)))
+    (forward-char 1)
+    (if (re-search-forward "^:" (cdr bnd) t arg)
+        (backward-char 1)
+      (or (worf-right)
+          (worf-down arg)))))
+
+(defun worf--prev-property (arg)
+  "Move to the previous property line."
+  (interactive "p")
+  (let ((bnd (worf--bounds-subtree)))
+    (unless (re-search-backward "^:" (car bnd) t arg)
+      (org-speed-move-safe 'outline-previous-visible-heading))))
 
 (defun worf-down (arg)
   "Move ARG headings down."
@@ -363,11 +386,13 @@ When the chain is broken, the keyword is unset."
         ((worf-mod-delete)
          (org-cut-subtree arg)
          (setq worf--delete nil)
-         (unless (worf--specialp)
+         (unless (worf--special-p)
            (worf-up 1)))
         ((worf-mod-yank)
          (org-copy-subtree arg)
          (setq worf--yank nil))
+        ((worf--at-property-p)
+         (worf--next-property arg))
         ((looking-at worf-sharp)
          (worf--sharp-down))
         (t
@@ -377,13 +402,17 @@ When the chain is broken, the keyword is unset."
 (defun worf-right ()
   "Move right."
   (interactive)
-  (let ((pt (point)))
+  (let ((pt (point))
+        result)
     (org-narrow-to-subtree)
     (forward-char)
     (if (re-search-forward worf-regex nil t)
-        (goto-char (match-beginning 0))
+        (progn
+          (goto-char (match-beginning 0))
+          (setq result t))
       (goto-char pt))
-    (widen)))
+    (widen)
+    result))
 
 (defun worf-left ()
   "Move one level up backwards."
