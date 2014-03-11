@@ -118,29 +118,31 @@ Otherwise return t."
          (setq ,sym-var t)))))
 
 ;; ——— Key binding machinery ———————————————————————————————————————————————————
-(defun worf--insert-or-call (def)
+(defun worf--insert-or-call (def plist)
   "Return a lambda to call DEF if position is special.
 Otherwise call `self-insert-command'."
-  `(lambda ,(help-function-arglist def)
-     ,(format "Call `%s' when special, self-insert otherwise.\n\n%s"
-              (symbol-name def) (documentation def))
-     ,(interactive-form def)
-     (let (cmd)
-       (cond ((or (and (looking-at "\\*") (looking-back "^\\**"))
-                  (looking-at "^#\\+"))
-              (,def ,@(delq '&rest (delq '&optional (help-function-arglist def)))))
+  (let ((disable (plist-get plist :disable)))
+    `(lambda ,(help-function-arglist def)
+       ,(format "Call `%s' when special, self-insert otherwise.\n\n%s"
+                (symbol-name def) (documentation def))
+       ,(interactive-form def)
+       (let (cmd)
+         (cond ((or (and (looking-at "\\*") (looking-back "^\\**"))
+                    (looking-at "^#\\+"))
+                ,(when disable `(,disable -1))
+                (,def ,@(delq '&rest (delq '&optional (help-function-arglist def)))))
 
-             (t
-              (org-self-insert-command 1))))))
+               (t
+                (org-self-insert-command 1)))))))
 
 (defvar ac-trigger-commands '(self-insert-command))
 (defvar company-begin-commands '(self-insert-command))
 
-(defun worf-define-key (keymap key def)
+(defun worf-define-key (keymap key def &rest plist)
   "Forward to (`define-key' KEYMAP KEY DEF)
 DEF is modified by `worf--insert-or-call'."
   (let ((func (defalias (intern (concat "wspecial-" (symbol-name def)))
-                  (worf--insert-or-call def))))
+                  (worf--insert-or-call def plist))))
     (unless (member func ac-trigger-commands)
       (push func ac-trigger-commands))
     (unless (member func company-begin-commands)
@@ -255,8 +257,8 @@ DEF is modified by `worf--insert-or-call'."
          nil)))
 
 (let ((map worf-clock-mode-map))
-  (worf-define-key map "i" 'org-clock-in)
-  (worf-define-key map "o" 'org-clock-out))
+  (worf-define-key map "i" 'org-clock-in :disable 'worf-clock-mode)
+  (worf-define-key map "o" 'org-clock-out :disable 'worf-clock-mode))
 
 ;; ——— Verbs: keyword ——————————————————————————————————————————————————————————
 (defvar worf-keyword-mode-lighter "")
