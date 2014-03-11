@@ -47,6 +47,13 @@
 (defvar worf-regex "^\\(?:\\*\\|#\\+\\)"
   "Shortcut for worf's special regex.")
 
+(defun worf--specialp ()
+  "Return t if point is special.
+When point is special, alphanumeric keys call commands instead of
+calling `self-insert-command'."
+  (or (bobp)
+      (looking-at worf-regex)))
+
 ;; ——— Minor mode ——————————————————————————————————————————————————————————————
 (defvar worf-mode-map
   (make-sparse-keymap))
@@ -334,7 +341,7 @@ When the chain is broken, the keyword is unset."
                     'outline-previous-visible-heading) t)
              (kill-region pt (point))))
          (setq worf--delete nil)
-         (unless (looking-at worf-regex)
+         (unless (worf--specialp)
            (worf-up 1)))
         ((looking-at worf-sharp)
          (worf--sharp-up))
@@ -353,7 +360,7 @@ When the chain is broken, the keyword is unset."
         ((worf-mod-delete)
          (org-cut-subtree arg)
          (setq worf--delete nil)
-         (unless (looking-at worf-regex)
+         (unless (worf--specialp)
            (worf-up 1)))
         ((worf-mod-yank)
          (org-copy-subtree arg)
