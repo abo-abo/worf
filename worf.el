@@ -52,7 +52,9 @@
 When point is special, alphanumeric keys call commands instead of
 calling `self-insert-command'."
   (or (bobp)
-      (looking-at worf-regex)))
+      (looking-at worf-regex)
+      (looking-at "^:")
+      (looking-back "^\\*+")))
 
 ;; ——— Minor mode ——————————————————————————————————————————————————————————————
 (defvar worf-mode-map
