@@ -129,8 +129,7 @@ Otherwise call `self-insert-command'."
                 (symbol-name def) (documentation def))
        ,(interactive-form def)
        (let (cmd)
-         (cond ((or (and (looking-at "\\*") (looking-back "^\\**"))
-                    (looking-at "^#\\+"))
+         (cond ((worf--specialp)
                 ,(when disable `(,disable -1))
                 (,def ,@(delq '&rest (delq '&optional (help-function-arglist def)))))
 
@@ -399,14 +398,21 @@ When the chain is broken, the keyword is unset."
   "Operate on property."
   (interactive)
   (cond (worf-change-mode
-         (call-interactively 'org-set-property))
+         (call-interactively 'org-set-property)
+         (worf-quit))
 
         ((worf-mod-delete)
          (call-interactively 'org-delete-property)
          (setq worf--delete nil))
 
         (t
-         (error "Not in change or delete mode"))))
+         (let ((pt
+                (cl-destructuring-bind (beg . end)
+                    (worf--bounds-subtree)
+                  (car (org-get-property-block beg end nil)))))
+           (if pt
+               (goto-char pt)
+             (error "No properties. Use \"c p\" to add properties"))))))
 
 ;; ——— Nouns: new heading ——————————————————————————————————————————————————————
 (defun worf-add ()
