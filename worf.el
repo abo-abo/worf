@@ -47,19 +47,6 @@
 (defvar worf-regex "^\\(?:\\*\\|#\\+\\)"
   "Shortcut for worf's special regex.")
 
-(defun worf--at-property-p ()
-  "Return t if point is at property."
-  (looking-at "^:"))
-
-(defun worf--special-p ()
-  "Return t if point is special.
-When point is special, alphanumeric keys call commands instead of
-calling `self-insert-command'."
-  (or (bobp)
-      (looking-at worf-regex)
-      (worf--at-property-p)
-      (looking-back "^\\*+")))
-
 ;; ——— Minor mode ——————————————————————————————————————————————————————————————
 (defvar worf-mode-map
   (make-sparse-keymap))
@@ -435,13 +422,16 @@ When the chain is broken, the keyword is unset."
          (setq worf--delete nil))
 
         (t
-         (let ((pt
-                (cl-destructuring-bind (beg . end)
-                    (worf--bounds-subtree)
-                  (car (org-get-property-block beg end nil)))))
-           (if pt
-               (goto-char pt)
-             (error "No properties. Use \"c p\" to add properties"))))))
+         (cl-destructuring-bind (beg . end)
+             (worf--bounds-subtree)
+           (let ((pt (car (org-get-property-block beg end nil))))
+             (if pt
+                 (progn
+                   (unless reveal-mode
+                     (goto-char beg)
+                     (org-show-subtree))
+                   (goto-char pt))
+               (error "No properties. Use \"c p\" to add properties")))))))
 
 ;; ——— Nouns: new heading ——————————————————————————————————————————————————————
 (defun worf-add ()
@@ -650,6 +640,19 @@ When ARG is true, add a CUSTOM_ID first."
   (message "Nothing here, move along."))
 
 ;; ——— Predicates ——————————————————————————————————————————————————————————————
+(defun worf--at-property-p ()
+  "Return t if point is at property."
+  (looking-at "^:"))
+
+(defun worf--special-p ()
+  "Return t if point is special.
+When point is special, alphanumeric keys call commands instead of
+calling `self-insert-command'."
+  (or (bobp)
+      (looking-at worf-regex)
+      (worf--at-property-p)
+      (looking-back "^\\*+")))
+
 (defun worf--invisible-p ()
   "Test if point is hidden by an `org-block' overlay."
   (cl-some (lambda (ov) (eq (overlay-get ov 'invisible)
