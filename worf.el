@@ -47,6 +47,13 @@
 (defvar worf-regex "^\\(?:\\*\\|#\\+\\)"
   "Shortcut for worf's special regex.")
 
+(defvar worf-regex-full "^\\(?:\\*\\|#\\+\\|:\\)"
+  "Shortcut for worf's special regex.")
+
+(defun worf-backward ()
+  "Go backwards to closest special position."
+  (interactive)
+  (re-search-backward worf-regex-full nil t))
 ;; ——— Minor mode ——————————————————————————————————————————————————————————————
 (defvar worf-mode-map
   (make-sparse-keymap))
@@ -420,7 +427,9 @@ When the chain is broken, the keyword is unset."
 
         ((worf-mod-delete)
          (call-interactively 'org-delete-property)
-         (setq worf--delete nil))
+         (setq worf--delete nil)
+         (unless (worf--special-p)
+           (worf-backward)))
 
         (t
          (cl-destructuring-bind (beg . end)
@@ -765,6 +774,7 @@ calling `self-insert-command'."
 
 (let ((map worf-mode-map))
   ;; ——— Global ———————————————————————————————
+  (define-key map "[" 'worf-backward)
   (define-key map "\C-a" 'worf-beginning-of-line)
   (define-key map "\C-j" 'worf-follow)
   (define-key map (kbd "M-j") 'worf-ace-link)
