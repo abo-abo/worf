@@ -54,6 +54,14 @@
   "Go backwards to closest special position."
   (interactive)
   (re-search-backward worf-regex-full nil t))
+
+(defun worf-forward ()
+  "Go forwards to closest special position."
+  (interactive)
+  (forward-char 1)
+  (re-search-forward worf-regex-full nil t)
+  (beginning-of-line))
+
 ;; ——— Minor mode ——————————————————————————————————————————————————————————————
 (defvar worf-mode-map
   (make-sparse-keymap))
@@ -775,6 +783,7 @@ calling `self-insert-command'."
 (let ((map worf-mode-map))
   ;; ——— Global ———————————————————————————————
   (define-key map "[" 'worf-backward)
+  (define-key map "]" 'worf-forward)
   (define-key map "\C-a" 'worf-beginning-of-line)
   (define-key map "\C-j" 'worf-follow)
   (define-key map (kbd "M-j") 'worf-ace-link)
