@@ -168,6 +168,7 @@ DEF is modified by `worf--insert-or-call'."
   (worf-define-key map "k" 'org-metaup)
   (worf-define-key map "h" 'org-metaleft)
   (worf-define-key map "l" 'org-metaright)
+  (worf-define-key map "t" 'org-set-tags)
   (worf--set-change-switches "c" 'worf-change-mode))
 
 ;; ——— Verbs: change tree ——————————————————————————————————————————————————————
@@ -188,7 +189,7 @@ DEF is modified by `worf--insert-or-call'."
   (worf-define-key map "k" 'org-shiftmetaup)
   (worf-define-key map "h" 'org-shiftmetaleft)
   (worf-define-key map "l" 'org-shiftmetaright)
-  (worf--set-change-switches "t" 'worf-change-tree-mode))
+  (worf--set-change-switches "f" 'worf-change-tree-mode))
 
 ;; ——— Verbs: change shift —————————————————————————————————————————————————————
 (define-minor-mode worf-change-shift-mode
