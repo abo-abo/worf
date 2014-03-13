@@ -66,21 +66,6 @@
 (defvar worf-mode-map
   (make-sparse-keymap))
 
-(defvar worf-change-mode-map
-  (make-sparse-keymap))
-
-(defvar worf-change-shift-mode-map
-  (make-sparse-keymap))
-
-(defvar worf-change-shiftcontrol-mode-map
-  (make-sparse-keymap))
-
-(defvar worf-change-tree-mode-map
-  (make-sparse-keymap))
-
-(defvar worf-keyword-mode-map
-  (make-sparse-keymap))
-
 ;;;###autoload
 (define-minor-mode worf-mode
     "Minor mode for navigating and editing `org-mode' files.
@@ -156,119 +141,80 @@ DEF is modified by `worf--insert-or-call'."
       (push func company-begin-commands))
     (define-key keymap (kbd key) func)))
 
-(defun worf--set-change-switches (key mode)
-  "Bind MODE to KEY for change modes."
-  (mapc (lambda (map) (worf-define-key map key mode))
-        (list worf-change-mode-map
-              worf-change-tree-mode-map
-              worf-change-shift-mode-map
-              worf-change-shiftcontrol-mode-map)))
+(defvar worf-known-verbs '(worf-keyword-mode)
+  "List of registered verbs.")
+
+(defun worf-disable-verbs-except (verb)
+  "Disable all verbs except VERB."
+  (mapc
+   (lambda (v) (funcall v -1))
+   (remq verb worf-known-verbs)))
+
+(defmacro worf-defverb-1 (name grammar)
+  (let ((sym (intern (format "worf-%s-mode" name)))
+        (keymap (intern (format "worf-%s-mode-map" name)))
+        (doc (format "%s verb." (capitalize name)))
+        (lighter (format " [%s]" name)))
+    `(progn
+       (defvar ,keymap (make-sparse-keymap))
+       (define-minor-mode ,sym
+           ,doc
+         :keymap ,keymap
+         :group 'worf
+         :lighter ,lighter
+         (cond (,sym
+                (worf-disable-verbs-except ',sym))
+               (t nil)))
+       (let ((map ,keymap))
+         (mapc (lambda (x) (apply 'worf-define-key (cons map x)))
+               ,grammar))
+       (unless (memq ',sym worf-known-verbs)
+         (push ',sym worf-known-verbs))
+       worf-known-verbs)))
 
 ;; ——— Verbs: change ———————————————————————————————————————————————————————————
-(define-minor-mode worf-change-mode
-    "Minor mode for editing headings."
-  :keymap worf-change-mode-map
-  :group 'worf
-  :lighter " [change]"
-  (cond (worf-change-mode
-         (worf-change-tree-mode -1)
-         (worf-change-shift-mode -1)
-         (worf-change-shiftcontrol-mode -1)
-         (worf-keyword-mode -1))
-        (t
-         nil)))
-
-(let ((map worf-change-mode-map))
-  (worf-define-key map "j" 'org-metadown)
-  (worf-define-key map "k" 'org-metaup)
-  (worf-define-key map "h" 'org-metaleft)
-  (worf-define-key map "l" 'org-metaright)
-  (worf-define-key map "t" 'org-set-tags)
-  (worf--set-change-switches "c" 'worf-change-mode))
+(worf-defverb-1
+ "change"
+ '(("j" org-metadown)
+   ("k" org-metaup)
+   ("h" org-metaleft)
+   ("l" org-metaright)
+   ("t" org-set-tags)))
 
 ;; ——— Verbs: change tree ——————————————————————————————————————————————————————
-(define-minor-mode worf-change-tree-mode
-    "Minor mode for editing whole heading trees."
-  :keymap worf-change-tree-mode-map
-  :group 'worf
-  :lighter " [change/tree]"
-  (cond (worf-change-tree-mode
-         (worf-change-mode -1)
-         (worf-change-shift-mode -1)
-         (worf-change-shiftcontrol-mode -1))
-        (t
-         nil)))
-
-(let ((map worf-change-tree-mode-map))
-  (worf-define-key map "j" 'org-shiftmetadown)
-  (worf-define-key map "k" 'org-shiftmetaup)
-  (worf-define-key map "h" 'org-shiftmetaleft)
-  (worf-define-key map "l" 'org-shiftmetaright)
-  (worf--set-change-switches "f" 'worf-change-tree-mode))
+(worf-defverb-1
+ "change-tree"
+ '(("j" org-shiftmetadown)
+   ("k" org-shiftmetaup)
+   ("h" org-shiftmetaleft)
+   ("l" org-shiftmetaright)))
 
 ;; ——— Verbs: change shift —————————————————————————————————————————————————————
-(define-minor-mode worf-change-shift-mode
-    "Minor mode that makes h/j/k/l correspond to `org-shiftleft' etc."
-  :keymap worf-change-shift-mode-map
-  :group 'worf
-  :lighter " [change/shift]"
-  (cond (worf-change-shift-mode
-         (worf-change-mode -1)
-         (worf-change-tree-mode -1)
-         (worf-change-shiftcontrol-mode -1))
-        (t
-         nil)))
+(worf-defverb-1
+ "change-shift"
+ '(("j" org-shiftdown)
+   ("k" org-shiftup)
+   ("h" org-shiftleft)
+   ("l" org-shiftright)))
 
-(let ((map worf-change-shift-mode-map))
-  (worf-define-key map "j" 'org-shiftdown)
-  (worf-define-key map "k" 'org-shiftup)
-  (worf-define-key map "h" 'org-shiftleft)
-  (worf-define-key map "l" 'org-shiftright)
-  (worf--set-change-switches "s" 'worf-change-shift-mode))
-
-;; ——— Verbs: change control shift —————————————————————————————————————————————
-(define-minor-mode worf-change-shiftcontrol-mode
-    "Minor mode that makes h/j/k/l correspond to `org-shiftcontrolleft' etc."
-  :keymap worf-change-shiftcontrol-mode-map
-  :group 'worf
-  :lighter " [change/shiftcontrol]"
-  (cond (worf-change-shiftcontrol-mode
-         (worf-change-mode -1)
-         (worf-change-tree-mode -1)
-         (worf-change-shift-mode -1))
-        (t
-         nil)))
-
-(let ((map worf-change-shiftcontrol-mode-map))
-  (worf-define-key map "j" 'org-shiftcontroldown)
-  (worf-define-key map "k" 'org-shiftcontrolup)
-  (worf-define-key map "h" 'org-shiftcontrolleft)
-  (worf-define-key map "l" 'org-shiftcontrolright)
-  (worf--set-change-switches "r" 'worf-change-shiftcontrol-mode))
-
+;; ——— Verbs: change shift control —————————————————————————————————————————————
+(worf-defverb-1
+ "change-shiftcontrol"
+ '(("j" org-shiftcontroldown)
+   ("k" org-shiftcontrolup)
+   ("h" org-shiftcontrolleft)
+   ("l" org-shiftcontrolright)))
 
 ;; ——— Verbs: clock ————————————————————————————————————————————————————————————
-(defvar worf-clock-mode-map
-  (make-sparse-keymap))
-
-(define-minor-mode worf-clock-mode
-    "Minor mode for operating on clock."
-  :keymap worf-clock-mode-map
-  :group 'worf
-  :lighter " [clock]"
-  (cond (worf-clock-mode
-         (worf-change-mode -1)
-         (worf-change-tree-mode -1)
-         (worf-change-shift-mode -1)
-         (worf-keyword-mode -1))
-        (t
-         nil)))
-
-(let ((map worf-clock-mode-map))
-  (worf-define-key map "i" 'org-clock-in :disable 'worf-clock-mode)
-  (worf-define-key map "o" 'org-clock-out :disable 'worf-clock-mode))
+(worf-defverb-1
+ "clock"
+ '(("i" org-clock-in :disable worf-clock-mode)
+   ("o" org-clock-out :disable worf-clock-mode)))
 
 ;; ——— Verbs: keyword ——————————————————————————————————————————————————————————
+(defvar worf-keyword-mode-map
+  (make-sparse-keymap))
+
 (defvar worf-keyword-mode-lighter "")
 
 (defvar worf--keyword nil
@@ -330,6 +276,19 @@ When the chain is broken, the keyword is unset."
 
 (let ((map worf-keyword-mode-map))
   (worf-define-key map "w" 'worf-keyword))
+
+(defun worf--set-change-switches (key mode)
+  "Bind MODE to KEY for change modes."
+  (mapc (lambda (map) (worf-define-key map key mode))
+        (list worf-change-mode-map
+              worf-change-tree-mode-map
+              worf-change-shift-mode-map
+              worf-change-shiftcontrol-mode-map)))
+
+(worf--set-change-switches "c" 'worf-change-mode)
+(worf--set-change-switches "f" 'worf-change-tree-mode)
+(worf--set-change-switches "s" 'worf-change-shift-mode)
+(worf--set-change-switches "r" 'worf-change-shiftcontrol-mode)
 
 ;; ——— Verbs: delete ———————————————————————————————————————————————————————————
 (worf-defverb "delete")
