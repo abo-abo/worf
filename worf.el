@@ -599,12 +599,7 @@ When ARG is true, add a CUSTOM_ID first."
 (defun worf-quit ()
   "Remove modifiers."
   (interactive)
-  (worf-change-mode -1)
-  (worf-change-tree-mode -1)
-  (worf-change-shift-mode -1)
-  (worf-change-shiftcontrol-mode -1)
-  (worf-keyword-mode -1)
-  (worf-clock-mode -1))
+  (mapc (lambda (x) (funcall x -1)) worf-known-verbs))
 
 (defun worf-todo (arg)
   "Forward to `org-todo' with ARG."
