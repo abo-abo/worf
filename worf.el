@@ -445,7 +445,7 @@ When the chain is broken, the keyword is unset."
            (let ((pt (car (org-get-property-block beg end nil))))
              (if pt
                  (progn
-                   (unless reveal-mode
+                   (unless (bound-and-true-p reveal-mode)
                      (goto-char beg)
                      (org-show-subtree))
                    (goto-char pt))
