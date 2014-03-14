@@ -36,6 +36,7 @@
 
 ;;; Code:
 
+;; ——— Basics ——————————————————————————————————————————————————————————————————
 (require 'ace-jump-mode)
 (require 'org)
 (require 'org-id)
@@ -111,10 +112,10 @@ Otherwise return t."
          (setq ,sym-var t)))))
 
 ;; ——— Key binding machinery ———————————————————————————————————————————————————
-(defun worf--insert-or-call (def plist)
+(defun worf--insert-or-call (def alist)
   "Return a lambda to call DEF if position is special.
 Otherwise call `self-insert-command'."
-  (let ((disable (plist-get plist :disable)))
+  (let ((disable (cdr (assoc :disable alist))))
     `(lambda ,(help-function-arglist def)
        ,(format "Call `%s' when special, self-insert otherwise.\n\n%s"
                 (symbol-name def) (documentation def))
@@ -122,7 +123,8 @@ Otherwise call `self-insert-command'."
        (let (cmd)
          (cond ((worf--special-p)
                 ,(when disable `(,disable -1))
-                (,def ,@(delq '&rest (delq '&optional (help-function-arglist def)))))
+                (,def ,@(delq '&rest (delq '&optional (help-function-arglist def))))
+                (unless (worf--special-p) (worf-up 1)))
 
                (t
                 (org-self-insert-command 1)))))))
@@ -141,6 +143,7 @@ DEF is modified by `worf--insert-or-call'."
       (push func company-begin-commands))
     (define-key keymap (kbd key) func)))
 
+;; ——— Verb machinery ——————————————————————————————————————————————————————————
 (defvar worf-known-verbs '(worf-keyword-mode)
   "List of registered verbs.")
 
@@ -165,9 +168,12 @@ DEF is modified by `worf--insert-or-call'."
          (cond (,sym
                 (worf-disable-verbs-except ',sym))
                (t nil)))
-       (let ((map ,keymap))
-         (mapc (lambda (x) (apply 'worf-define-key (cons map x)))
-               ,grammar))
+       (mapc (lambda (x)
+               (let ((y (memq :disable x)))
+                 (when y
+                   (setcar y (cons :disable ',sym))))
+               (apply 'worf-define-key (cons ,keymap x)))
+             ,grammar)
        (unless (memq ',sym worf-known-verbs)
          (push ',sym worf-known-verbs))
        worf-known-verbs)))
@@ -208,8 +214,8 @@ DEF is modified by `worf--insert-or-call'."
 ;; ——— Verbs: clock ————————————————————————————————————————————————————————————
 (worf-defverb-1
  "clock"
- '(("i" org-clock-in :disable worf-clock-mode)
-   ("o" org-clock-out :disable worf-clock-mode)))
+ '(("i" org-clock-in :disable)
+   ("o" org-clock-out :disable)))
 
 ;; ——— Verbs: keyword ——————————————————————————————————————————————————————————
 (defvar worf-keyword-mode-map
@@ -291,7 +297,19 @@ When the chain is broken, the keyword is unset."
 (worf--set-change-switches "r" 'worf-change-shiftcontrol-mode)
 
 ;; ——— Verbs: delete ———————————————————————————————————————————————————————————
-(worf-defverb "delete")
+(defun worf-delete-k (arg)
+  (interactive "p")
+  (let ((pt (point)))
+    (when (ignore-errors
+            (org-speed-move-safe
+             'outline-previous-visible-heading) t)
+      (kill-region pt (point)))))
+
+(worf-defverb-1
+ "delete"
+ '(("p" org-delete-property :disable)
+   ("k" worf-delete-k :disable)
+   ("j" org-cut-subtree :disable)))
 
 ;; ——— Verbs: yank —————————————————————————————————————————————————————————————
 (worf-defverb "yank")
@@ -303,15 +321,6 @@ When the chain is broken, the keyword is unset."
   (cond ((worf-mod-keyword)
          (dotimes-protect arg
            (worf--prev-keyword (worf-mod-keyword))))
-        ((worf-mod-delete)
-         (let ((pt (point)))
-           (when (ignore-errors
-                   (org-speed-move-safe
-                    'outline-previous-visible-heading) t)
-             (kill-region pt (point))))
-         (setq worf--delete nil)
-         (unless (worf--special-p)
-           (worf-up 1)))
         ((worf--at-property-p)
          (worf--prev-property arg))
         ((looking-at worf-sharp)
@@ -345,11 +354,6 @@ When the chain is broken, the keyword is unset."
   (cond ((worf-mod-keyword)
          (dotimes-protect arg
            (worf--next-keyword (worf-mod-keyword))))
-        ((worf-mod-delete)
-         (org-cut-subtree arg)
-         (setq worf--delete nil)
-         (unless (worf--special-p)
-           (worf-up 1)))
         ((worf-mod-yank)
          (org-copy-subtree arg)
          (setq worf--yank nil))
@@ -391,12 +395,6 @@ When the chain is broken, the keyword is unset."
   (cond (worf-change-mode
          (call-interactively 'org-set-property)
          (worf-quit))
-
-        ((worf-mod-delete)
-         (call-interactively 'org-delete-property)
-         (setq worf--delete nil)
-         (unless (worf--special-p)
-           (worf-backward)))
 
         (t
          (cl-destructuring-bind (beg . end)
@@ -776,7 +774,7 @@ calling `self-insert-command'."
   (worf-define-key map "W" 'widen)
   ;; ——— verbs ————————————————————————————————
   (worf-define-key map "c" 'worf-change-mode)
-  (worf-define-key map "d" 'worf-delete)
+  (worf-define-key map "d" 'worf-delete-mode)
   (worf-define-key map "y" 'worf-yank)
   (worf-define-key map "C" 'worf-clock-mode)
   (worf-define-key map "w" 'worf-keyword-mode)
