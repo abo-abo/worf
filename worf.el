@@ -36,12 +36,13 @@
 
 ;;; Code:
 
-;; ——— Basics ——————————————————————————————————————————————————————————————————
+;; ——— Requires ————————————————————————————————————————————————————————————————
 (require 'ace-jump-mode)
 (require 'org)
 (require 'org-id)
 (require 'org-clock)
 
+;; ——— Minor mode ——————————————————————————————————————————————————————————————
 (defvar worf-sharp "^#\\+"
   "Shortcut for the org's #+ regex.")
 
@@ -51,19 +52,6 @@
 (defvar worf-regex-full "^\\(?:\\*\\|#\\+\\|:\\)"
   "Shortcut for worf's special regex.")
 
-(defun worf-backward ()
-  "Go backwards to closest special position."
-  (interactive)
-  (re-search-backward worf-regex-full nil t))
-
-(defun worf-forward ()
-  "Go forwards to closest special position."
-  (interactive)
-  (forward-char 1)
-  (re-search-forward worf-regex-full nil t)
-  (beginning-of-line))
-
-;; ——— Minor mode ——————————————————————————————————————————————————————————————
 (defvar worf-mode-map
   (make-sparse-keymap))
 
@@ -135,7 +123,7 @@ DEF is modified by `worf--insert-or-call'."
    (lambda (v) (funcall v -1))
    (remq verb worf-known-verbs)))
 
-(defmacro worf-defverb-1 (name grammar)
+(defmacro worf-defverb (name grammar)
   (let ((sym (intern (format "worf-%s-mode" name)))
         (keymap (intern (format "worf-%s-mode-map" name)))
         (doc (format "%s verb." (capitalize name)))
@@ -161,7 +149,7 @@ DEF is modified by `worf--insert-or-call'."
        worf-known-verbs)))
 
 ;; ——— Verbs: change ———————————————————————————————————————————————————————————
-(worf-defverb-1
+(worf-defverb
  "change"
  '(("j" org-metadown)
    ("k" org-metaup)
@@ -170,7 +158,7 @@ DEF is modified by `worf--insert-or-call'."
    ("t" org-set-tags)))
 
 ;; ——— Verbs: change tree ——————————————————————————————————————————————————————
-(worf-defverb-1
+(worf-defverb
  "change-tree"
  '(("j" org-shiftmetadown)
    ("k" org-shiftmetaup)
@@ -178,7 +166,7 @@ DEF is modified by `worf--insert-or-call'."
    ("l" org-shiftmetaright)))
 
 ;; ——— Verbs: change shift —————————————————————————————————————————————————————
-(worf-defverb-1
+(worf-defverb
  "change-shift"
  '(("j" org-shiftdown)
    ("k" org-shiftup)
@@ -186,7 +174,7 @@ DEF is modified by `worf--insert-or-call'."
    ("l" org-shiftright)))
 
 ;; ——— Verbs: change shift control —————————————————————————————————————————————
-(worf-defverb-1
+(worf-defverb
  "change-shiftcontrol"
  '(("j" org-shiftcontroldown)
    ("k" org-shiftcontrolup)
@@ -194,10 +182,30 @@ DEF is modified by `worf--insert-or-call'."
    ("l" org-shiftcontrolright)))
 
 ;; ——— Verbs: clock ————————————————————————————————————————————————————————————
-(worf-defverb-1
+(worf-defverb
  "clock"
  '(("i" org-clock-in :disable)
    ("o" org-clock-out :disable)))
+
+;; ——— Verbs: delete ———————————————————————————————————————————————————————————
+(defun worf-delete-k (arg)
+  (interactive "p")
+  (let ((pt (point)))
+    (when (ignore-errors
+            (org-speed-move-safe
+             'outline-previous-visible-heading) t)
+      (kill-region pt (point)))))
+
+(worf-defverb
+ "delete"
+ '(("p" org-delete-property :disable)
+   ("k" worf-delete-k :disable)
+   ("j" org-cut-subtree :disable)))
+
+;; ——— Verbs: yank —————————————————————————————————————————————————————————————
+(worf-defverb
+ "yank"
+ '(("j" org-copy-subtree :disable)))
 
 ;; ——— Verbs: keyword ——————————————————————————————————————————————————————————
 (defvar worf-keyword-mode-map
@@ -278,26 +286,6 @@ When the chain is broken, the keyword is unset."
 (worf--set-change-switches "s" 'worf-change-shift-mode)
 (worf--set-change-switches "r" 'worf-change-shiftcontrol-mode)
 
-;; ——— Verbs: delete ———————————————————————————————————————————————————————————
-(defun worf-delete-k (arg)
-  (interactive "p")
-  (let ((pt (point)))
-    (when (ignore-errors
-            (org-speed-move-safe
-             'outline-previous-visible-heading) t)
-      (kill-region pt (point)))))
-
-(worf-defverb-1
- "delete"
- '(("p" org-delete-property :disable)
-   ("k" worf-delete-k :disable)
-   ("j" org-cut-subtree :disable)))
-
-;; ——— Verbs: yank —————————————————————————————————————————————————————————————
-(worf-defverb-1
- "yank"
- '(("j" org-copy-subtree :disable)))
-
 ;; ——— Nouns: arrows ———————————————————————————————————————————————————————————
 (defun worf-up (arg)
   "Move ARG headings up."
@@ -311,26 +299,10 @@ When the chain is broken, the keyword is unset."
          (worf--sharp-up))
         (t
          (unless (ignore-errors
-                   (org-speed-move-safe 'outline-previous-visible-heading) t)
+                   (org-speed-move-safe
+                    'outline-previous-visible-heading) t)
            (backward-char)
            (worf--sharp-up)))))
-
-(defun worf--next-property (arg)
-  "Move to the next property line."
-  (interactive "p")
-  (let ((bnd (worf--bounds-subtree)))
-    (forward-char 1)
-    (if (re-search-forward "^:" (cdr bnd) t arg)
-        (backward-char 1)
-      (or (worf-right)
-          (worf-down arg)))))
-
-(defun worf--prev-property (arg)
-  "Move to the previous property line."
-  (interactive "p")
-  (let ((bnd (worf--bounds-subtree)))
-    (unless (re-search-backward "^:" (car bnd) t arg)
-      (org-speed-move-safe 'outline-previous-visible-heading))))
 
 (defun worf-down (arg)
   "Move ARG headings down."
@@ -344,7 +316,8 @@ When the chain is broken, the keyword is unset."
          (worf--sharp-down))
         (t
          (ignore-errors
-           (org-speed-move-safe 'outline-next-visible-heading)))))
+           (org-speed-move-safe
+            'outline-next-visible-heading)))))
 
 (defun worf-right ()
   "Move right."
@@ -399,6 +372,18 @@ When the chain is broken, the keyword is unset."
     (worf-keyword-mode -1)))
 
 ;; ——— Other movement ——————————————————————————————————————————————————————————
+(defun worf-backward ()
+  "Go backwards to closest special position."
+  (interactive)
+  (re-search-backward worf-regex-full nil t))
+
+(defun worf-forward ()
+  "Go forwards to closest special position."
+  (interactive)
+  (forward-char 1)
+  (re-search-forward worf-regex-full nil t)
+  (beginning-of-line))
+
 (defun worf-beginning-of-line ()
   "Replaces `beginning-of-line'.
 When already at beginning of line, move back to heading."
@@ -637,6 +622,23 @@ calling `self-insert-command'."
            (signal (car e) (cdr e))))))))
 
 ;; ——— Utilities ———————————————————————————————————————————————————————————————
+(defun worf--next-property (arg)
+  "Move to the next property line."
+  (interactive "p")
+  (let ((bnd (worf--bounds-subtree)))
+    (forward-char 1)
+    (if (re-search-forward "^:" (cdr bnd) t arg)
+        (backward-char 1)
+      (or (worf-right)
+          (worf-down arg)))))
+
+(defun worf--prev-property (arg)
+  "Move to the previous property line."
+  (interactive "p")
+  (let ((bnd (worf--bounds-subtree)))
+    (unless (re-search-backward "^:" (car bnd) t arg)
+      (org-speed-move-safe 'outline-previous-visible-heading))))
+
 (defun worf--pattern-transformer (x)
   "Transform X to make 1-9 select the heading level in `worf-goto'."
   (if (string-match "[1-9]" x)
