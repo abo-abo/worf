@@ -208,11 +208,12 @@ DEF is modified by `worf--insert-or-call'."
  '(("j" org-copy-subtree :disable)))
 
 ;; ——— Verbs: mark —————————————————————————————————————————————————————————————
-(defun worf-mark-down ()
-  (interactive)
+(defun worf-mark-down (arg)
+  (interactive "p")
   (let ((bnd (worf--bounds-subtree)))
-    (goto-char (car bnd))
-    (set-mark (cdr bnd))))
+    (worf-down (- arg 1))
+    (set-mark (cdr (worf--bounds-subtree)))
+    (goto-char (car bnd))))
 
 (defun worf-mark-left ()
   (interactive)
