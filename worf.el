@@ -207,6 +207,25 @@ DEF is modified by `worf--insert-or-call'."
  "yank"
  '(("j" org-copy-subtree :disable)))
 
+;; ——— Verbs: mark —————————————————————————————————————————————————————————————
+(defun worf-mark-down ()
+  (interactive)
+  (let ((bnd (worf--bounds-subtree)))
+    (goto-char (car bnd))
+    (set-mark (cdr bnd))))
+
+(defun worf-mark-left ()
+  (interactive)
+  (worf-left)
+  (let ((bnd (worf--bounds-subtree)))
+    (goto-char (car bnd))
+    (set-mark (cdr bnd))))
+
+(worf-defverb
+ "mark"
+ '(("j" worf-mark-down :disable)
+   ("h" worf-mark-left :disable)))
+
 ;; ——— Verbs: keyword ——————————————————————————————————————————————————————————
 (defvar worf-keyword-mode-map
   (make-sparse-keymap))
@@ -739,7 +758,7 @@ calling `self-insert-command'."
   ;; ——— hide/show ————————————————————————————
   (worf-define-key map "i" 'worf-tab)
   (worf-define-key map "I" 'worf-shifttab)
-  (worf-define-key map "m" 'worf-more)
+  ;; (worf-define-key map "m" 'worf-more)
   (worf-define-key map "v" 'worf-view)
   ;; ——— files ————————————————————————————————
   (worf-define-key map "F" 'worf-attach-visit)
@@ -761,6 +780,7 @@ calling `self-insert-command'."
   (worf-define-key map "y" 'worf-yank-mode)
   (worf-define-key map "C" 'worf-clock-mode)
   (worf-define-key map "w" 'worf-keyword-mode)
+  (worf-define-key map "m" 'worf-mark-mode)
   (worf-define-key map "q" 'worf-quit)
   ;; ——— nouns ————————————————————————————————
   (worf-define-key map "p" 'worf-property)
