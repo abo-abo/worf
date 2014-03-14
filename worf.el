@@ -317,9 +317,9 @@ When the chain is broken, the keyword is unset."
         ((looking-at worf-sharp)
          (worf--sharp-up))
         (t
-         (unless (ignore-errors
-                   (org-speed-move-safe
-                    'outline-previous-visible-heading) t)
+         (unless (dotimes-protect arg
+                   (outline-previous-visible-heading 1)
+                   t)
            (backward-char)
            (worf--sharp-up)))))
 
@@ -334,9 +334,8 @@ When the chain is broken, the keyword is unset."
         ((looking-at worf-sharp)
          (worf--sharp-down))
         (t
-         (ignore-errors
-           (org-speed-move-safe
-            'outline-next-visible-heading)))))
+         (dotimes-protect arg
+           (outline-next-visible-heading 1)))))
 
 (defun worf-right ()
   "Move right."
