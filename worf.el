@@ -93,24 +93,6 @@ Otherwise return t."
          (setq out t)))
      out))
 
-(defmacro worf-defverb (name)
-  (let ((sym-var (intern (format "worf--%s" name)))
-        (sym-get (intern (format "worf-mod-%s" name)))
-        (sym-fun (intern (format "worf-%s" name)))
-        (doc-var (format "Current %s mode. Boolean." name))
-        (doc-get (format "Return current %s mode." name))
-        (doc-fun (format "%s verb." (capitalize name))))
-    `(progn
-       (defvar ,sym-var nil ,doc-var)
-       (defsubst ,sym-get ()
-         ,doc-get
-         ,sym-var)
-       (defun ,sym-fun ()
-         ,doc-fun
-         (interactive)
-         (worf-quit)
-         (setq ,sym-var t)))))
-
 ;; ——— Key binding machinery ———————————————————————————————————————————————————
 (defun worf--insert-or-call (def alist)
   "Return a lambda to call DEF if position is special.
@@ -312,7 +294,9 @@ When the chain is broken, the keyword is unset."
    ("j" org-cut-subtree :disable)))
 
 ;; ——— Verbs: yank —————————————————————————————————————————————————————————————
-(worf-defverb "yank")
+(worf-defverb-1
+ "yank"
+ '(("j" org-copy-subtree :disable)))
 
 ;; ——— Nouns: arrows ———————————————————————————————————————————————————————————
 (defun worf-up (arg)
@@ -354,9 +338,6 @@ When the chain is broken, the keyword is unset."
   (cond ((worf-mod-keyword)
          (dotimes-protect arg
            (worf--next-keyword (worf-mod-keyword))))
-        ((worf-mod-yank)
-         (org-copy-subtree arg)
-         (setq worf--yank nil))
         ((worf--at-property-p)
          (worf--next-property arg))
         ((looking-at worf-sharp)
@@ -775,7 +756,7 @@ calling `self-insert-command'."
   ;; ——— verbs ————————————————————————————————
   (worf-define-key map "c" 'worf-change-mode)
   (worf-define-key map "d" 'worf-delete-mode)
-  (worf-define-key map "y" 'worf-yank)
+  (worf-define-key map "y" 'worf-yank-mode)
   (worf-define-key map "C" 'worf-clock-mode)
   (worf-define-key map "w" 'worf-keyword-mode)
   (worf-define-key map "q" 'worf-quit)
