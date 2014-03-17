@@ -94,7 +94,9 @@ Otherwise call `self-insert-command'."
          (cond ((worf--special-p)
                 ,(when disable `(,disable -1))
                 (,def ,@(delq '&rest (delq '&optional (help-function-arglist def))))
-                (unless (worf--special-p) (worf-up 1)))
+                (unless (or (looking-back "^\\*+ ") ; for worf-add
+                            (worf--special-p))
+                  (worf-up 1)))
 
                (t
                 (org-self-insert-command 1)))))))
