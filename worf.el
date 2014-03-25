@@ -448,7 +448,10 @@ When ARG isn't 1, call (`org-shifttab' ARG)."
   (let ((v (this-command-keys-vector)))
     (if (and (= 2 (length v))
              (string-match "[0-9]" (concat v)))
-        (org-shifttab arg)
+        (progn
+          (org-shifttab arg)
+          (dotimes-protect (- (car (org-heading-components)) arg)
+            (worf-left)))
       (let ((case-fold-search t))
         (when (looking-at "#\\+end")
           (worf--sharp-up))
