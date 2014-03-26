@@ -85,7 +85,8 @@ Otherwise return t."
 (defun worf--insert-or-call (def alist)
   "Return a lambda to call DEF if position is special.
 Otherwise call `self-insert-command'."
-  (let ((disable (cdr (assoc :disable alist))))
+  (let ((disable (cdr (assoc :disable alist)))
+        (break (cdr (assoc :break alist))))
     `(lambda ,(help-function-arglist def)
        ,(format "Call `%s' when special, self-insert otherwise.\n\n%s"
                 (symbol-name def) (documentation def))
@@ -94,8 +95,7 @@ Otherwise call `self-insert-command'."
          (cond ((worf--special-p)
                 ,(when disable `(,disable -1))
                 (,def ,@(delq '&rest (delq '&optional (help-function-arglist def))))
-                (unless (or (looking-back "^\\*+ ") ; for worf-add
-                            (worf--special-p))
+                (unless (or ,break (worf--special-p))
                   (worf-up 1)))
 
                (t
@@ -108,7 +108,8 @@ Otherwise call `self-insert-command'."
   "Forward to (`define-key' KEYMAP KEY DEF)
 DEF is modified by `worf--insert-or-call'."
   (let ((func (defalias (intern (concat "wspecial-" (symbol-name def)))
-                  (worf--insert-or-call def plist))))
+                  (worf--insert-or-call def (worf--flag-to-alist
+                                             plist :break)))))
     (unless (member func ac-trigger-commands)
       (push func ac-trigger-commands))
     (unless (member func company-begin-commands)
@@ -739,6 +740,13 @@ calling `self-insert-command'."
                   (throw 'break t))))
       (goto-char pt))))
 
+(defun worf--flag-to-alist (lst flag)
+  "If FLAG is on LST, change it to (FLAG . t)."
+  (let ((x (memq flag lst)))
+    (when x
+      (setcar x (cons flag t)))
+    lst))
+
 (let ((map worf-mode-map))
   ;; ——— Global ———————————————————————————————
   (define-key map "[" 'worf-backward)
@@ -774,7 +782,7 @@ calling `self-insert-command'."
   (worf-define-key map "R" 'worf-refile-this)
   ;; ——— misc —————————————————————————————————
   (worf-define-key map "L" 'worf-copy-heading-id)
-  (worf-define-key map "a" 'worf-add)
+  (worf-define-key map "a" 'worf-add :break t)
   (worf-define-key map "s" 'worf-save)
   ;; ——— narrow/widen —————————————————————————
   (worf-define-key map "N" 'org-narrow-to-subtree)
