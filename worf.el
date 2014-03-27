@@ -104,6 +104,13 @@ Otherwise call `self-insert-command'."
 (defvar ac-trigger-commands '(self-insert-command))
 (defvar company-begin-commands '(self-insert-command))
 
+(defun worf--flag-to-alist (lst flag)
+  "If FLAG is on LST, change it to (FLAG . t)."
+  (let ((x (memq flag lst)))
+    (when x
+      (setcar x (cons flag t)))
+    lst))
+
 (defun worf-define-key (keymap key def &rest plist)
   "Forward to (`define-key' KEYMAP KEY DEF)
 DEF is modified by `worf--insert-or-call'."
@@ -739,13 +746,6 @@ calling `self-insert-command'."
                 (when (string= str (nth 2 (org-heading-components)))
                   (throw 'break t))))
       (goto-char pt))))
-
-(defun worf--flag-to-alist (lst flag)
-  "If FLAG is on LST, change it to (FLAG . t)."
-  (let ((x (memq flag lst)))
-    (when x
-      (setcar x (cons flag t)))
-    lst))
 
 (let ((map worf-mode-map))
   ;; ——— Global ———————————————————————————————
