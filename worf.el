@@ -63,7 +63,6 @@ When `worf-mode' is on, various unprefixed keys call commands
 if the (looking-back \"^*+\") is true.
 
 \\{worf-mode-map}"
-  :keymap worf-mode-map
   :group 'worf
   :lighter " ✇")
 
@@ -275,8 +274,7 @@ When the chain is broken, the keyword is unset."
            (?d "DONE")
            (?n "NEXT")
            (?c "CANCELLED")))))))
-  (unless (memq this-command worf--keyword-no-invalidate-list)
-    (push this-command worf--keyword-no-invalidate-list))
+  (add-to-list 'worf--keyword-no-invalidate-list this-command)
   (if worf-change-mode
       (progn
         (org-todo keyword)
