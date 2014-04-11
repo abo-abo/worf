@@ -68,7 +68,7 @@ if the (looking-back \"^*+\") is true.
   :lighter " ✇")
 
 ;; ——— Macros ——————————————————————————————————————————————————————————————————
-(defmacro dotimes-protect (n &rest bodyform)
+(defmacro worf-dotimes-protect (n &rest bodyform)
   "Execute N times the BODYFORM unless an error is signaled.
 Return nil couldn't execute BODYFORM at least once.
 Otherwise return t."
@@ -321,14 +321,14 @@ When the chain is broken, the keyword is unset."
   "Move ARG headings up."
   (interactive "p")
   (cond ((worf-mod-keyword)
-         (dotimes-protect arg
+         (worf-dotimes-protect arg
            (worf--prev-keyword (worf-mod-keyword))))
         ((worf--at-property-p)
          (worf--prev-property arg))
         ((looking-at worf-sharp)
          (worf--sharp-up))
         (t
-         (unless (dotimes-protect arg
+         (unless (worf-dotimes-protect arg
                    (outline-previous-visible-heading 1)
                    t)
            (backward-char)
@@ -338,14 +338,14 @@ When the chain is broken, the keyword is unset."
   "Move ARG headings down."
   (interactive "p")
   (cond ((worf-mod-keyword)
-         (dotimes-protect arg
+         (worf-dotimes-protect arg
            (worf--next-keyword (worf-mod-keyword))))
         ((worf--at-property-p)
          (worf--next-property arg))
         ((looking-at worf-sharp)
          (worf--sharp-down))
         (t
-         (dotimes-protect arg
+         (worf-dotimes-protect arg
            (outline-next-visible-heading 1)))))
 
 (defun worf-right ()
@@ -458,7 +458,7 @@ When ARG isn't 1, call (`org-shifttab' ARG)."
              (string-match "[0-9]" (concat v)))
         (progn
           (org-shifttab arg)
-          (dotimes-protect (- (car (org-heading-components)) arg)
+          (worf-dotimes-protect (- (car (org-heading-components)) arg)
             (worf-left)))
       (let ((case-fold-search t))
         (when (looking-at "#\\+end")
