@@ -763,7 +763,7 @@ calling `self-insert-command'."
 
 (defun worf--pattern-transformer (x)
   "Transform X to make 1-9 select the heading level in `worf-goto'."
-  (if (string-match "[1-9]" x)
+  (if (string-match "^[1-9]" x)
       (setq x (format "^%s" x))
     x))
 
