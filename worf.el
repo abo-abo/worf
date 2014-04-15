@@ -257,7 +257,26 @@ DEF is modified by `worf--insert-or-call'."
    ("k" org-metaup)
    ("h" org-metaleft)
    ("l" org-metaright)
-   ("t" org-set-tags)))
+   ("t" org-set-tags :disable)
+   ("n" worf-change-name :disable :break)))
+
+(defun worf-change-name ()
+  "Change #+name of the current source block."
+  (interactive)
+  (let ((el (org-element-at-point)))
+    (if (eq (org-element-type el) 'src-block)
+        (let ((beg (org-element-property :begin el)))
+          (if (org-element-property :name el)
+              (let ((end (org-element-property :end el))
+                    (case-fold-search t))
+                (goto-char beg)
+                (re-search-forward "#\\+name: " end)
+                (delete-region (point)
+                               (line-end-position)))
+            (goto-char beg)
+            (insert "#+name: \n")
+            (backward-char)))
+      (error "Not in a source block"))))
 
 ;; ——— Verbs: change tree ——————————————————————————————————————————————————————
 (worf-defverb
