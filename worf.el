@@ -298,11 +298,18 @@ DEF is modified by `worf--insert-or-call'."
              'outline-previous-visible-heading) t)
       (kill-region pt (point)))))
 
+(defun worf-delete-w ()
+  "Delete keyword from current heading."
+  (interactive)
+  (org-todo 'none)
+  (org-back-to-heading))
+
 (worf-defverb
  "delete"
  '(("p" org-delete-property :disable)
    ("k" worf-delete-k :disable)
-   ("j" org-cut-subtree :disable)))
+   ("j" org-cut-subtree :disable)
+   ("w" worf-delete-w :disable)))
 
 ;; ——— Verbs: yank —————————————————————————————————————————————————————————————
 (worf-defverb
