@@ -315,7 +315,7 @@ i.e. ~d3j~ will delete 3 headings at once.
 :END:
 Call =worf-yank-mode=.
 
-It's similar to =worf-delete-mode=, but will copy the headings into
+It's similar to [[#delete][~d~]], but will copy the headings into
 the kill ring instead of deleting.
 -----
 
@@ -325,7 +325,7 @@ the kill ring instead of deleting.
 :END:
 Call =worf-mark-mode=.
 
-It's similar to =worf-delete-mode=, but will mark the headings instead
+It's similar to [[#delete][~d~]], but will mark the headings instead
 of deleting.
 -----
 
