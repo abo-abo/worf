@@ -69,6 +69,7 @@ As you see, the point has to be either at one of the =*= that start from
 the beginning of the line or actually at the beginning of the line,
 followed by =#+= which will further be referred to as markup.
 
+
 ** Nouns and verbs
 It's just an intuitive way of organizing the key bindings borrowed
 from vi: the commands are sentences - combinations of a verb and a
@@ -78,6 +79,8 @@ Similar to vi, [[#left][~h~]] / [[#down][~j~]] / [[#up][~k~]] / [[#right][~l~]] 
 arrow keys. These and additional nouns are listed in the tables below.
 
 *** Nouns table
+| key | name     |
+|-----+----------|
 | [[#down][~j~]] | down     |
 | [[#up][~k~]] | up       |
 | [[#left][~h~]] | left     |
@@ -87,6 +90,8 @@ arrow keys. These and additional nouns are listed in the tables below.
 | [[#tags][~t~]] | tags     |
 
 *** Verbs table
+| key  | name           |
+|------+----------------|
 | [[#goto][none]] | /goto/         |
 | [[#/change/][~c~]]  | /change/       |
 | [[#change-tree][~cf~]] | /change tree/  |
