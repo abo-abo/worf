@@ -251,15 +251,6 @@ DEF is modified by `worf--insert-or-call'."
        worf-known-verbs)))
 
 ;; ——— Verbs: change ———————————————————————————————————————————————————————————
-(worf-defverb
- "change"
- '(("j" org-metadown)
-   ("k" org-metaup)
-   ("h" org-metaleft)
-   ("l" org-metaright)
-   ("t" org-set-tags :disable)
-   ("n" worf-change-name :disable :break)))
-
 (defun worf-change-name ()
   "Change #+name of the current source block."
   (interactive)
@@ -277,6 +268,15 @@ DEF is modified by `worf--insert-or-call'."
             (insert "#+name: \n")
             (backward-char)))
       (error "Not in a source block"))))
+
+(worf-defverb
+ "change"
+ '(("j" org-metadown)
+   ("k" org-metaup)
+   ("h" org-metaleft)
+   ("l" org-metaright)
+   ("t" org-set-tags :disable)
+   ("n" worf-change-name :disable :break)))
 
 ;; ——— Verbs: change tree ——————————————————————————————————————————————————————
 (worf-defverb
