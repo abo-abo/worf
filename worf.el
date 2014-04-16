@@ -323,12 +323,29 @@ DEF is modified by `worf--insert-or-call'."
   (org-todo 'none)
   (org-back-to-heading))
 
+(defun worf-delete-name ()
+  "Delete #name of the current source block."
+  (interactive)
+  (let ((el (org-element-at-point)))
+    (if (eq (org-element-type el) 'src-block)
+        (let ((beg (org-element-property :begin el)))
+          (if (org-element-property :name el)
+              (let ((end (org-element-property :end el))
+                    (case-fold-search t))
+                (goto-char beg)
+                (re-search-forward "#\\+name: " end)
+                (delete-region (line-beginning-position)
+                               (1+ (line-end-position))))
+            (error "Source block already doesn't have a name")))
+      (error "Not in a source block"))))
+
 (worf-defverb
  "delete"
  '(("p" org-delete-property :disable)
    ("k" worf-delete-k :disable)
    ("j" org-cut-subtree :disable)
-   ("w" worf-delete-w :disable)))
+   ("w" worf-delete-w :disable)
+   ("n" worf-delete-name :disable)))
 
 ;; ——— Verbs: yank —————————————————————————————————————————————————————————————
 (worf-defverb
