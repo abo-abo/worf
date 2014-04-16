@@ -1,0 +1,590 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>worf.el documentation</title>
+<!-- 2014-04-16 Wed 17:25 -->
+<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta  name="generator" content="Org-mode" />
+<meta  name="author" content="Oleh" />
+<link rel="stylesheet" type="text/css" href="style.css"/>
+</head>
+<body>
+<div id="preamble" class="status">
+<link rel="icon" type="image/x-icon" href="https://github.com/favicon.ico"/>
+</div>
+<div id="content">
+<h1 class="title">worf.el documentation</h1>
+<p>
+<a href="https://github.com/abo-abo/worf">Back to github.</a>
+</p>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">Intro</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+This extension works similar to <a href="http://orgmode.org/manual/Speed-keys.html">org-mode's speed keys</a>, while adding in
+a bit of <i>vi</i> flavor, specifically:
+</p>
+</div>
+
+<div id="outline-container-sec-1-1" class="outline-3">
+<h3 id="sec-1-1">Modal editing</h3>
+<div class="outline-text-3" id="text-1-1">
+<p>
+This is just what the speed keys do: pressing <kbd>a</kbd> - <kbd>z</kbd>, <kbd>A</kbd> - <kbd>Z</kbd>, or
+<kbd>0</kbd> - <kbd>9</kbd> while the point is positioned as below will call a command
+instead of inserting these characters:
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-text"><cursor>*</cursor> foo
+</pre>
+</div>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-text">*<cursor>*</cursor> bar
+</pre>
+</div>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-text"><cursor>#</cursor>+ baz
+</pre>
+</div>
+</td></tr></tbody></table>
+
+<p>
+As you see, the point has to be either at one of the <code>*</code> that start from
+the beginning of the line or actually at the beginning of the line,
+followed by <code>#+</code> which will further be referred to as markup.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-1-2" class="outline-3">
+<h3 id="sec-1-2">Nouns and verbs</h3>
+<div class="outline-text-3" id="text-1-2">
+<p>
+It's just an intuitive way of organizing the key bindings borrowed
+from vi: the commands are sentences - combinations of a verb and a
+noun used together.
+</p>
+
+<p>
+Similar to vi, <a href="#left"><kbd>h</kbd></a> / <a href="#down"><kbd>j</kbd></a> / <a href="#up"><kbd>k</kbd></a> / <a href="#right"><kbd>l</kbd></a> are the nouns that represent the
+arrow keys. These and additional nouns are listed in the tables below.
+</p>
+</div>
+
+<div id="outline-container-sec-1-2-1" class="outline-4">
+<h4 id="sec-1-2-1">Nouns table</h4>
+<div class="outline-text-4" id="text-1-2-1">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="left"><a href="#down"><kbd>j</kbd></a></td>
+<td class="left">down</td>
+</tr>
+
+<tr>
+<td class="left"><a href="#up"><kbd>k</kbd></a></td>
+<td class="left">up</td>
+</tr>
+
+<tr>
+<td class="left"><a href="#left"><kbd>h</kbd></a></td>
+<td class="left">left</td>
+</tr>
+
+<tr>
+<td class="left"><a href="#right"><kbd>l</kbd></a></td>
+<td class="left">right</td>
+</tr>
+
+<tr>
+<td class="left"><a href="#added"><kbd>a</kbd></a></td>
+<td class="left">added</td>
+</tr>
+
+<tr>
+<td class="left"><a href="#property"><kbd>p</kbd></a></td>
+<td class="left">property</td>
+</tr>
+
+<tr>
+<td class="left"><a href="#tags"><kbd>t</kbd></a></td>
+<td class="left">tags</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-sec-1-2-2" class="outline-4">
+<h4 id="sec-1-2-2">Verbs table</h4>
+<div class="outline-text-4" id="text-1-2-2">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="left"><a href="#goto">none</a></td>
+<td class="left"><i>goto</i></td>
+</tr>
+
+<tr>
+<td class="left"><a href="#/change/"><kbd>c</kbd></a></td>
+<td class="left"><i>change</i></td>
+</tr>
+
+<tr>
+<td class="left"><a href="#change-tree"><kbd>cf</kbd></a></td>
+<td class="left"><i>change tree</i></td>
+</tr>
+
+<tr>
+<td class="left"><a href="#change-shift"><kbd>cs</kbd></a></td>
+<td class="left"><i>change shift</i></td>
+</tr>
+
+<tr>
+<td class="left"><a href="#keyword"><kbd>w</kbd></a></td>
+<td class="left"><i>keyword</i></td>
+</tr>
+
+<tr>
+<td class="left"><a href="#clock"><kbd>C</kbd></a></td>
+<td class="left"><i>clock</i></td>
+</tr>
+
+<tr>
+<td class="left"><a href="#delete"><kbd>d</kbd></a></td>
+<td class="left"><i>delete</i></td>
+</tr>
+
+<tr>
+<td class="left"><a href="#yank"><kbd>y</kbd></a></td>
+<td class="left"><i>yank</i></td>
+</tr>
+
+<tr>
+<td class="left"><a href="#mark"><kbd>m</kbd></a></td>
+<td class="left"><i>mark</i></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">Nouns</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-down" class="outline-3">
+<h3 id="down"><a id="sec-2-1"></a><kbd>j</kbd> - down</h3>
+<div class="outline-text-3" id="text-down">
+<p>
+Move <i>down</i> across headings and markup. Use a number prefix to move
+several times at once, i.e. <kbd>2j</kbd> will move two headings down.
+</p>
+
+<p>
+When you're in a heading, <kbd>j</kbd> will not enter markup, use <a href="#right"><kbd>l</kbd></a> for that
+instead, as markup that belongs to a heading can be seen as being
+<i>right</i> of that heading. This restriction speeds up the movement
+across headings that contain a lot of markup.
+</p>
+
+<p>
+When you're in markup, <kbd>j</kbd> will not enter a heading, use <a href="#left"><kbd>h</kbd></a> for that
+instead, as the heading can be seen as being <i>left</i> of its markup.
+This restriction allows to use a huge numeric arg (e.g. <kbd>9j</kbd> or <kbd>99j</kbd>)
+to move all the way to the last markup of the heading.
+</p>
+
+<p>
+The exception to both restrictions is the first markup in the file
+that does not belong to any heading.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-up" class="outline-3">
+<h3 id="up"><a id="sec-2-2"></a><kbd>k</kbd> - up</h3>
+<div class="outline-text-3" id="text-up">
+<p>
+Move <i>up</i> across headings and markup. Use a number prefix to move
+several times at once, i.e. <kbd>3k</kbd> will move three headings up.
+</p>
+
+<p>
+Same rules as <a href="#down"><kbd>j</kbd></a> apply.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-left" class="outline-3">
+<h3 id="left"><a id="sec-2-3"></a><kbd>h</kbd> - left</h3>
+<div class="outline-text-3" id="text-left">
+<p>
+Move <i>left</i> i.e. to the parent heading of current heading or markup.
+</p>
+
+<p>
+You can use it e.g. to go from fifth level 3 heading to its parent
+level 2 heading, or from the second source block to the parent
+heading.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-right" class="outline-3">
+<h3 id="right"><a id="sec-2-4"></a><kbd>l</kbd> - right</h3>
+<div class="outline-text-3" id="text-right">
+<p>
+Move <i>right</i> (i.e. to the first child of current heading).  You can
+use it to get to the first markup of the current heading.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-added" class="outline-3">
+<h3 id="added"><a id="sec-2-5"></a><kbd>a</kbd> - added</h3>
+<div class="outline-text-3" id="text-added">
+<p>
+Represents <i>added</i> heading. The behavior depends on the currently
+active verb:
+</p>
+</div>
+<div id="outline-container-sec-2-5-1" class="outline-4">
+<h4 id="sec-2-5-1">goto</h4>
+<div class="outline-text-4" id="text-2-5-1">
+<p>
+Forward to <code>org-insert-heading-respect-content</code> (bound to <kbd>C-RET</kbd> in <code>org-mode</code>).
+</p>
+</div>
+</div>
+<div id="outline-container-sec-2-5-2" class="outline-4">
+<h4 id="sec-2-5-2">change</h4>
+<div class="outline-text-4" id="text-2-5-2">
+<p>
+Forward to <code>org-meta-return</code> (bound to <kbd>M-RET</kbd> in <code>org-mode</code>).
+</p>
+</div>
+</div>
+<div id="outline-container-sec-2-5-3" class="outline-4">
+<h4 id="sec-2-5-3">keyword</h4>
+<div class="outline-text-4" id="text-2-5-3">
+<p>
+Add a new heading with a corresponding keyword.
+</p>
+
+<p>
+For example <kbd>wta</kbd> will add a new <b>TODO</b>, and <kbd>wna</kbd> will add a new
+<b>NEXT</b>.
+</p>
+<hr  />
+</div>
+</div>
+</div>
+<div id="outline-container-property" class="outline-3">
+<h3 id="property"><a id="sec-2-6"></a><kbd>p</kbd> - property</h3>
+<div class="outline-text-3" id="text-property">
+<p>
+Represents current heading's <i>property</i>. The behavior depends on the
+currently active verb:
+</p>
+</div>
+
+<div id="outline-container-sec-2-6-1" class="outline-4">
+<h4 id="sec-2-6-1">goto</h4>
+<div class="outline-text-4" id="text-2-6-1">
+<p>
+Move to the property, i.e. open the property drawer and place the
+point on the first property.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-2-6-2" class="outline-4">
+<h4 id="sec-2-6-2">change</h4>
+<div class="outline-text-4" id="text-2-6-2">
+<p>
+Change property. This forwards to <code>org-set-property</code>, which will
+prompt you for the name of the property and it's value.
+</p>
+
+<p>
+You can use this to add new properties as well.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-2-6-3" class="outline-4">
+<h4 id="sec-2-6-3">delete</h4>
+<div class="outline-text-4" id="text-2-6-3">
+<p>
+Delete property. This forwards to <code>org-delete-property</code>.
+</p>
+<hr  />
+</div>
+</div>
+</div>
+<div id="outline-container-tags" class="outline-3">
+<h3 id="tags"><a id="sec-2-7"></a><kbd>t</kbd> - tags</h3>
+<div class="outline-text-3" id="text-tags">
+<p>
+Represents current heading's <i>tags</i>.
+</p>
+
+<p>
+Currently, the only meaningful sentence is <kbd>ct</kbd>, which forwards to
+<code>org-set-tags</code>.
+</p>
+<hr  />
+</div>
+</div>
+</div>
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3">Verbs</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+Some verbs, such as <a href="#/change/"><kbd>c</kbd></a> (change), or <a href="#change-tree"><kbd>cf</kbd></a> (change tree) are <i>sticky</i>: once you
+activate them, they stick around until deactivated or you switch to
+another sticky verb (only one can be active at a time).  Their
+stickiness is represented by a change in the mode line. Each of them
+can be deactivated by the same key that activated them, or universally
+with <kbd>q</kbd>. Currently separate minor modes are used to implement sticky
+verbs because their concept is exactly the same.
+</p>
+
+<p>
+Other verbs, such as <a href="#clock"><kbd>C</kbd></a> (clock), are more like <i>vi</i> verbs, i.e. they
+deactivate themselves after the first command.
+</p>
+
+<p>
+And just to add to the confusion, some nouns will deactivate a verb
+(e.g. <kbd>cwd</kbd>), while others won't (e.g. <kbd>cj</kbd>).
+</p>
+<hr  />
+</div>
+
+<div id="outline-container-goto" class="outline-3">
+<h3 id="goto"><a id="sec-3-1"></a><i>goto</i></h3>
+<div class="outline-text-3" id="text-goto">
+<p>
+This verb is active by default. Its effect on the nouns is to move the
+point appropriately.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-/change/" class="outline-3">
+<h3 id="/change/"><a id="sec-3-2"></a><kbd>c</kbd> - <i>change</i></h3>
+<div class="outline-text-3" id="text-/change/">
+<p>
+Call <code>worf-change-mode</code>.
+</p>
+
+<p>
+This is a <i>sticky</i> verb: once you press <kbd>c</kbd>, <i>change</i> verb will be
+active until you switch to a different verb.
+</p>
+
+<p>
+Use the same letter to deactivate a verb as to activate it, i.e. <kbd>c</kbd>
+will deactivate <code>worf-change-mode</code>.  <kbd>q</kbd> will universally deactivate
+any verb and return you to <i>goto</i> implicit verb.
+</p>
+
+<p>
+While <code>worf-change-mode</code> is active, <kbd>hjkl</kbd> move the current heading
+in appropriate directions: it's the same as holding <kbd>M-</kbd> and using
+arrow keys in the default org.
+</p>
+
+<ul class="org-ul">
+<li><kbd>cp</kbd> will change the selected property
+</li>
+<li><kbd>ct</kbd> will change current tags
+</li>
+<li><kbd>ca</kbd> will add heading above instead of below, like <kbd>a</kbd> does
+</li>
+<li><kbd>cn</kbd> will change the name of a source block
+</li>
+</ul>
+<hr  />
+</div>
+</div>
+<div id="outline-container-change-tree" class="outline-3">
+<h3 id="change-tree"><a id="sec-3-3"></a><kbd>cf</kbd> - <i>change tree</i></h3>
+<div class="outline-text-3" id="text-change-tree">
+<p>
+Call <code>worf-change-tree-mode</code>.
+</p>
+
+<p>
+While <code>worf-change-tree-mode</code> is active, <kbd>hjkl</kbd> move the current
+heading tree in appropriate directions: it's the same as holding
+<kbd>S-M-</kbd> and using arrow keys in the default org.
+</p>
+</div>
+</div>
+<div id="outline-container-change-shift" class="outline-3">
+<h3 id="change-shift"><a id="sec-3-4"></a><kbd>cs</kbd> - <i>change shift</i></h3>
+<div class="outline-text-3" id="text-change-shift">
+<p>
+Call <code>worf-change-shift-mode</code>.
+</p>
+
+<p>
+While <code>worf-change-shift-mode</code> is active, <kbd>hjkl</kbd> act as
+<kbd>S-</kbd> and arrows in the default org.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-keyword" class="outline-3">
+<h3 id="keyword"><a id="sec-3-5"></a><kbd>w</kbd> <i>keyword</i></h3>
+<div class="outline-text-3" id="text-keyword">
+<p>
+Call <code>worf-keyword-mode</code>.
+</p>
+
+<p>
+You select a keyword e.g. <b>TODO</b> or <b>NEXT</b> and <kbd>j</kbd> / <kbd>k</kbd> move just by the
+selected keyword, skipping all other headings.
+</p>
+
+<p>
+Additionally, <kbd>a</kbd> will add a new heading with the appropriate keyword,
+e.g. <kbd>wta</kbd> will add a new <b>TODO</b>, and <kbd>wna</kbd> will add a new <b>NEXT</b>.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-clock" class="outline-3">
+<h3 id="clock"><a id="sec-3-6"></a><kbd>C</kbd> - <i>clock</i></h3>
+<div class="outline-text-3" id="text-clock">
+<p>
+Call <code>worf-clock-mode</code>.
+</p>
+
+<p>
+This one isn't sticky and has only two nouns that work with it:
+</p>
+<ul class="org-ul">
+<li><kbd>i</kbd> (<code>org-clock-in</code>)
+</li>
+<li><kbd>o</kbd> (<code>org-clock-out</code>)
+</li>
+</ul>
+<hr  />
+</div>
+</div>
+<div id="outline-container-delete" class="outline-3">
+<h3 id="delete"><a id="sec-3-7"></a><kbd>d</kbd> - <i>delete</i></h3>
+<div class="outline-text-3" id="text-delete">
+<p>
+Call <code>worf-delete-mode</code>.
+</p>
+
+<p>
+This one isn't sticky and changes the behavior of <kbd>j</kbd> to delete down,
+and <kbd>k</kbd> to delete up. You can mix in numbers to delete many times,
+i.e. <kbd>d3j</kbd> will delete 3 headings at once.
+</p>
+
+<ul class="org-ul">
+<li><kbd>dp</kbd> will delete the selected property
+</li>
+<li><kbd>dn</kbd> will delete the name of the current source block
+</li>
+</ul>
+<hr  />
+</div>
+</div>
+<div id="outline-container-yank" class="outline-3">
+<h3 id="yank"><a id="sec-3-8"></a><kbd>y</kbd> - <i>yank</i></h3>
+<div class="outline-text-3" id="text-yank">
+<p>
+Call <code>worf-yank-mode</code>.
+</p>
+
+<p>
+It's similar to <code>worf-delete-mode</code>, but will copy the headings into
+the kill ring instead of deleting.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-mark" class="outline-3">
+<h3 id="mark"><a id="sec-3-9"></a><kbd>m</kbd> - <i>mark</i></h3>
+<div class="outline-text-3" id="text-mark">
+<p>
+Call <code>worf-mark-mode</code>.
+</p>
+
+<p>
+It's similar to <code>worf-delete-mode</code>, but will mark the headings instead
+of deleting.
+</p>
+<hr  />
+</div>
+</div>
+</div>
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4">Miscellaneous commands</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+Some other things included in worf, that don't fit into the
+verb-noun structure, are:
+</p>
+</div>
+
+<div id="outline-container-sec-4-1" class="outline-3">
+<h3 id="sec-4-1"><kbd>o</kbd> - <code>worf-ace-link</code></h3>
+<div class="outline-text-3" id="text-4-1">
+<p>
+Open a link within current heading that's visible on screen. See
+<a href="https://github.com/abo-abo/ace-link">ace-link</a> for a package that uses this method in other modes.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-4-2" class="outline-3">
+<h3 id="sec-4-2"><kbd>g</kbd> - <code>worf-goto</code></h3>
+<div class="outline-text-3" id="text-4-2">
+<p>
+Open a <code>helm</code> outline of the current buffer.  It's very good when you
+want to search/navigate to a heading by word or level. See <a href="https://github.com/abo-abo/lispy">lispy</a> for a
+package that uses this method to navigate Lisp code.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-4-3" class="outline-3">
+<h3 id="sec-4-3"><kbd>L</kbd> - <code>worf-copy-heading-id</code></h3>
+<div class="outline-text-3" id="text-4-3">
+<p>
+Copy the link to current heading to the kill ring. This may be useful
+when you want to create a lot of links.
+</p>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

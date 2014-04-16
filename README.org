@@ -1,0 +1,342 @@
+#+TITLE:     worf.el documentation
+#+LANGUAGE:  en
+#+OPTIONS:   H:3 num:nil toc:nil
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="style.css"/>
+
+[[https://github.com/abo-abo/worf][Back to github.]]
+
+* Setup                                                                               :noexport:
+#+begin_src emacs-lisp :exports results :results silent
+(defun make-html-cursor--replace (x)
+  (cond ((string= "||\n" x)
+         "<cursor> </cursor>\n")
+        ((string= "||[" x)
+         "<cursor>[</cursor>")
+        ((string-match "||\\*" x)
+         (format "<cursor>%s</cursor>"
+                 (replace-regexp-in-string "||\\*" "*" x)))
+
+        (t
+         (format "<cursor>%s</cursor>"
+                 (regexp-quote
+                  (substring x 2))))))
+
+(defun make-html-cursor (str x y)
+  (replace-regexp-in-string
+   "||\\(.\\|\n\\)"
+   #'make-html-cursor--replace
+   str))
+
+(setq org-export-filter-src-block-functions '(make-html-cursor))
+(setq org-html-validation-link nil)
+(setq org-html-postamble nil)
+(setq org-html-preamble "<link rel=\"icon\" type=\"image/x-icon\" href=\"https://github.com/favicon.ico\"/>")
+(setq org-html-text-markup-alist
+  '((bold . "<b>%s</b>")
+    (code . "<kbd>%s</kbd>")
+    (italic . "<i>%s</i>")
+    (strike-through . "<del>%s</del>")
+    (underline . "<span class=\"underline\">%s</span>")
+    (verbatim . "<code>%s</code>")))
+(setq org-html-style-default nil)
+(setq org-html-head-include-scripts nil)
+#+end_src
+
+* Intro
+This extension works similar to [[http://orgmode.org/manual/Speed-keys.html][org-mode's speed keys]], while adding in
+a bit of /vi/ flavor, specifically:
+
+** Modal editing
+This is just what the speed keys do: pressing ~a~ - ~z~, ~A~ - ~Z~, or
+~0~ - ~9~ while the point is positioned as below will call a command
+instead of inserting these characters:
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src text
+||* foo
+#+end_src
+#+HTML: </td><td>
+#+begin_src text
+,*||* bar
+#+end_src
+#+HTML: </td><td>
+#+begin_src text
+||#+ baz
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+As you see, the point has to be either at one of the =*= that start from
+the beginning of the line or actually at the beginning of the line,
+followed by =#+= which will further be referred to as markup.
+
+** Nouns and verbs
+It's just an intuitive way of organizing the key bindings borrowed
+from vi: the commands are sentences - combinations of a verb and a
+noun used together.
+
+Similar to vi, [[#left][~h~]] / [[#down][~j~]] / [[#up][~k~]] / [[#right][~l~]] are the nouns that represent the
+arrow keys. These and additional nouns are listed in the tables below.
+
+*** Nouns table
+| [[#down][~j~]] | down     |
+| [[#up][~k~]] | up       |
+| [[#left][~h~]] | left     |
+| [[#right][~l~]] | right    |
+| [[#added][~a~]] | added    |
+| [[#property][~p~]] | property |
+| [[#tags][~t~]] | tags     |
+
+*** Verbs table
+| [[#goto][none]] | /goto/         |
+| [[#/change/][~c~]]  | /change/       |
+| [[#change-tree][~cf~]] | /change tree/  |
+| [[#change-shift][~cs~]] | /change shift/ |
+| [[#keyword][~w~]]  | /keyword/      |
+| [[#clock][~C~]]  | /clock/        |
+| [[#delete][~d~]]  | /delete/       |
+| [[#yank][~y~]]  | /yank/         |
+| [[#mark][~m~]]  | /mark/         |
+
+* Nouns
+** ~j~ - down
+:PROPERTIES:
+:CUSTOM_ID: down
+:END:
+Move /down/ across headings and markup. Use a number prefix to move
+several times at once, i.e. ~2j~ will move two headings down.
+
+When you're in a heading, ~j~ will not enter markup, use [[#right][~l~]] for that
+instead, as markup that belongs to a heading can be seen as being
+/right/ of that heading. This restriction speeds up the movement
+across headings that contain a lot of markup.
+
+When you're in markup, ~j~ will not enter a heading, use [[#left][~h~]] for that
+instead, as the heading can be seen as being /left/ of its markup.
+This restriction allows to use a huge numeric arg (e.g. ~9j~ or ~99j~)
+to move all the way to the last markup of the heading.
+
+The exception to both restrictions is the first markup in the file
+that does not belong to any heading.
+-----
+
+** ~k~ - up
+:PROPERTIES:
+:CUSTOM_ID: up
+:END:
+Move /up/ across headings and markup. Use a number prefix to move
+several times at once, i.e. ~3k~ will move three headings up.
+
+Same rules as [[#down][~j~]] apply.
+-----
+
+** ~h~ - left
+:PROPERTIES:
+:CUSTOM_ID: left
+:END:
+Move /left/ i.e. to the parent heading of current heading or markup.
+
+You can use it e.g. to go from fifth level 3 heading to its parent
+level 2 heading, or from the second source block to the parent
+heading.
+-----
+
+** ~l~ - right
+:PROPERTIES:
+:CUSTOM_ID: right
+:END:
+Move /right/ (i.e. to the first child of current heading).  You can
+use it to get to the first markup of the current heading.
+-----
+
+** ~a~ - added
+:PROPERTIES:
+:CUSTOM_ID: added
+:END:
+Represents /added/ heading. The behavior depends on the currently
+active verb:
+*** goto
+Forward to =org-insert-heading-respect-content= (bound to ~C-RET~ in =org-mode=).
+
+*** change
+Forward to =org-meta-return= (bound to ~M-RET~ in =org-mode=).
+
+*** keyword
+Add a new heading with a corresponding keyword.
+
+For example ~wta~ will add a new *TODO*, and ~wna~ will add a new
+*NEXT*.
+-----
+
+** ~p~ - property
+:PROPERTIES:
+:CUSTOM_ID: property
+:END:
+Represents current heading's /property/. The behavior depends on the
+currently active verb:
+
+*** goto
+Move to the property, i.e. open the property drawer and place the
+point on the first property.
+
+*** change
+Change property. This forwards to =org-set-property=, which will
+prompt you for the name of the property and it's value.
+
+You can use this to add new properties as well.
+
+*** delete
+Delete property. This forwards to =org-delete-property=.
+-----
+
+** ~t~ - tags
+:PROPERTIES:
+:CUSTOM_ID: tags
+:END:
+
+Represents current heading's /tags/.
+
+Currently, the only meaningful sentence is ~ct~, which forwards to
+=org-set-tags=.
+-----
+
+* Verbs
+Some verbs, such as [[#/change/][~c~]] (change), or [[#change-tree][~cf~]] (change tree) are /sticky/: once you
+activate them, they stick around until deactivated or you switch to
+another sticky verb (only one can be active at a time).  Their
+stickiness is represented by a change in the mode line. Each of them
+can be deactivated by the same key that activated them, or universally
+with ~q~. Currently separate minor modes are used to implement sticky
+verbs because their concept is exactly the same.
+
+Other verbs, such as [[#clock][~C~]] (clock), are more like /vi/ verbs, i.e. they
+deactivate themselves after the first command.
+
+And just to add to the confusion, some nouns will deactivate a verb
+(e.g. ~cwd~), while others won't (e.g. ~cj~).
+-----
+
+** /goto/
+:PROPERTIES:
+:CUSTOM_ID: goto
+:END:
+This verb is active by default. Its effect on the nouns is to move the
+point appropriately.
+-----
+
+** ~c~ - /change/
+:PROPERTIES:
+:CUSTOM_ID: /change/
+:END:
+Call =worf-change-mode=.
+
+This is a /sticky/ verb: once you press ~c~, /change/ verb will be
+active until you switch to a different verb.
+
+Use the same letter to deactivate a verb as to activate it, i.e. ~c~
+will deactivate =worf-change-mode=.  ~q~ will universally deactivate
+any verb and return you to /goto/ implicit verb.
+
+While =worf-change-mode= is active, ~hjkl~ move the current heading
+in appropriate directions: it's the same as holding ~M-~ and using
+arrow keys in the default org.
+
+- ~cp~ will change the selected property
+- ~ct~ will change current tags
+- ~ca~ will add heading above instead of below, like ~a~ does
+- ~cn~ will change the name of a source block
+-----
+
+** ~cf~ - /change tree/
+:PROPERTIES:
+:CUSTOM_ID: change-tree
+:END:
+Call =worf-change-tree-mode=.
+
+While =worf-change-tree-mode= is active, ~hjkl~ move the current
+heading tree in appropriate directions: it's the same as holding
+~S-M-~ and using arrow keys in the default org.
+
+** ~cs~ - /change shift/
+:PROPERTIES:
+:CUSTOM_ID: change-shift
+:END:
+Call =worf-change-shift-mode=.
+
+While =worf-change-shift-mode= is active, ~hjkl~ act as
+~S-~ and arrows in the default org.
+-----
+
+** ~w~ /keyword/
+:PROPERTIES:
+:CUSTOM_ID: keyword
+:END:
+Call =worf-keyword-mode=.
+
+You select a keyword e.g. *TODO* or *NEXT* and ~j~ / ~k~ move just by the
+selected keyword, skipping all other headings.
+
+Additionally, ~a~ will add a new heading with the appropriate keyword,
+e.g. ~wta~ will add a new *TODO*, and ~wna~ will add a new *NEXT*.
+-----
+
+** ~C~ - /clock/
+:PROPERTIES:
+:CUSTOM_ID: clock
+:END:
+Call =worf-clock-mode=.
+
+This one isn't sticky and has only two nouns that work with it:
+- ~i~ (=org-clock-in=)
+- ~o~ (=org-clock-out=)
+-----
+
+** ~d~ - /delete/
+:PROPERTIES:
+:CUSTOM_ID: delete
+:END:
+Call =worf-delete-mode=.
+
+This one isn't sticky and changes the behavior of ~j~ to delete down,
+and ~k~ to delete up. You can mix in numbers to delete many times,
+i.e. ~d3j~ will delete 3 headings at once.
+
+- ~dp~ will delete the selected property
+- ~dn~ will delete the name of the current source block
+-----
+
+** ~y~ - /yank/
+:PROPERTIES:
+:CUSTOM_ID: yank
+:END:
+Call =worf-yank-mode=.
+
+It's similar to =worf-delete-mode=, but will copy the headings into
+the kill ring instead of deleting.
+-----
+
+** ~m~ - /mark/
+:PROPERTIES:
+:CUSTOM_ID: mark
+:END:
+Call =worf-mark-mode=.
+
+It's similar to =worf-delete-mode=, but will mark the headings instead
+of deleting.
+-----
+
+* Miscellaneous commands
+Some other things included in worf, that don't fit into the
+verb-noun structure, are:
+
+** ~o~ - =worf-ace-link=
+Open a link within current heading that's visible on screen. See
+[[https://github.com/abo-abo/ace-link][ace-link]] for a package that uses this method in other modes.
+
+** ~g~ - =worf-goto=
+Open a =helm= outline of the current buffer.  It's very good when you
+want to search/navigate to a heading by word or level. See [[https://github.com/abo-abo/lispy][lispy]] for a
+package that uses this method to navigate Lisp code.
+
+** ~L~ - =worf-copy-heading-id=
+Copy the link to current heading to the kill ring. This may be useful
+when you want to create a lot of links.
