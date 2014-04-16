@@ -333,6 +333,15 @@ of deleting.
 Some other things included in worf, that don't fit into the
 verb-noun structure, are:
 
+** ~i~ - =worf-tab=
+Wraps around =org-cycle=.
+
+Additionally, e.g. ~2i~ will show a summary up to level 2, ~3i~ -
+level 3 etc.
+
+** ~I~ - =worf-shifttab=
+Just a wrapper for =org-shifttab=.
+
 ** ~o~ - =worf-ace-link=
 Open a link within current heading that's visible on screen. See
 [[https://github.com/abo-abo/ace-link][ace-link]] for a package that uses this method in other modes.
