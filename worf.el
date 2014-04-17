@@ -583,6 +583,16 @@ When already at beginning of line, move back to heading."
                          (worf-more)))
             (pattern-transformer . worf--pattern-transformer)))))
 
+(defun worf-meta-newline ()
+  "Copy current markup block at newline.
+Sometimes useful for #+LaTeX_HEADER."
+  (interactive)
+  (if (looking-back "^#\\+\\([^:]*:\\).*")
+      (progn
+        (end-of-line)
+        (insert "\n#+" (match-string 1) " "))
+    (indent-new-comment-line)))
+
 ;; ——— View ————————————————————————————————————————————————————————————————————
 (defun worf-tab (arg)
   "Hide/show heading.
@@ -885,9 +895,8 @@ calling `self-insert-command'."
   ;; ——— Global ———————————————————————————————
   (define-key map "[" 'worf-backward)
   (define-key map "]" 'worf-forward)
-  (define-key map "\C-a" 'worf-beginning-of-line)
+  (define-key map (kbd "M-j") 'worf-meta-newline)
   (define-key map "\C-j" 'worf-follow)
-  (define-key map (kbd "M-j") 'worf-ace-link)
   (define-key map (kbd "C-M-g") 'worf-goto)
   (define-key map (kbd "C-d") 'worf-delete-subtree)
   ;; ——— Local ————————————————————————————————
