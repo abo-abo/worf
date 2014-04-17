@@ -276,7 +276,8 @@ DEF is modified by `worf--insert-or-call'."
    ("h" org-metaleft)
    ("l" org-metaright)
    ("t" org-set-tags :disable)
-   ("n" worf-change-name :disable :break)))
+   ("n" worf-change-name :disable :break)
+   ("a" org-meta-return :disable :break)))
 
 ;; ——— Verbs: change tree ——————————————————————————————————————————————————————
 (worf-defverb
