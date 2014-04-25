@@ -959,6 +959,49 @@ calling `self-insert-command'."
         (number-sequence 0 9))
   (worf-define-key map "-" 'negative-argument))
 
+(defconst worf-fl-summary
+  '(("\\(^\\(#\\+caption: [^\n]*\n\\)?\\(#\\+attr_latex: [^\n]*\n\\)?\\(#\\+label: [^\n]*\\)?\\)\n"
+     (0
+      (progn
+        (put-text-property
+         (match-beginning 1)
+         (match-end 1) 'display
+         (concat (worf--squashed-string)))
+        nil)))))
+
+(defun worf--summary-on ()
+  (interactive)
+  (save-buffer)
+  (font-lock-add-keywords
+   'org-mode
+   worf-fl-summary)
+  (revert-buffer nil t))
+
+(defun worf--summary-off ()
+  (interactive)
+  (font-lock-remove-keywords
+   'org-mode
+   worf-fl-summary)
+  (save-buffer)
+  (let ((file-name (buffer-file-name)))
+    (kill-buffer (current-buffer))
+    (find-file file-name)))
+
+(defun worf--org-attribute (str)
+  (save-match-data
+   (if (string-match "^#\\+[^:]*: \\(.*\\)$" str)
+       (match-string 1 str)
+     (error "Bad attribute: %s" str))))
+
+(defun worf--squashed-string ()
+  (let ((strs (split-string
+               (match-string-no-properties 1)
+               "\n" t)))
+    (propertize
+     (mapconcat 'worf--org-attribute strs " / ")
+     'face
+     'org-meta-line)))
+
 (provide 'worf)
 
 ;;; Local Variables:
