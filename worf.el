@@ -527,13 +527,24 @@ When the chain is broken, the keyword is unset."
                (error "No properties. Use \"c p\" to add properties")))))))
 
 ;; ——— Nouns: new heading ——————————————————————————————————————————————————————
-(defun worf-add ()
-  "Add a new heading below."
-  (interactive)
+(defun worf-add (arg)
+  "Add a new heading below.
+Positive ARG shifts the heading right.
+Negative ARG shifts the heading left."
+  (interactive "p")
   (org-insert-heading-respect-content)
-  (when worf-keyword-mode
-    (insert (worf-mod-keyword) " ")
-    (worf-keyword-mode -1)))
+  (let ((vkeys (this-command-keys-vector)))
+    (cond ((= 1 (length vkeys)))
+
+          ((plusp arg)
+           (worf-dotimes-protect arg
+             (org-metaright)))
+          ((minusp arg)
+           (worf-dotimes-protect (- arg)
+             (org-metaleft))))
+    (when worf-keyword-mode
+      (insert (worf-mod-keyword) " ")
+      (worf-keyword-mode -1))))
 
 ;; ——— Other movement ——————————————————————————————————————————————————————————
 (defun worf-backward ()
@@ -945,7 +956,8 @@ calling `self-insert-command'."
   (worf-define-key map "u" 'undo)
   ;; ——— digit argument ———————————————————————
   (mapc (lambda (x) (worf-define-key map (format "%d" x) 'digit-argument))
-        (number-sequence 0 9)))
+        (number-sequence 0 9))
+  (worf-define-key map "-" 'negative-argument))
 
 (provide 'worf)
 
