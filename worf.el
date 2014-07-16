@@ -480,8 +480,15 @@ When the chain is broken, the keyword is unset."
         ((looking-at worf-sharp)
          (worf--sharp-down))
         (t
-         (worf-dotimes-protect arg
-           (outline-next-visible-heading 1)))))
+         (ignore-errors
+           (let ((pt 0)
+                 (i 0))
+             (while (and (<= (incf i) arg)
+                         (> (point) pt))
+               (setq pt (point))
+               (outline-next-visible-heading 1))
+             (unless (= i (1+ arg))
+               (message "End reached after %s headings" i)))))))
 
 (defun worf-right ()
   "Move right."
