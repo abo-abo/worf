@@ -269,6 +269,20 @@ DEF is modified by `worf--insert-or-call'."
             (backward-char)))
       (error "Not in a source block"))))
 
+(defun worf-mark ()
+  "Mark the title of current heading."
+  (interactive)
+  (cond ((region-active-p)
+         (deactivate-mark)
+         (worf-backward))
+        ((worf--special-p)
+         (org-back-to-heading)
+         (re-search-forward " ")
+         (set-mark (point))
+         (end-of-line))
+        (t
+         (org-self-insert-command 1))))
+
 (worf-defverb
  "change"
  '(("j" org-metadown)
@@ -956,7 +970,7 @@ calling `self-insert-command'."
   (worf-define-key map "y" 'worf-yank-mode)
   (worf-define-key map "C" 'worf-clock-mode)
   (worf-define-key map "w" 'worf-keyword-mode)
-  (worf-define-key map "m" 'worf-mark-mode)
+  (define-key map "m" 'worf-mark)
   (worf-define-key map "q" 'worf-quit)
   ;; ——— nouns ————————————————————————————————
   (worf-define-key map "p" 'worf-property)
