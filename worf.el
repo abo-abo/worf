@@ -569,6 +569,26 @@ Negative ARG shifts the heading left."
       (insert (worf-mod-keyword) " ")
       (worf-keyword-mode -1))))
 
+(defun worf-new-right (arg)
+  (interactive "p")
+  (org-insert-heading-respect-content)
+  (worf-dotimes-protect arg
+    (org-metaright)))
+
+(defun worf-new-down ()
+  (interactive)
+  (end-of-line)
+  (org-insert-heading-respect-content)
+  (beginning-of-line))
+
+
+(worf-defverb
+ "new"
+ '(("j" worf-new-down :disable :break)
+   ("k" org-insert-heading)
+   ("h" org-metaleft)
+   ("l" worf-new-right :disable :break)))
+
 ;; ——— Other movement ——————————————————————————————————————————————————————————
 (defun worf-backward ()
   "Go backwards to closest special position."
@@ -949,6 +969,7 @@ calling `self-insert-command'."
   (worf-define-key map "i" 'worf-tab)
   (worf-define-key map "I" 'worf-shifttab)
   ;; (worf-define-key map "m" 'worf-more)
+
   (worf-define-key map "v" 'worf-view)
   ;; ——— files ————————————————————————————————
   (worf-define-key map "F" 'worf-attach-visit)
@@ -972,6 +993,7 @@ calling `self-insert-command'."
   (worf-define-key map "w" 'worf-keyword-mode)
   (define-key map "m" 'worf-mark)
   (worf-define-key map "q" 'worf-quit)
+  (worf-define-key map "n" 'worf-new-mode)
   ;; ——— nouns ————————————————————————————————
   (worf-define-key map "p" 'worf-property)
   ;; ——— misc —————————————————————————————————
