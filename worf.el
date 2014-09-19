@@ -539,7 +539,9 @@ When the chain is broken, the keyword is unset."
 Positive ARG shifts the heading right.
 Negative ARG shifts the heading left."
   (interactive "p")
-  (org-insert-heading-respect-content)
+  (if (= 0 (buffer-size))
+      (org-insert-heading)
+    (org-insert-heading-after-current))
   (let ((vkeys (this-command-keys-vector)))
     (cond ((= 1 (length vkeys)))
 
