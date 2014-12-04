@@ -829,6 +829,19 @@ calling `self-insert-command'."
                        'org-hide-block))
            (overlays-at (point))))
 
+(defun worf-delete-backward-char (arg)
+  (interactive "p")
+  (let (ov expose)
+    (if (and (eolp)
+             (setq ov (car (overlays-at (1- (point))))))
+        (progn
+          (goto-char (1- (overlay-end ov)))
+          (when (and (invisible-p (overlay-get ov 'invisible))
+                     (setq expose (overlay-get ov 'isearch-open-invisible)))
+            (funcall expose ov)
+            (forward-char 1)))
+      (org-delete-backward-char arg))))
+
 ;; ——— Pure ————————————————————————————————————————————————————————————————————
 (defun worf--bounds-subtree ()
   "Return bounds of the current subtree as a cons."
@@ -957,6 +970,7 @@ calling `self-insert-command'."
   (define-key map "\C-j" 'worf-follow)
   (define-key map (kbd "C-M-g") 'worf-goto)
   (define-key map (kbd "C-d") 'worf-delete-subtree)
+  (define-key map (kbd "DEL") 'worf-delete-backward-char)
   ;; ——— Local ————————————————————————————————
   (mapc (lambda (k) (worf-define-key map k 'worf-reserved))
         '("b" "B" "C" "D" "e" "E" "f" "G" "H" "J" "M" "n" "O" "P" "Q"
