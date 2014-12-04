@@ -602,6 +602,10 @@ Negative ARG shifts the heading left."
   (re-search-forward worf-regex-full nil t)
   (beginning-of-line))
 
+(defun worf-back-to-heading ()
+  (interactive)
+  (org-back-to-heading))
+
 (defun worf-beginning-of-line ()
   "Replaces `beginning-of-line'.
 When already at beginning of line, move back to heading."
