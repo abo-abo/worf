@@ -5,7 +5,7 @@
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/worf
 ;; Version: 0.1
-;; Package-Requires: ((helm "1.5.3") (ace-jump-mode "2.0"))
+;; Package-Requires: ((helm "1.5.3") (ace-jump-mode "2.0") (ace-link "0.1.0"))
 ;; Keywords: lisp
 
 ;; This file is not part of GNU Emacs
@@ -131,6 +131,7 @@
 
 ;; ——— Requires ————————————————————————————————————————————————————————————————
 (require 'ace-jump-mode)
+(require 'ace-link)
 (require 'org)
 (require 'org-id)
 (require 'org-clock)
@@ -711,21 +712,8 @@ If already there, return it to previous position."
   "Visit a link within current heading by ace jumping."
   (interactive)
   (org-narrow-to-subtree)
-  (setq ace-jump-mode-end-hook
-        (list `(lambda ()
-                 (setq ace-jump-mode-end-hook)
-                 (widen)
-                 (worf-follow))))
-  (let ((ace-jump-mode-scope 'window)
-        (ace-jump-allow-invisible t))
-    (unwind-protect
-         (condition-case e
-             (ace-jump-do "\\[\\[")
-           (error
-            (if (string= (error-message-string e) "[AceJump] No one found")
-                (error "0 links visible in current subtree")
-              (signal (car e) (cdr e)))))
-      (widen))))
+  (ignore-errors (ace-link-org))
+  (widen))
 
 ;; ——— Files ———————————————————————————————————————————————————————————————————
 (defun worf-attach ()
