@@ -538,7 +538,7 @@ When the chain is broken, the keyword is unset."
         (t
          (cl-destructuring-bind (beg . end)
              (worf--bounds-subtree)
-           (let ((pt (car (org-get-property-block beg end nil))))
+           (let ((pt (car (org-get-property-block beg))))
              (if pt
                  (progn
                    (unless (bound-and-true-p reveal-mode)
