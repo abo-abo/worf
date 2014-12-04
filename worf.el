@@ -994,8 +994,8 @@ calling `self-insert-command'."
   (worf-define-key map "A" 'worf-attach)
   (worf-define-key map "V" 'worf-visit)
   ;; ——— refile ———————————————————————————————
-  (worf-define-key map "r" 'worf-refile-other)
-  (worf-define-key map "R" 'worf-refile-this)
+  (worf-define-key map "R" 'worf-refile-other)
+  (worf-define-key map "r" 'worf-refile-this)
   ;; ——— misc —————————————————————————————————
   (worf-define-key map "L" 'worf-copy-heading-id)
   (worf-define-key map "a" 'worf-add :break t)
