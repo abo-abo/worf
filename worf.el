@@ -823,7 +823,8 @@ calling `self-insert-command'."
       (delete-active-region)
     (let (ov expose)
       (if (and (eolp)
-               (setq ov (car (overlays-at (1- (point))))))
+               (setq ov (car (overlays-at (1- (point)))))
+               (invisible-p (overlay-get ov 'invisible)))
           (progn
             (goto-char (1- (overlay-end ov)))
             (when (and (invisible-p (overlay-get ov 'invisible))
