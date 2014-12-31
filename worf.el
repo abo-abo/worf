@@ -854,9 +854,10 @@ calling `self-insert-command'."
               "^Before first headline"
               (error-message-string e))
              (cons (point-min)
-                   (progn
-                     (org-speed-move-safe 'outline-next-visible-heading)
-                     (point)))
+                   (or (ignore-errors
+                         (org-speed-move-safe 'outline-next-visible-heading)
+                         (point))
+                       (point-max)))
            (signal (car e) (cdr e))))))))
 
 ;; ——— Utilities ———————————————————————————————————————————————————————————————
