@@ -5,7 +5,7 @@
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/worf
 ;; Version: 0.1
-;; Package-Requires: ((helm "1.5.3") (ace-jump-mode "2.0") (ace-link "0.1.0"))
+;; Package-Requires: ((helm "1.5.3") (ace-link "0.1.0") (hydra "0.13.0"))
 ;; Keywords: lisp
 
 ;; This file is not part of GNU Emacs
@@ -173,6 +173,18 @@ Otherwise return t."
          ,@bodyform
          (setq out t)))
      out))
+
+(defmacro worf-flet (binding &rest body)
+  "Temporarily override BINDING and execute BODY."
+  (declare (indent 1))
+  (let* ((name (car binding))
+         (old (cl-gensym (symbol-name name))))
+    `(let ((,old (symbol-function ',name)))
+       (unwind-protect
+            (progn
+              (fset ',name (lambda ,@(cdr binding)))
+              ,@body)
+         (fset ',name ,old)))))
 
 ;; ——— Key binding machinery ———————————————————————————————————————————————————
 (defun worf--insert-or-call (def alist)
@@ -760,6 +772,32 @@ ARG is unused currently."
   (let ((org-refile-targets `((nil :maxlevel . ,arg))))
     (call-interactively 'org-refile)))
 
+(defun worf-refile-last ()
+  "Refile to the last location without prompting."
+  (interactive)
+  (worf-flet (org-icompleting-read
+               (_prompt _collection _i1 _i2 _i3 _i3 default)
+               default)
+    (call-interactively 'org-refile)))
+
+(defhydra hydra-refile (:hint nil
+                        :color teal)
+  "
+Refile:^^   _k_eep: %`org-refile-keep
+----------------------------------
+_l_ast      _a_rchive
+_o_ther
+_t_his
+
+"
+  ("t" worf-refile-this)
+  ("o" worf-refile-other)
+  ("l" worf-refile-last)
+  ("k" (setq org-refile-keep (not org-refile-keep))
+       :exit nil)
+  ("a" (org-archive-subtree))
+  ("q" nil "quit"))
+
 ;; ——— Misc ————————————————————————————————————————————————————————————————————
 (defun worf-delete-subtree (arg)
   "Delete subtree or ARG chars."
@@ -986,8 +1024,7 @@ calling `self-insert-command'."
   (worf-define-key map "A" 'worf-attach)
   (worf-define-key map "V" 'worf-visit)
   ;; ——— refile ———————————————————————————————
-  (worf-define-key map "R" 'worf-refile-other)
-  (worf-define-key map "r" 'worf-refile-this)
+  (worf-define-key map "r" 'hydra-refile/body)
   ;; ——— misc —————————————————————————————————
   (worf-define-key map "L" 'worf-copy-heading-id)
   (worf-define-key map "a" 'worf-add :break t)
