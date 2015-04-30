@@ -633,25 +633,38 @@ When already at beginning of line, move back to heading."
   "Jump to a heading with `helm'."
   (interactive)
   (require 'helm-match-plugin)
-  (let ((candidates
-         (org-map-entries
-          (lambda ()
-            (let ((comp (org-heading-components))
-                  (h (org-get-heading)))
-              (cons (format "%d%s%s" (car comp)
-                            (make-string (1+ (* 2 (1- (car comp)))) ?\ )
-                            (if (get-text-property 0 'fontified h)
-                                h
-                              (worf--pretty-heading (nth 4 comp) (car comp))))
-                    (point))))))
+  (let (candidates
         helm-update-blacklist-regexps
         helm-candidate-number-limit)
+    (org-map-entries
+     (lambda ()
+       (let ((comp (org-heading-components))
+             (h (org-get-heading)))
+         (push
+          (cons (format "%d%s%s" (car comp)
+                        (make-string (1+ (* 2 (1- (car comp)))) ?\ )
+                        (if (get-text-property 0 'fontified h)
+                            h
+                          (worf--pretty-heading (nth 4 comp) (car comp))))
+                (point))
+          candidates)
+         (save-restriction
+           (narrow-to-region
+            (progn (org-back-to-heading t) (point))
+            (progn (worf-down 1) (point)))
+           (save-excursion
+             (goto-char (point-min))
+             (while (re-search-forward "^#\\+name \\(.*\\)$" nil t)
+               (push (cons (propertize (match-string 1) 'face 'org-meta-line)
+                           (line-beginning-position))
+                     candidates)))))))
+
     (helm :sources
           `((name . "Headings")
-            (candidates . ,candidates)
+            (candidates . ,(nreverse candidates))
             (action . (lambda (x) (goto-char x)
-                         (call-interactively 'show-branches)
-                         (worf-more)))
+                              (call-interactively 'show-branches)
+                              (worf-more)))
             (pattern-transformer . worf--pattern-transformer)))))
 
 (defun worf-meta-newline ()
@@ -776,8 +789,8 @@ ARG is unused currently."
   "Refile to the last location without prompting."
   (interactive)
   (worf-flet (org-icompleting-read
-               (_prompt _collection _i1 _i2 _i3 _i3 default)
-               default)
+              (_prompt _collection _i1 _i2 _i3 _i3 default)
+              default)
     (call-interactively 'org-refile)))
 
 (defhydra hydra-refile (:hint nil
