@@ -130,7 +130,6 @@
 ;;; Code:
 
 ;; ——— Requires ————————————————————————————————————————————————————————————————
-(require 'ace-jump-mode)
 (require 'ace-link)
 (require 'org)
 (require 'org-id)
