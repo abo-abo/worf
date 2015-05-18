@@ -566,7 +566,14 @@ Positive ARG shifts the heading right.
 Negative ARG shifts the heading left."
   (interactive "p")
   (condition-case nil
-      (org-insert-heading-after-current)
+      (progn
+        (goto-char (cdr (worf--bounds-subtree)))
+        (skip-chars-backward "\n ")
+        (forward-line 1)
+        (when (looking-at "^\\*")
+          (insert "\n")
+          (forward-line -1))
+        (org-insert-heading))
     (error (org-insert-heading)))
   (let ((vkeys (this-command-keys-vector)))
     (cond ((= 1 (length vkeys)))
