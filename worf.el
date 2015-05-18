@@ -619,14 +619,15 @@ Negative ARG shifts the heading left."
   (org-back-to-heading))
 
 (defun worf-beginning-of-line ()
-  "Replaces `beginning-of-line'.
+  "Replaces `org-beginning-of-line'.
 When already at beginning of line, move back to heading."
   (interactive)
-  (if (looking-at "^[^*]")
-      (progn
-        (push-mark)
-        (re-search-backward "^*"))
-    (org-beginning-of-line)))
+  (let ((pt (point)))
+    (org-beginning-of-line)
+    (when (and (eq pt (point))
+               (looking-at "^[^*]"))
+      (push-mark)
+      (re-search-backward "^*"))))
 
 (defun worf-goto ()
   "Jump to a heading with `helm'."
@@ -1013,6 +1014,7 @@ calling `self-insert-command'."
   (define-key map (kbd "C-M-g") 'worf-goto)
   (define-key map (kbd "C-d") 'worf-delete-subtree)
   (define-key map (kbd "DEL") 'worf-delete-backward-char)
+  (define-key map (kbd "C-a") 'worf-beginning-of-line)
   ;; ——— Local ————————————————————————————————
   (mapc (lambda (k) (worf-define-key map k 'worf-reserved))
         '("b" "B" "C" "D" "e" "E" "f" "G" "H" "J" "M" "n" "O" "P" "Q"
