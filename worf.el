@@ -824,7 +824,7 @@ _t_his
   (interactive "p")
   (if (and (looking-at "\\*") (looking-back "^\\**"))
       (org-cut-subtree)
-    (delete-char arg)))
+    (delete-forward-char arg)))
 
 (defun worf-copy-heading-id (arg)
   "Copy the id link of current heading to kill ring.
