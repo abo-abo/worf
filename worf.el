@@ -203,6 +203,7 @@ Otherwise call `self-insert-command'."
                   (worf-up 1)))
 
                (t
+                (setq this-command 'org-self-insert-command)
                 (org-self-insert-command 1)))))))
 
 (defvar ac-trigger-commands '(self-insert-command))
