@@ -640,7 +640,7 @@ When already at beginning of line, move back to heading."
 (defun worf-goto ()
   "Jump to a heading with `helm'."
   (interactive)
-  (require 'helm-match-plugin)
+  (require 'helm-multi-match)
   (let (candidates
         helm-update-blacklist-regexps
         helm-candidate-number-limit)
