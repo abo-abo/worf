@@ -168,7 +168,7 @@ Otherwise return t."
   `(let ((i 0)
          out)
      (ignore-errors
-       (while (<= (incf i) ,n)
+       (while (<= (cl-incf i) ,n)
          ,@bodyform
          (setq out t)))
      out))
@@ -510,7 +510,7 @@ When the chain is broken, the keyword is unset."
          (ignore-errors
            (let ((pt 0)
                  (i 0))
-             (while (and (<= (incf i) arg)
+             (while (and (<= (cl-incf i) arg)
                          (> (point) pt))
                (setq pt (point))
                (outline-next-visible-heading 1))
@@ -579,10 +579,10 @@ Negative ARG shifts the heading left."
   (let ((vkeys (this-command-keys-vector)))
     (cond ((= 1 (length vkeys)))
 
-          ((plusp arg)
+          ((cl-plusp arg)
            (worf-dotimes-protect arg
              (org-metaright)))
-          ((minusp arg)
+          ((cl-minusp arg)
            (worf-dotimes-protect (- arg)
              (org-metaleft))))
     (when worf-keyword-mode
