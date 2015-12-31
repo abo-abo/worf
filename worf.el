@@ -643,7 +643,8 @@ When already at beginning of line, move back to heading."
   (require 'helm-multi-match)
   (let (candidates
         helm-update-blacklist-regexps
-        helm-candidate-number-limit)
+        helm-candidate-number-limit
+        (extra (< (buffer-size) 100000)))
     (org-map-entries
      (lambda ()
        (let ((comp (org-heading-components))
@@ -656,23 +657,23 @@ When already at beginning of line, move back to heading."
                           (worf--pretty-heading (nth 4 comp) (car comp))))
                 (point))
           candidates)
-         (save-restriction
-           (narrow-to-region
-            (progn (org-back-to-heading t) (point))
-            (progn (worf-down 1) (point)))
-           (save-excursion
-             (goto-char (point-min))
-             (while (re-search-forward "^#\\+name \\(.*\\)$" nil t)
-               (push (cons (propertize (match-string 1) 'face 'org-meta-line)
-                           (line-beginning-position))
-                     candidates)))))))
-
+         (when extra
+           (save-restriction
+             (narrow-to-region
+              (progn (org-back-to-heading t) (point))
+              (progn (worf-down 1) (point)))
+             (save-excursion
+               (goto-char (point-min))
+               (while (re-search-forward "^#\\+name \\(.*\\)$" nil t)
+                 (push (cons (propertize (match-string 1) 'face 'org-meta-line)
+                             (line-beginning-position))
+                       candidates))))))))
     (helm :sources
           `((name . "Headings")
             (candidates . ,(nreverse candidates))
             (action . (lambda (x) (goto-char x)
-                              (call-interactively 'show-branches)
-                              (worf-more)))
+                         (call-interactively 'show-branches)
+                         (worf-more)))
             (pattern-transformer . worf--pattern-transformer)))))
 
 (defun worf-meta-newline ()
