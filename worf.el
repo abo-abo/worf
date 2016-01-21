@@ -135,6 +135,11 @@
 (require 'org-id)
 (require 'org-clock)
 
+(defgroup worf nil
+  "Navigate Org-mode with plain keys."
+  :group 'org
+  :prefix "worf-")
+
 ;; ——— Minor mode ——————————————————————————————————————————————————————————————
 (defvar worf-sharp "^#\\+"
   "Shortcut for the org's #+ regex.")
@@ -699,7 +704,8 @@ When already at beginning of line, move back to heading."
   "Copy current markup block at newline.
 Sometimes useful for #+LaTeX_HEADER."
   (interactive)
-  (if (looking-back "^#\\+\\([^:]*:\\).*")
+  (if (looking-back "^#\\+\\([^:]*:\\).*"
+                    (line-beginning-position))
       (progn
         (end-of-line)
         (insert "\n#+" (match-string 1) " "))
@@ -817,7 +823,7 @@ ARG is unused currently."
   "Refile to the last location without prompting."
   (interactive)
   (worf-flet (org-icompleting-read
-              (_prompt _collection _i1 _i2 _i3 _i3 default)
+              (_prompt _collection _i1 _i2 _i3 _i4 default)
               default)
     (call-interactively 'org-refile)))
 
@@ -843,7 +849,8 @@ _t_his
 (defun worf-delete-subtree (arg)
   "Delete subtree or ARG chars."
   (interactive "p")
-  (if (and (looking-at "\\*") (looking-back "^\\**"))
+  (if (and (looking-at "\\*")
+           (looking-back "^\\**" (line-beginning-position)))
       (org-cut-subtree)
     (delete-char arg)))
 
@@ -888,7 +895,7 @@ calling `self-insert-command'."
   (or (bobp)
       (looking-at worf-regex)
       (worf--at-property-p)
-      (looking-back "^\\*+")))
+      (looking-back "^\\*+" (line-beginning-position))))
 
 (defun worf--invisible-p ()
   "Test if point is hidden by an `org-block' overlay."
@@ -972,7 +979,7 @@ calling `self-insert-command'."
                 (worf--invisible-p)))
     (cond ((worf--invisible-p)
            (goto-char pt))
-          ((looking-back worf-sharp)
+          ((looking-back worf-sharp (line-beginning-position))
            (goto-char (match-beginning 0)))
           (t
            (if (= (car bnd) (point-min))
