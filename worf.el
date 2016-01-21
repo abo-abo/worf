@@ -5,7 +5,7 @@
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/worf
 ;; Version: 0.1
-;; Package-Requires: ((helm "1.5.3") (ace-link "0.1.0") (hydra "0.13.0"))
+;; Package-Requires: ((swiper "0.7.0") (ace-link "0.1.0") (hydra "0.13.0"))
 ;; Keywords: lisp
 
 ;; This file is not part of GNU Emacs
@@ -117,10 +117,10 @@
 ;;    visible on screen. See https://github.com/abo-abo/ace-link for a
 ;;    package that uses this method in other modes.
 ;;
-;;  - "g" (`worf-goto'): open a `helm' outline of the current buffer.
-;;    It's very good when you want to search/navigate to a heading by
-;;    word or level. See https://github.com/abo-abo/lispy for a
-;;    package that uses this method to navigate Lisp code.
+;;  - "g" (`worf-goto'): select an outline in the current buffer, with
+;;    completion.  It's very good when you want to search/navigate to
+;;    a heading by word or level. See https://github.com/abo-abo/lispy
+;;    for a package that uses this method to navigate Lisp code.
 ;;
 ;;  - "L" (`worf-copy-heading-id'): copy the link to current heading
 ;;    to the kill ring. This may be useful when you want to create a
@@ -637,14 +637,16 @@ When already at beginning of line, move back to heading."
       (push-mark)
       (re-search-backward "^*"))))
 
-(defun worf-goto ()
-  "Jump to a heading with `helm'."
-  (interactive)
-  (require 'helm-multi-match)
-  (let (candidates
-        helm-update-blacklist-regexps
-        helm-candidate-number-limit
-        (extra (< (buffer-size) 100000)))
+(defcustom worf-completion-method 'ivy
+  "Method to select a candidate from a list of strings."
+  :type '(choice
+          (const :tag "Ivy" ivy)
+          ;; sensible choice for many tags
+          (const :tag "Helm" helm)))
+
+(defun worf--goto-candidates ()
+  (let ((extra (< (buffer-size) 100000))
+        candidates)
     (org-map-entries
      (lambda ()
        (let ((comp (org-heading-components))
@@ -668,13 +670,30 @@ When already at beginning of line, move back to heading."
                  (push (cons (propertize (match-string 1) 'face 'org-meta-line)
                              (line-beginning-position))
                        candidates))))))))
-    (helm :sources
-          `((name . "Headings")
-            (candidates . ,(nreverse candidates))
-            (action . (lambda (x) (goto-char x)
-                         (call-interactively 'show-branches)
-                         (worf-more)))
-            (pattern-transformer . worf--pattern-transformer)))))
+    (nreverse candidates)))
+
+(defun worf-goto-action (x)
+  (with-ivy-window
+    (goto-char x)
+    (outline-show-children 1000)
+    (worf-more)))
+
+(defun worf-goto ()
+  "Jump to a heading with `helm'."
+  (interactive)
+  (let ((cands (worf--goto-candidates)))
+    (cond ((eq worf-completion-method 'helm)
+           (require 'helm-multi-match)
+           (let (helm-update-blacklist-regexps
+                 helm-candidate-number-limit)
+             (helm :sources
+                   `((name . "Headings")
+                     (candidates . ,cands)
+                     (action . worf-goto-action)
+                     (pattern-transformer . worf--pattern-transformer)))))
+          ((eq worf-completion-method 'ivy)
+           (ivy-read "Heading: " cands
+                     :action 'worf-goto-action)))))
 
 (defun worf-meta-newline ()
   "Copy current markup block at newline.
