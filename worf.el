@@ -638,7 +638,7 @@ When already at beginning of line, move back to heading."
   (let ((pt (point)))
     (org-beginning-of-line)
     (when (and (eq pt (point))
-               (looking-at "^[^*]"))
+               (not (looking-at "^[*]")))
       (push-mark)
       (re-search-backward "^*"))))
 
