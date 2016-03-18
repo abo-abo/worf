@@ -1168,6 +1168,10 @@ calling `self-insert-command'."
                   (throw 'break t))))
       (goto-char pt))))
 
+(defun worf-set-added ()
+  (interactive)
+  (org-set-property "ADDED" (format-time-string "[%Y-%m-%d %a]")))
+
 (let ((map worf-mode-map))
   ;; ——— Global ———————————————————————————————
   (define-key map "[" 'worf-backward)
