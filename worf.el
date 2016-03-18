@@ -1068,12 +1068,19 @@ calling `self-insert-command'."
 (defun worf--next-property (arg)
   "Move to the next property line."
   (interactive "p")
-  (let ((bnd (worf--bounds-subtree)))
+  (let ((bnd (worf--bounds-subtree))
+        (pt (point))
+        (success nil))
     (forward-char 1)
-    (if (re-search-forward "^:" (cdr bnd) t arg)
-        (backward-char 1)
-      (or (worf-right)
-          (worf-down arg)))))
+    (while (and (null success)
+                (< (point) (cdr bnd))
+                (re-search-forward "^:" (cdr bnd) t arg))
+      (backward-char 1)
+      (if (worf--invisible-p)
+          (forward-char 1)
+        (setq success t)))
+    (unless success
+      (goto-char pt))))
 
 (defun worf--prev-property (arg)
   "Move to the previous property line."
