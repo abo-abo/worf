@@ -477,6 +477,12 @@ When the chain is broken, the keyword is unset."
                  (?c "CANCELLED"))))))
   (org-todo keyword))
 
+(defhydra hydra-worf-keyword (:idle 1.5 :color teal)
+  ("t" (org-todo "TODO") "TODO")
+  ("d" (org-todo "DONE") "DONE")
+  ("n" (org-todo "NEXT") "NEXT")
+  ("c" (org-todo "CANCELLED") "CANCELLED"))
+
 (defvar worf--keyword-no-invalidate-list
   '(wspecial-worf-keyword-mode
     worf-keyword
