@@ -819,6 +819,12 @@ If already there, return it to previous position."
       (ignore-errors
         (ace-link-org)))))
 
+(defun worf-ace-link-eww ()
+  "Visit a link within current heading by ace jumping."
+  (interactive)
+  (let ((browse-url-browser-function 'eww-browse-url))
+    (worf-ace-link)))
+
 ;; ——— Files ———————————————————————————————————————————————————————————————————
 (defun worf-attach ()
   "Interface to attachments."
@@ -1117,6 +1123,7 @@ calling `self-insert-command'."
   ;; ——— navigation/unstructured ——————————————
   (worf-define-key map "g" 'worf-goto)
   (worf-define-key map "o" 'worf-ace-link)
+  (worf-define-key map "O" 'worf-ace-link-eww)
   ;; ——— hide/show ————————————————————————————
   (worf-define-key map "i" 'worf-tab)
   (worf-define-key map "I" 'worf-shifttab)
