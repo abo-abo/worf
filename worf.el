@@ -461,31 +461,21 @@ _h_ ^+^ _l_    _n_ame    _e_dit    _i_: shift
         (t
          (setq worf--keyword nil))))
 
-(defun worf-keyword (keyword)
+(defun worf-keyword (&optional keyword)
   "Set the current keyword.
 All next `worf-down' and `worf-up' will move by this keyword.
 When the chain is broken, the keyword is unset."
-  (interactive
-   (progn
-     (setq worf-keyword-mode-lighter " [keyword ?]")
-     (let ((c (read-char "[t]odo, [d]one, [n]ext, [c]ancelled")))
-       (list
-        (message
-         (cl-case c
-           (?t "TODO")
-           (?d "DONE")
-           (?n "NEXT")
-           (?c "CANCELLED")))))))
-  (add-to-list 'worf--keyword-no-invalidate-list this-command)
-  (if worf-change-mode
-      (progn
-        (org-todo keyword)
-        (worf-change-mode -1)
-        (worf-keyword-mode -1))
-    (setq worf--keyword keyword)
-    (setq worf-keyword-mode-lighter
-          (format " [keyword %s]" keyword))
-    (add-hook 'post-command-hook 'worf--invalidate-keyword)))
+  (interactive)
+  (setq keyword
+        (or keyword
+            (let* ((c (read-char "[t]odo, [d]one, [n]ext, [c]ancelled")))
+              (message
+               (cl-case c
+                 (?t "TODO")
+                 (?d "DONE")
+                 (?n "NEXT")
+                 (?c "CANCELLED"))))))
+  (org-todo keyword))
 
 (defvar worf--keyword-no-invalidate-list
   '(wspecial-worf-keyword-mode
