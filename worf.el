@@ -919,6 +919,16 @@ directory, the attachments will be moved."
            default)))
     (worf-refile-other)))
 
+(defhydra hydra-worf-promote (:color teal)
+  "meta"
+  ("p" org-pomodoro "pomodoro")
+  ("q" nil "quit"))
+
+(defun worf-x ()
+  "A prefix for other commands."
+  (interactive)
+  (hydra-worf-promote/body))
+
 (defhydra hydra-refile (:hint nil
                         :color teal)
   "
@@ -1151,9 +1161,10 @@ calling `self-insert-command'."
   (define-key map (kbd "C-d") 'worf-delete-subtree)
   (define-key map (kbd "DEL") 'worf-delete-backward-char)
   (define-key map (kbd "C-a") 'worf-beginning-of-line)
+  (define-key map (kbd "<tab>") nil)
   ;; ——— Local ————————————————————————————————
   (mapc (lambda (k) (worf-define-key map k 'worf-reserved))
-        '("b" "B" "C" "D" "e" "E" "f" "G" "H" "J" "M" "n" "O" "P" "Q"
+        '("b" "B" "C" "D" "e" "E" "f" "G" "H" "J" "M" "n" "P" "Q"
           "S" "T" "U" "w" "x" "X" "Y" "z" "Z"))
   ;; ——— navigation/arrows ————————————————————
   (worf-define-key map "j" 'worf-down)
@@ -1178,6 +1189,7 @@ calling `self-insert-command'."
   ;; ——— refile ———————————————————————————————
   (worf-define-key map "r" 'hydra-refile/body)
   ;; ——— misc —————————————————————————————————
+  (worf-define-key map "x" 'hydra-worf-promote/body)
   (worf-define-key map "L" 'worf-copy-heading-id)
   (worf-define-key map "a" 'worf-add :break t)
   (worf-define-key map "s" 'worf-save)
