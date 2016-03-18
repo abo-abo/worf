@@ -1086,8 +1086,11 @@ calling `self-insert-command'."
   "Move to the previous property line."
   (interactive "p")
   (let ((bnd (worf--bounds-subtree)))
-    (unless (re-search-backward "^:" (car bnd) t arg)
-      (org-speed-move-safe 'outline-previous-visible-heading))))
+    (while (and (> (point) (car bnd))
+                (re-search-backward "^:" (car bnd) t arg)
+                (worf--invisible-p)))
+    ;; (org-speed-move-safe 'outline-previous-visible-heading)
+    ))
 
 (defun worf--pattern-transformer (x)
   "Transform X to make 1-9 select the heading level in `worf-goto'."
