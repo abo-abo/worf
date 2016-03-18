@@ -1352,6 +1352,14 @@ calling `self-insert-command'."
               (while (eq (char-before) ?\n)
                 (delete-char -1))))
           (save-buffer))))))
+
+;;;###autoload
+(defun worf-archive-and-commit ()
+  (interactive)
+  (let ((cmd (format "git add -u . && git commit -m \"%s: archive\""
+                     (file-name-nondirectory (buffer-file-name)))))
+    (worf-archive)
+    (shell-command cmd)))
 (provide 'worf)
 
 ;;; Local Variables:
