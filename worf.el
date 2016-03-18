@@ -1223,7 +1223,7 @@ calling `self-insert-command'."
   (worf-define-key map "d" 'worf-delete-mode)
   (worf-define-key map "y" 'worf-occur)
   (worf-define-key map "C" 'worf-clock-mode)
-  (worf-define-key map "w" 'worf-keyword-mode)
+  (worf-define-key map "w" 'worf-keyword)
   (define-key map "m" 'worf-mark)
   (worf-define-key map "q" 'worf-quit)
   (worf-define-key map "n" 'worf-new-mode)
