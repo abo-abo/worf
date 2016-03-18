@@ -567,21 +567,17 @@ When the chain is broken, the keyword is unset."
 (defun worf-property ()
   "Operate on property."
   (interactive)
-  (cond (worf-change-mode
-         (call-interactively 'org-set-property)
-         (worf-quit))
+  (cl-destructuring-bind (beg . end)
+      (worf--bounds-subtree)
+    (let ((pt (car (org-get-property-block beg))))
+      (if pt
+          (progn
+            (unless (bound-and-true-p reveal-mode)
+              (goto-char beg)
+              (org-show-subtree))
+            (goto-char pt))
+        (error "No properties. Use \"c p\" to add properties")))))
 
-        (t
-         (cl-destructuring-bind (beg . end)
-             (worf--bounds-subtree)
-           (let ((pt (car (org-get-property-block beg))))
-             (if pt
-                 (progn
-                   (unless (bound-and-true-p reveal-mode)
-                     (goto-char beg)
-                     (org-show-subtree))
-                   (goto-char pt))
-               (error "No properties. Use \"c p\" to add properties")))))))
 
 ;; ——— Nouns: new heading ——————————————————————————————————————————————————————
 (defun worf-add (arg)
