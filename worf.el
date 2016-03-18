@@ -964,7 +964,14 @@ When ARG is true, add a CUSTOM_ID first."
                   (org-get-heading)))
         id)
     (when arg
-      (org-entry-put nil "CUSTOM_ID" heading))
+      (org-entry-put nil "CUSTOM_ID"
+                     (replace-regexp-in-string
+                      "[=?]" ""
+                      (replace-regexp-in-string
+                       "," ""
+                       (replace-regexp-in-string
+                        " +" "-"
+                        (downcase heading))))))
     (if (setq id (org-entry-get nil "CUSTOM_ID"))
         (kill-new (format "[[#%s][%s]]" id heading))
       (setq id (org-id-get nil 'create))
