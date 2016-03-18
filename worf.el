@@ -860,15 +860,48 @@ If already there, return it to previous position."
   (save-buffer))
 
 ;; ——— Refile ——————————————————————————————————————————————————————————————————
-(defun worf-refile-other (arg)
-  "Refile to other file.
-ARG is unused currently."
-  (interactive "p")
-  (let ((org-refile-targets
-             (cl-remove-if
-              (lambda (x) (null (car x)))
-              org-refile-targets)))
-    (call-interactively 'org-refile)))
+(defun worf-refile-targets ()
+  (cons (cons (cl-set-difference
+               (delq nil
+                     (mapcar
+                      (lambda (b)
+                        (let ((name (buffer-file-name b)))
+                          (and name
+                               (string-match "org$" (buffer-file-name b))
+                               name)))
+                      (buffer-list)))
+               org-agenda-files
+               :test 'equal)
+              '(:maxlevel . 3))
+        (cl-remove-if
+         (lambda (x) (null (car x)))
+         org-refile-targets)))
+
+(defun worf-refile-other ()
+  "Refile the current heading to another heading.
+
+The other heading can be in another file.  All currently open Org
+files are eligible for refiling, even if they aren't on
+`org-refile-targets'.
+
+When the heading has attachments and the target is in another
+directory, the attachments will be moved."
+  (interactive)
+  (let* ((id (org-entry-properties nil "ID"))
+         (dir1 default-directory)
+         (adir1 (and id (org-attach-dir)))
+         (org-refile-targets (worf-refile-targets)))
+    (org-refile)
+    (save-buffer)
+    (save-window-excursion
+      (org-refile-goto-last-stored)
+      (save-buffer)
+      (when (and adir1 (not (equal default-directory dir1)))
+        (rename-file adir1
+                     (file-name-directory
+                      (org-attach-dir t)) t)
+        (when (equal (directory-files (file-name-directory adir1)) '("." ".."))
+          (dired-delete-file (file-name-directory adir1)))))))
 
 (defun worf-refile-this (arg)
   "Interface to refile with :maxlevel set to ARG."
@@ -881,10 +914,10 @@ ARG is unused currently."
 (defun worf-refile-last ()
   "Refile to the last location without prompting."
   (interactive)
-  (worf-flet (org-icompleting-read
-              (_prompt _collection _i1 _i2 _i3 _i4 default)
-              default)
-    (call-interactively 'org-refile)))
+  (let ((completing-read-function
+         (lambda (_p coll _pred _rm _ii _h default &rest _)
+           default)))
+    (worf-refile-other)))
 
 (defhydra hydra-refile (:hint nil
                         :color teal)
