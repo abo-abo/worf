@@ -134,6 +134,7 @@
 (require 'org)
 (require 'org-id)
 (require 'org-clock)
+(require 'zoutline)
 
 (defgroup worf nil
   "Navigate Org-mode with plain keys."
@@ -495,11 +496,7 @@ When the chain is broken, the keyword is unset."
         ((looking-at worf-sharp)
          (worf--sharp-up))
         (t
-         (unless (worf-dotimes-protect arg
-                   (outline-previous-visible-heading 1)
-                   t)
-           (backward-char)
-           (worf--sharp-up)))))
+         (zo-up arg))))
 
 (defun worf-down (arg)
   "Move ARG headings down."
@@ -512,15 +509,7 @@ When the chain is broken, the keyword is unset."
         ((looking-at worf-sharp)
          (worf--sharp-down))
         (t
-         (ignore-errors
-           (let ((pt 0)
-                 (i 0))
-             (while (and (<= (cl-incf i) arg)
-                         (> (point) pt))
-               (setq pt (point))
-               (outline-next-visible-heading 1))
-             (unless (= i (1+ arg))
-               (message "End reached after %s headings" i)))))))
+         (zo-down arg))))
 
 (defun worf-right ()
   "Move right."
