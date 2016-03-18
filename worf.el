@@ -1213,6 +1213,7 @@ calling `self-insert-command'."
   (worf-define-key map "x" 'hydra-worf-promote/body)
   (worf-define-key map "L" 'worf-copy-heading-id)
   (worf-define-key map "a" 'worf-add :break t)
+  (worf-define-key map "e" 'move-end-of-line :break t)
   (worf-define-key map "s" 'worf-save)
   ;; ——— narrow/widen —————————————————————————
   (worf-define-key map "N" 'org-narrow-to-subtree)
