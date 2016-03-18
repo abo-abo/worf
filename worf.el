@@ -1008,8 +1008,8 @@ calling `self-insert-command'."
 
 (defun worf--invisible-p ()
   "Test if point is hidden by an `org-block' overlay."
-  (cl-some (lambda (ov) (eq (overlay-get ov 'invisible)
-                       'org-hide-block))
+  (cl-some (lambda (ov) (memq (overlay-get ov 'invisible)
+                              '(org-hide-block outline)))
            (overlays-at (point))))
 
 (defun worf--ensure-visible ()
