@@ -312,6 +312,34 @@ DEF is modified by `worf--insert-or-call'."
    ("n" worf-change-name :disable :break)
    ("a" org-meta-return :disable :break)))
 
+(defhydra hydra-worf-change (:idle 1.0
+                             :hint nil)
+  "
+^ ^ _w_ ^ ^    _t_ags    _p_rop    _r_: shiftcontrol
+_h_ ^+^ _l_    _n_ame    _e_dit    _i_: shift
+^ ^ _s_ ^ ^    _a_dd     ^ ^       _f_: shiftmeta (tree)"
+  ;; arrows
+  ("j" worf-down :exit t)
+  ("k" worf-up :exit t)
+  ("w" org-metaup)
+  ("s" org-metadown)
+  ("h" org-metaleft)
+  ("l" org-metaright)
+  ("e" move-end-of-line :exit t)
+  ;; modes
+  ("f" worf-change-tree-mode :exit t)
+  ("i" worf-change-shift-mode :exit t)
+  ("r" worf-change-shiftcontrol-mode :exit t)
+  ;; misc
+  ("p" org-set-property :exit t)
+  ("t" org-set-tags :exit t)
+  ("n" worf-change-name :exit t)
+  ("a" org-meta-return :exit t)
+  ("o" hydra-worf-keyword/body :exit t)
+  ("m" worf-archive-and-commit :exit t)
+  ("q" nil)
+  ("c" nil))
+
 ;; ——— Verbs: change tree ——————————————————————————————————————————————————————
 (worf-defverb
  "change-tree"
@@ -1071,7 +1099,7 @@ calling `self-insert-command'."
   (worf-define-key map "N" 'org-narrow-to-subtree)
   (worf-define-key map "W" 'widen)
   ;; ——— verbs ————————————————————————————————
-  (worf-define-key map "c" 'worf-change-mode)
+  (worf-define-key map "c" 'hydra-worf-change/body)
   (worf-define-key map "d" 'worf-delete-mode)
   (worf-define-key map "y" 'worf-yank-mode)
   (worf-define-key map "C" 'worf-clock-mode)
