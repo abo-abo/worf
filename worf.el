@@ -752,6 +752,25 @@ When ARG isn't 1, call (`org-shifttab' ARG)."
           (worf--sharp-up))
         (org-cycle)))))
 
+(defhydra hydra-org-tab (:color blue
+                         :hint nil)
+  "
+_g_lobal cycle    _b_ranches
+_a_ll             _c_hildren
+_s_tartup
+"
+  ("s" (org-global-cycle '(4)))
+  ("g" org-global-cycle :exit nil)
+  ("a" outline-show-all)
+  ("b" outline-show-branches)
+  ("c" outline-show-children))
+
+(defun worf-hydratab ()
+  (interactive)
+  (if (worf--special-p)
+      (hydra-org-tab/body)
+    (call-interactively 'org-cycle)))
+
 (defun worf-shifttab (arg)
   "Hide/show everything.
 Forward to `org-shifttab' with ARG."
