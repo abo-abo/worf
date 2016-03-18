@@ -340,6 +340,10 @@ _h_ ^+^ _l_    _n_ame    _e_dit    _i_: shift
   ("q" nil)
   ("c" nil))
 
+(defhydra hydra-worf-f (:idle 1.0
+                        :exit t)
+  ("f" (setq prefix-arg 9999) "fast-forward"))
+
 ;; ——— Verbs: change tree ——————————————————————————————————————————————————————
 (worf-defverb
  "change-tree"
@@ -1076,6 +1080,7 @@ calling `self-insert-command'."
   (worf-define-key map "k" 'worf-up)
   (worf-define-key map "h" 'worf-left)
   (worf-define-key map "l" 'worf-right)
+  (worf-define-key map "f" 'hydra-worf-f/body)
   ;; ——— navigation/unstructured ——————————————
   (worf-define-key map "g" 'worf-goto)
   (worf-define-key map "o" 'worf-ace-link)
