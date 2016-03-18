@@ -544,14 +544,15 @@ When the chain is broken, the keyword is unset."
   (interactive)
   (let ((pt (point))
         result)
-    (org-narrow-to-subtree)
-    (forward-char)
-    (if (re-search-forward worf-regex nil t)
-        (progn
-          (goto-char (match-beginning 0))
-          (setq result t))
-      (goto-char pt))
-    (widen)
+    (save-restriction
+      (org-narrow-to-subtree)
+      (forward-char)
+      (if (re-search-forward worf-regex nil t)
+          (progn
+            (goto-char (match-beginning 0))
+            (setq result t))
+        (goto-char pt)))
+    (worf--ensure-visible)
     result))
 
 (defun worf-left ()
@@ -588,21 +589,17 @@ When the chain is broken, the keyword is unset."
 Positive ARG shifts the heading right.
 Negative ARG shifts the heading left."
   (interactive "p")
-  (condition-case nil
-      (progn
-        (goto-char (cdr (worf--bounds-subtree)))
-        (skip-chars-backward "\n ")
-        (forward-line 1)
-        (when (looking-at "^\\*")
-          (insert "\n")
-          (forward-line -1))
-        (org-insert-heading))
-    (error (org-insert-heading)))
-  (let ((vkeys (this-command-keys-vector)))
-    (cond ((= 1 (length vkeys)))
-
-          ((cl-plusp arg)
-           (worf-dotimes-protect arg
+  (let ((lvl (car (org-heading-components))))
+    (condition-case nil
+        (progn
+          (goto-char (cdr (worf--bounds-subtree)))
+          (skip-chars-backward "\n ")
+          (newline)
+          (worf--ensure-visible)
+          (insert (make-string lvl ?*) " "))
+      (error (org-insert-heading)))
+    (cond ((> arg 1)
+           (worf-dotimes-protect (1- arg)
              (org-metaright)))
           ((cl-minusp arg)
            (worf-dotimes-protect (- arg)
@@ -919,6 +916,15 @@ calling `self-insert-command'."
   (cl-some (lambda (ov) (eq (overlay-get ov 'invisible)
                        'org-hide-block))
            (overlays-at (point))))
+
+(defun worf--ensure-visible ()
+  "Remove overlays hiding point."
+  (let ((overlays (overlays-at (point)))
+        ov expose)
+    (while (setq ov (pop overlays))
+      (if (and (invisible-p (overlay-get ov 'invisible))
+               (setq expose (overlay-get ov 'isearch-open-invisible)))
+          (funcall expose ov)))))
 
 (defun worf-delete-backward-char (arg)
   (interactive "p")
