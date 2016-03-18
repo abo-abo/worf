@@ -813,9 +813,11 @@ If already there, return it to previous position."
 (defun worf-ace-link ()
   "Visit a link within current heading by ace jumping."
   (interactive)
-  (org-narrow-to-subtree)
-  (ignore-errors (ace-link-org))
-  (widen))
+  (save-excursion
+    (save-restriction
+      (org-narrow-to-subtree)
+      (ignore-errors
+        (ace-link-org)))))
 
 ;; ——— Files ———————————————————————————————————————————————————————————————————
 (defun worf-attach ()
