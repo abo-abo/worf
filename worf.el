@@ -1281,6 +1281,77 @@ calling `self-insert-command'."
      'face
      'org-meta-line)))
 
+;;;###autoload
+(defun worf-archive ()
+  (interactive)
+  (require 'org-datetree)
+  (require 'org-archive)
+  (if (not (org-entry-is-done-p))
+      (user-error "not done")
+    (let* ((time (org-time-string-to-time
+                  (cdar (org-entry-properties nil "CLOSED"))))
+           (dct (decode-time time))
+           (y (nth 5 dct))
+           (m (nth 4 dct))
+           (d (nth 3 dct))
+           (this-buffer (current-buffer))
+           (location (org-get-local-archive-location))
+           (afile (org-extract-archive-file location))
+           (org-archive-location
+            (format "%s::%s %04d-%02d-%02d %s" afile
+                    (make-string (org-get-valid-level 0 2) ?*) y m d
+                    (format-time-string "%A" (encode-time 0 0 0 d m y)))))
+      (org-set-tags-to (org-get-tags-at))
+      (if (null afile)
+          (error "Invalid `org-archive-location'")
+        (org-cut-subtree)
+        (save-buffer)
+        (with-current-buffer (find-file-noselect afile)
+          (goto-char (point-min))
+          (unless (re-search-forward (format "^\\* %d" y) nil t)
+            (goto-char (point-max))
+            (insert (format "\n* %d" y)))
+          (save-restriction
+            (org-narrow-to-subtree)
+            (goto-char (point-min))
+            (let ((cm m))
+              (while (and (> cm 0)
+                          (not (re-search-forward
+                                (format "^\\*\\* %d-%02d" y cm)
+                                nil t)))
+                (cl-decf cm))
+              (unless (= cm m)
+                (if (= cm 0)
+                    (end-of-line)
+                  (outline-end-of-subtree))
+                (insert (format "\n** %d-%02d %s"
+                                y m
+                                (format-time-string "%B" time)))))
+            (org-narrow-to-subtree)
+            (let ((cd d)
+                  (re-fmt (format "^\\*\\*\\* %d-%02d-%%02d" y m)))
+              (while (and (> cd 0)
+                          (not (re-search-forward (format re-fmt cd) nil t)))
+                (cl-decf cd))
+              (if (= cd d)
+                  (progn
+                    (org-narrow-to-subtree)
+                    (goto-char (point-max)))
+                (if (= (org-outline-level) 2)
+                    (end-of-line)
+                  (org-narrow-to-subtree)
+                  (goto-char (point-max)))
+                (insert (format "\n*** %d-%02d-%02d %s"
+                                y m d
+                                (format-time-string "%A" time)))))
+            (unless (bolp)
+              (insert "\n"))
+            (org-paste-subtree 4)
+            (save-excursion
+              (goto-char (point-max))
+              (while (eq (char-before) ?\n)
+                (delete-char -1))))
+          (save-buffer))))))
 (provide 'worf)
 
 ;;; Local Variables:
