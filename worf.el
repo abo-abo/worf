@@ -587,6 +587,10 @@ When the chain is broken, the keyword is unset."
       (forward-char 1)
       (save-excursion (yank)))))
 
+(defun worf-occur ()
+  (interactive)
+  (error "swiper in one heading not yet implemented"))
+
 ;; ——— Nouns: new heading ——————————————————————————————————————————————————————
 (defun worf-add (arg)
   "Add a new heading below.
@@ -1112,7 +1116,7 @@ calling `self-insert-command'."
   ;; ——— verbs ————————————————————————————————
   (worf-define-key map "c" 'hydra-worf-change/body)
   (worf-define-key map "d" 'worf-delete-mode)
-  (worf-define-key map "y" 'worf-yank-mode)
+  (worf-define-key map "y" 'worf-occur)
   (worf-define-key map "C" 'worf-clock-mode)
   (worf-define-key map "w" 'worf-keyword-mode)
   (define-key map "m" 'worf-mark)
