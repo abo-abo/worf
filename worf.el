@@ -578,6 +578,14 @@ When the chain is broken, the keyword is unset."
             (goto-char pt))
         (error "No properties. Use \"c p\" to add properties")))))
 
+(defun worf-paste ()
+  (interactive)
+  (let ((bnd (worf--bounds-subtree)))
+    (when bnd
+      (goto-char (cdr bnd))
+      (skip-chars-backward "\n")
+      (forward-char 1)
+      (save-excursion (yank)))))
 
 ;; ——— Nouns: new heading ——————————————————————————————————————————————————————
 (defun worf-add (arg)
@@ -1112,6 +1120,7 @@ calling `self-insert-command'."
   (worf-define-key map "n" 'worf-new-mode)
   ;; ——— nouns ————————————————————————————————
   (worf-define-key map "p" 'worf-property)
+  (worf-define-key map "P" 'worf-paste)
   ;; ——— misc —————————————————————————————————
   (worf-define-key map "t" 'worf-todo)
   (worf-define-key map "u" 'undo)
