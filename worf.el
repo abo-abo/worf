@@ -640,7 +640,9 @@ Negative ARG shifts the heading left."
 (defun worf-backward ()
   "Go backwards to closest special position."
   (interactive)
-  (re-search-backward worf-regex-full nil t))
+  (re-search-backward worf-regex-full nil t)
+  (while (worf--invisible-p)
+    (worf-backward)))
 
 (defun worf-forward ()
   "Go forwards to closest special position."
