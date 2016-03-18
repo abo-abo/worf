@@ -839,12 +839,20 @@ If already there, return it to previous position."
 (defun worf-visit (arg)
   "Forward to find file in project with ARG."
   (interactive "p")
-  (cond ((= arg 1)
-         (projectile-find-file nil))
-        ((= arg 2)
-         (projectile-find-file-other-window))
-        (t
-         (projectile-find-file arg))))
+  (let (attach-dir)
+    (cond ((setq attach-dir (org-attach-dir))
+           (let* ((files (org-attach-file-list attach-dir))
+                  (file (if (= (length files) 1)
+                            (car files)
+                          (completing-read "Open attachment: "
+                                           (mapcar #'list files) nil t))))
+             (find-file (expand-file-name file attach-dir))))
+          ((= arg 1)
+           (projectile-find-file nil))
+          ((= arg 2)
+           (projectile-find-file-other-window))
+          (t
+           (projectile-find-file arg)))))
 
 (defun worf-save ()
   "Save buffer."
