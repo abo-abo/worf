@@ -800,15 +800,12 @@ If already there, return it to previous position."
 (defun worf-follow ()
   "Follow the link at point."
   (interactive)
-  (let ((org-file-apps '(("\\.pdf\\'" . "xournal %s"))))
-    (if (org-babel-in-example-or-verbatim)
-        (newline-and-indent)
-      (condition-case nil
-          (progn
-            (push-mark)
-            (org-open-at-point)
-            (worf-more))
-        (error (newline-and-indent))))))
+  (condition-case nil
+      (progn
+        (push-mark)
+        (org-open-at-point)
+        (worf-more))
+    (error (newline-and-indent))))
 
 (defun worf-ace-link ()
   "Visit a link within current heading by ace jumping."
