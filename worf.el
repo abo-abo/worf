@@ -1278,6 +1278,9 @@ calling `self-insert-command'."
      'face
      'org-meta-line)))
 
+(declare-function org-get-local-archive-location "org-archive")
+(declare-function org-extract-archive-file "org-archive")
+
 ;;;###autoload
 (defun worf-archive ()
   (interactive)
