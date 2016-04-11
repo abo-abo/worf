@@ -409,9 +409,33 @@ _h_ ^+^ _l_    _n_ame    _e_dit    _i_: shift
  "delete"
  '(("p" org-delete-property :disable)
    ("k" worf-delete-k :disable)
-   ("j" org-cut-subtree :disable)
+   ("j" worf-cut-subtree :disable)
    ("w" worf-delete-w :disable)
    ("n" worf-delete-name :disable)))
+
+(defun worf-cut-subtree (arg)
+  (interactive "p")
+  (let (beg end)
+    (org-back-to-heading t)
+    (setq beg (point))
+    (save-match-data
+      (save-excursion
+        (outline-end-of-heading))
+      (ignore-errors
+        (org-forward-heading-same-level
+         (1- arg)
+         t))
+      (org-end-of-subtree t t))
+    (setq end (point))
+    (skip-chars-backward "\n ")
+    (delete-region (point) end)
+    (setq end (point))
+    (kill-region beg end)
+    (backward-char 1)
+    (org-back-to-heading t)
+    (message
+     "Cut: Subtree(s) with %d characters"
+     (length (current-kill 0)))))
 
 ;; ——— Verbs: yank —————————————————————————————————————————————————————————————
 (worf-defverb
