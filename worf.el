@@ -405,14 +405,6 @@ _h_ ^+^ _l_    _n_ame    _e_dit    _i_: shift
             (error "Source block already doesn't have a name")))
       (error "Not in a source block"))))
 
-(worf-defverb
- "delete"
- '(("p" org-delete-property :disable)
-   ("k" worf-delete-k :disable)
-   ("j" worf-cut-subtree :disable)
-   ("w" worf-delete-w :disable)
-   ("n" worf-delete-name :disable)))
-
 (defun worf-cut-subtree (arg)
   (interactive "p")
   (let (beg end)
@@ -436,6 +428,14 @@ _h_ ^+^ _l_    _n_ame    _e_dit    _i_: shift
     (message
      "Cut: Subtree(s) with %d characters"
      (length (current-kill 0)))))
+
+(worf-defverb
+ "delete"
+ '(("p" org-delete-property :disable)
+   ("k" worf-delete-k :disable)
+   ("j" worf-cut-subtree :disable)
+   ("w" worf-delete-w :disable)
+   ("n" worf-delete-name :disable)))
 
 ;; ——— Verbs: yank —————————————————————————————————————————————————————————————
 (worf-defverb
