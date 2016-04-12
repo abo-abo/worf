@@ -621,24 +621,21 @@ When the chain is broken, the keyword is unset."
 Positive ARG shifts the heading right.
 Negative ARG shifts the heading left."
   (interactive "p")
-  (let ((lvl (car (org-heading-components))))
-    (condition-case nil
-        (progn
-          (goto-char (cdr (worf--bounds-subtree)))
-          (skip-chars-backward "\n ")
-          (newline)
-          (worf--ensure-visible)
-          (insert (make-string lvl ?*) " "))
-      (error (org-insert-heading)))
-    (cond ((> arg 1)
-           (worf-dotimes-protect (1- arg)
-             (org-metaright)))
-          ((cl-minusp arg)
-           (worf-dotimes-protect (- arg)
-             (org-metaleft))))
-    (when worf-keyword-mode
-      (insert (worf-mod-keyword) " ")
-      (worf-keyword-mode -1))))
+  (condition-case nil
+      (progn
+        (forward-char)
+        (org-insert-heading-respect-content)
+        (worf--ensure-visible))
+    (error (org-insert-heading-respect-content)))
+  (cond ((> arg 1)
+         (worf-dotimes-protect (1- arg)
+           (org-metaright)))
+        ((cl-minusp arg)
+         (worf-dotimes-protect (- arg)
+           (org-metaleft))))
+  (when worf-keyword-mode
+    (insert (worf-mod-keyword) " ")
+    (worf-keyword-mode -1)))
 
 (defun worf-new-right (arg)
   (interactive "p")
