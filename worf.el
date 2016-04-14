@@ -374,6 +374,47 @@ _h_ ^+^ _l_    _n_ame    _e_dit    _i_: shift
  '(("i" org-clock-in :disable)
    ("o" org-clock-out :disable)))
 
+(defun worf-clock-in-and-out (arg)
+  "Clock-in and out of a missed deadline.
+
+The clock-in time is always the deadline's original time.
+
+The clock-out time is the clock in time plus user-specified
+number of minutes.
+
+When ARG is 2, mark the deadline as DONE at the clock-out time.
+
+Works both in a buffer and in the agenda."
+  (interactive "p")
+  (save-window-excursion
+    (when (eq major-mode 'org-agenda-mode)
+      (let ((hdmarker (or (org-get-at-bol 'org-hd-marker)
+                          (org-agenda-error))))
+        (switch-to-buffer (marker-buffer hdmarker))))
+    (org-back-to-heading)
+    (let* ((heading (org-element-at-point))
+           (deadline (or (org-element-property :deadline heading)
+                         (org-element-property :scheduled heading))))
+      (if (null deadline)
+          (user-error "The current heading has no deadline")
+        (let* ((timestamp (org-element-property :raw-value deadline))
+               (parsed-timestamp (org-parse-time-string timestamp t))
+               (start-time (if (null (and (nth 1 parsed-timestamp)
+                                          (nth 2 parsed-timestamp)))
+                               (apply #'encode-time (org-parse-time-string (org-read-date)))
+                             (apply #'encode-time parsed-timestamp)))
+               (diff (seconds-to-time
+                      (* 60 (string-to-number
+                             (read-string "Minutes spent: ")))))
+               (end-time (time-add start-time diff)))
+          (org-clock-in nil start-time)
+          (org-clock-out nil nil end-time)
+          (when (eq arg 2)
+            (org-todo 'done)
+            (org-add-planning-info 'closed end-time))))))
+  (when (eq major-mode 'org-agenda-mode)
+    (org-agenda-redo t)))
+
 ;; ——— Verbs: delete ———————————————————————————————————————————————————————————
 (defun worf-delete-k (arg)
   (interactive "p")
@@ -1204,7 +1245,7 @@ calling `self-insert-command'."
   ;; ——— Local ————————————————————————————————
   (mapc (lambda (k) (worf-define-key map k 'worf-reserved))
         '("b" "B" "C" "D" "e" "E" "f" "G" "H" "J" "M" "n" "P" "Q"
-          "S" "T" "U" "w" "x" "X" "Y" "z" "Z"))
+          "S" "U" "w" "x" "X" "Y" "z" "Z"))
   ;; ——— navigation/arrows ————————————————————
   (worf-define-key map "j" 'worf-down)
   (worf-define-key map "k" 'worf-up)
@@ -1241,6 +1282,7 @@ calling `self-insert-command'."
   (worf-define-key map "d" 'worf-delete-mode)
   (worf-define-key map "y" 'worf-occur)
   (worf-define-key map "C" 'worf-clock-mode)
+  (worf-define-key map "T" 'worf-clock-in-and-out)
   (worf-define-key map "w" 'worf-keyword)
   (define-key map "m" 'worf-mark)
   (worf-define-key map "q" 'worf-quit)
