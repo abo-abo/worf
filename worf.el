@@ -342,7 +342,12 @@ _h_ ^+^ _l_    _n_ame    _e_dit    _i_: shift
 
 (defhydra hydra-worf-f (:idle 1.0
                         :exit t)
-  ("f" (setq prefix-arg 9999) "fast-forward"))
+  ("f" (setq prefix-arg 9999) "fast-forward")
+  ("s" worf-schedule-today "schedule today"))
+
+(defun worf-schedule-today ()
+  (interactive)
+  (org-schedule nil "today"))
 
 ;; ——— Verbs: change tree ——————————————————————————————————————————————————————
 (worf-defverb
