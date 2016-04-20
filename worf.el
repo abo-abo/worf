@@ -805,19 +805,48 @@ Sometimes useful for #+LaTeX_HEADER."
 ;; ——— View ————————————————————————————————————————————————————————————————————
 (defun worf-tab (arg)
   "Hide/show heading.
-When ARG isn't 1, call (`org-shifttab' ARG)."
+
+When ARG is 0, show the heading contents, no matter if the
+heading fold state.
+
+When ARG is 1, toggle between fully hidden state and a fully
+visible state.
+
+When ARG isn't 0 or 1, show full file contents for that level,
+i.e. `org-shifttab'.
+
+When at a #+ marker, forward to `org-cycle'."
   (interactive "p")
-  (let ((v (this-command-keys-vector)))
-    (if (and (= 2 (length v))
-             (string-match "[0-9]" (concat v)))
-        (progn
-          (org-shifttab arg)
-          (worf-dotimes-protect (- (car (org-heading-components)) arg)
-            (worf-left)))
-      (let ((case-fold-search t))
-        (when (looking-at "#\\+end")
-          (worf--sharp-up))
-        (org-cycle)))))
+  (let ((v (this-command-keys-vector))
+        (bnd (worf--end-positions)))
+    (when (let ((case-fold-search t))
+            (looking-at "#\\+end"))
+      (worf--sharp-up))
+    (cond
+      ((looking-at "#\\+")
+       (org-cycle))
+      ((= arg 0)
+       (outline-flag-region (car bnd) (cdr bnd) t)
+       (org-cycle-internal-local))
+      ((and (= 2 (length v))
+            (string-match "[0-9]" (concat v)))
+       (org-shifttab arg))
+      (t
+       (let ((eoh (car bnd))
+             (eos (cdr bnd)))
+         (if (and (get-char-property (1- eos) 'invisible)
+                  (get-char-property (1+ eoh) 'invisible))
+             (outline-flag-region eoh eos nil)
+           (outline-flag-region eoh eos t)))))))
+
+(defun worf--end-positions ()
+  "Return a cons of heding end and subtree end."
+  (save-excursion
+    (org-back-to-heading)
+    (cons
+     (save-excursion (outline-end-of-heading) (point))
+     (save-excursion (org-end-of-subtree t t)
+                     (when (bolp) (backward-char)) (point)))))
 
 (defhydra hydra-org-tab (:color blue
                          :hint nil)
