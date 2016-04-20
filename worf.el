@@ -464,7 +464,7 @@ Works both in a buffer and in the agenda."
          (1- arg)
          t))
       (org-end-of-subtree t t))
-    (setq end (point))
+    (setq end (min (point) (1- (point-max))))
     (skip-chars-backward "\n ")
     (delete-region (point) end)
     (setq end (point))
