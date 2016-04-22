@@ -825,6 +825,8 @@ When at a #+ marker, forward to `org-cycle'."
     (cond
       ((looking-at "#\\+")
        (org-cycle))
+      ((looking-at "^:")
+       (org-cycle))
       ((= arg 0)
        (outline-flag-region (car bnd) (cdr bnd) t)
        (org-cycle-internal-local))
