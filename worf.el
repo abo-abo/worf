@@ -701,13 +701,12 @@ Negative ARG shifts the heading left."
   (org-insert-heading-respect-content)
   (beginning-of-line))
 
+(defhydra worf-new (:exit t)
+  ("j" worf-new-down)
+  ("k" org-insert-heading)
+  ("h" org-metaleft)
+  ("l" worf-new-right))
 
-(worf-defverb
- "new"
- '(("j" worf-new-down :disable :break)
-   ("k" org-insert-heading)
-   ("h" org-metaleft)
-   ("l" worf-new-right :disable :break)))
 
 ;; ——— Other movement ——————————————————————————————————————————————————————————
 (defun worf-backward ()
