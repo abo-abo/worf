@@ -707,6 +707,14 @@ Negative ARG shifts the heading left."
   ("h" org-metaleft)
   ("l" worf-new-right))
 
+(defun worf-new-copy ()
+  "Copy marked region to kill ring."
+  (interactive)
+  (if (region-active-p)
+      (kill-new
+       (buffer-substring-no-properties
+        (region-beginning)
+        (region-end)))))
 
 ;; ——— Other movement ——————————————————————————————————————————————————————————
 (defun worf-backward ()
@@ -1327,7 +1335,7 @@ calling `self-insert-command'."
   (worf-define-key map "w" 'worf-keyword)
   (define-key map "m" 'worf-mark)
   (worf-define-key map "q" 'worf-quit)
-  (worf-define-key map "n" 'worf-new-mode)
+  (worf-define-key map "n" 'worf-new-copy)
   ;; ——— nouns ————————————————————————————————
   (worf-define-key map "p" 'worf-property)
   (worf-define-key map "P" 'worf-paste)
