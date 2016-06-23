@@ -673,8 +673,12 @@ Negative ARG shifts the heading left."
       (progn
         (forward-char)
         (org-insert-heading-respect-content)
-        (worf--ensure-visible))
+        ;; (worf--ensure-visible)
+        )
     (error (org-insert-heading-respect-content)))
+  (when (= (point) (1- (point-max)))
+    (insert "\n")
+    (backward-char 1))
   (cond ((> arg 1)
          (worf-dotimes-protect (1- arg)
            (org-metaright)))
