@@ -135,6 +135,7 @@
 (require 'org-id)
 (require 'org-clock)
 (require 'zoutline)
+(require 'flyspell)
 
 (defgroup worf nil
   "Navigate Org-mode with plain keys."
@@ -232,6 +233,8 @@ DEF is modified by `worf--insert-or-call'."
       (push func ac-trigger-commands))
     (unless (member func company-begin-commands)
       (push func company-begin-commands))
+    (unless (memq func flyspell-delayed-commands)
+      (add-to-list 'flyspell-delayed-commands func))
     (define-key keymap (kbd key) func)))
 
 ;; ——— Verb machinery ——————————————————————————————————————————————————————————
@@ -1055,6 +1058,13 @@ _t_his
   ("a" (org-archive-subtree))
   ("q" nil "quit"))
 
+(defhydra hydra-worf-cj (:color teal)
+  "C-j"
+  ("j" (org-open-at-point) "open")
+  ("n" (worf-add 1) "same")
+  ("m" (worf-add 2) "more")
+  ("l" (worf-add -1) "less"))
+
 ;; ——— Misc ————————————————————————————————————————————————————————————————————
 (defun worf-delete-subtree (arg)
   "Delete subtree or ARG chars."
@@ -1110,6 +1120,7 @@ When ARG is true, add a CUSTOM_ID first."
 When point is special, alphanumeric keys call commands instead of
 calling `self-insert-command'."
   (or (bobp)
+      (region-active-p)
       (looking-at worf-regex)
       (worf--at-property-p)
       (looking-back "^\\*+" (line-beginning-position))))
@@ -1285,7 +1296,7 @@ calling `self-insert-command'."
   (define-key map "[" 'worf-backward)
   (define-key map "]" 'worf-forward)
   (define-key map (kbd "M-j") 'worf-meta-newline)
-  (define-key map "\C-j" 'worf-follow)
+  (define-key map "\C-j" 'hydra-worf-cj/body)
   (define-key map (kbd "C-M-g") 'worf-goto)
   (define-key map (kbd "C-d") 'worf-delete-subtree)
   (define-key map (kbd "DEL") 'worf-delete-backward-char)
@@ -1472,6 +1483,16 @@ calling `self-insert-command'."
                      (file-name-nondirectory (buffer-file-name)))))
     (worf-archive)
     (shell-command cmd)))
+
+(defun worf-fixup-whitespace ()
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (while (re-search-forward "^\\( +\\)CLOSED:" nil t)
+      (delete-region (match-beginning 1)
+                     (match-end 1)))
+    (save-buffer)))
+
 (provide 'worf)
 
 ;;; Local Variables:
