@@ -300,6 +300,7 @@ DEF is modified by `worf--insert-or-call'."
          (set-mark (point))
          (end-of-line))
         (t
+         (setq this-command 'org-self-insert-command)
          (org-self-insert-command 1))))
 
 (worf-defverb
