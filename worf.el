@@ -212,9 +212,6 @@ Otherwise call `self-insert-command'."
                 (setq this-command 'org-self-insert-command)
                 (org-self-insert-command 1)))))))
 
-(defvar ac-trigger-commands '(self-insert-command))
-(defvar company-begin-commands '(self-insert-command))
-
 (defun worf--flag-to-alist (lst flag)
   "If FLAG is on LST, change it to (FLAG . t)."
   (let ((x (memq flag lst)))
@@ -228,10 +225,10 @@ DEF is modified by `worf--insert-or-call'."
   (let ((func (defalias (intern (concat "wspecial-" (symbol-name def)))
                   (worf--insert-or-call def (worf--flag-to-alist
                                              plist :break)))))
-    (unless (member func ac-trigger-commands)
-      (push func ac-trigger-commands))
-    (unless (member func company-begin-commands)
-      (push func company-begin-commands))
+    (when (boundp 'ac-trigger-commands)
+      (add-to-list 'ac-trigger-commands func))
+    (when (boundp 'company-begin-commands)
+      (add-to-list 'company-begin-commands func))
     (define-key keymap (kbd key) func)))
 
 ;; ——— Verb machinery ——————————————————————————————————————————————————————————
