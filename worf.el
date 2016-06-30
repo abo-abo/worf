@@ -349,9 +349,9 @@ _h_ ^+^ _l_    _n_ame    _e_dit    _i_: shift
   ("f" (setq prefix-arg 9999) "fast-forward")
   ("s" worf-schedule-today "schedule today"))
 
-(defun worf-schedule-today ()
-  (interactive)
-  (org-schedule nil "today"))
+(defun worf-schedule-today (arg)
+  (interactive "p")
+  (org-schedule nil (format "%+d" (- arg 1))))
 
 ;; ——— Verbs: change tree ——————————————————————————————————————————————————————
 (worf-defverb
