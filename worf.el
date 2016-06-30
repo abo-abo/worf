@@ -786,7 +786,7 @@ When already at beginning of line, move back to heading."
 
 (defun worf-goto-action (x)
   (with-ivy-window
-    (goto-char x)
+    (goto-char (cdr x))
     (outline-show-children 1000)
     (worf-more)))
 
