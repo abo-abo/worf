@@ -982,7 +982,7 @@ If already there, return it to previous position."
   (save-buffer))
 
 ;; ——— Refile ——————————————————————————————————————————————————————————————————
-(defun worf-refile-targets ()
+(defun worf-refile-targets (maxlevel)
   (cons (cons (cl-set-difference
                (delq nil
                      (mapcar
@@ -994,12 +994,12 @@ If already there, return it to previous position."
                       (buffer-list)))
                org-agenda-files
                :test 'equal)
-              '(:maxlevel . 3))
+              (cons :maxlevel maxlevel))
         (cl-remove-if
          (lambda (x) (null (car x)))
          org-refile-targets)))
 
-(defun worf-refile-other ()
+(defun worf-refile-other (arg)
   "Refile the current heading to another heading.
 
 The other heading can be in another file.  All currently open Org
@@ -1008,11 +1008,11 @@ files are eligible for refiling, even if they aren't on
 
 When the heading has attachments and the target is in another
 directory, the attachments will be moved."
-  (interactive)
+  (interactive "p")
   (let* ((id (org-entry-properties nil "ID"))
          (dir1 default-directory)
          (adir1 (and id (org-attach-dir)))
-         (org-refile-targets (worf-refile-targets)))
+         (org-refile-targets (worf-refile-targets (+ arg 2))))
     (org-refile)
     (save-buffer)
     (save-window-excursion
@@ -1039,7 +1039,7 @@ directory, the attachments will be moved."
   (let ((completing-read-function
          (lambda (_p coll _pred _rm _ii _h default &rest _)
            default)))
-    (worf-refile-other)))
+    (worf-refile-other 1)))
 
 (defhydra hydra-worf-promote (:color teal)
   "meta"
