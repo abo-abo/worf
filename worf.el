@@ -1092,6 +1092,8 @@ When ARG is true, add a CUSTOM_ID first."
   (let ((heading (substring-no-properties
                   (org-get-heading)))
         id)
+    (when (string-match "\\`\\(.*?\\) +:.*:\\'" heading)
+      (setq heading (match-string-no-properties 1 heading)))
     (when arg
       (org-entry-put nil "CUSTOM_ID"
                      (replace-regexp-in-string
