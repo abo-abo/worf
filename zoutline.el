@@ -46,4 +46,33 @@
     (unless (= i (1+ arg))
       (message "End reached after %s headings" i))))
 
+(defvar zo-lvl-re [nil
+                   "\n\\* "
+                   "\n\\*\\{2\\} "
+                   "\n\\*\\{3\\} "
+                   "\n\\*\\{4\\} "
+                   "\n\\*\\{5\\} "
+                   "\n\\*\\{6\\} "
+                   "\n\\*\\{7\\} "])
+
+(defun zo-down-visible (&optional arg)
+  "Move ARG times down by outline."
+  (interactive "p")
+  (setq arg (or arg 1))
+  (let ((lvl (org-outline-level))
+        res)
+    (if (= lvl 1)
+        (re-search-forward (aref zo-lvl-re lvl) nil t arg)
+      (let ((end (save-excursion
+                   (or (re-search-forward (aref zo-lvl-re (1- lvl)) nil t)
+                       (point-max)))))
+        (when (setq res (re-search-forward (aref zo-lvl-re lvl) end t arg))
+          (reveal-post-command))))
+    (when res
+      (beginning-of-line)
+      (point))))
+
+(defun zo-left (arg)
+  (outline-up-heading arg))
+
 (provide 'zoutline)
