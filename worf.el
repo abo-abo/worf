@@ -1116,7 +1116,24 @@ When ARG is true, add a CUSTOM_ID first."
 (defun worf-todo (arg)
   "Forward to `org-todo' with ARG."
   (interactive "P")
-  (org-todo arg))
+  (save-excursion
+    (let* ((all-keywords (append (cl-remove-if-not
+                                  (lambda (x)
+                                    (stringp (car x)))
+                                  org-todo-key-alist)
+                                 (list (cons "CLEAR" ?k))))
+           (done-keywords org-done-keywords)
+           (hint (mapconcat (lambda (x)
+                              (format "[%c] %s" (cdr x) (car x)))
+                            all-keywords
+                            " "))
+           (key (read-char hint))
+           (keyword-cons (rassoc key all-keywords))
+           (keyword (car keyword-cons)))
+      (when keyword
+        (if (string= keyword "CLEAR")
+            (org-todo 'none)
+          (org-todo keyword))))))
 
 (defun worf-reserved ()
   "Do some cybersquatting."
