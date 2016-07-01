@@ -393,6 +393,8 @@ number of minutes.
 
 When ARG is 2, mark the deadline as DONE at the clock-out time.
 
+When ARG is 3, the clock end time becomes the current time.
+
 Works both in a buffer and in the agenda."
   (interactive "p")
   (save-window-excursion
@@ -402,26 +404,34 @@ Works both in a buffer and in the agenda."
         (switch-to-buffer (marker-buffer hdmarker))
         (goto-char hdmarker)))
     (org-back-to-heading)
-    (let* ((heading (org-element-at-point))
-           (deadline (or (org-element-property :deadline heading)
-                         (org-element-property :scheduled heading))))
-      (if (null deadline)
-          (user-error "The current heading has no deadline")
-        (let* ((timestamp (org-element-property :raw-value deadline))
-               (parsed-timestamp (org-parse-time-string timestamp t))
-               (start-time (if (null (and (nth 1 parsed-timestamp)
-                                          (nth 2 parsed-timestamp)))
-                               (apply #'encode-time (org-parse-time-string (org-read-date)))
-                             (apply #'encode-time parsed-timestamp)))
+    (if (= arg 3)
+        (let* ((end-time (current-time))
                (diff (seconds-to-time
                       (* 60 (string-to-number
                              (read-string "Minutes spent: ")))))
-               (end-time (time-add start-time diff)))
+               (start-time (time-subtract end-time diff)))
           (org-clock-in nil start-time)
-          (org-clock-out nil nil end-time)
-          (when (eq arg 2)
-            (org-todo 'done)
-            (org-add-planning-info 'closed end-time))))))
+          (org-clock-out nil nil end-time))
+      (let* ((heading (org-element-at-point))
+             (deadline (or (org-element-property :deadline heading)
+                           (org-element-property :scheduled heading))))
+        (if (null deadline)
+            (user-error "The current heading has no deadline")
+          (let* ((timestamp (org-element-property :raw-value deadline))
+                 (parsed-timestamp (org-parse-time-string timestamp t))
+                 (start-time (if (null (and (nth 1 parsed-timestamp)
+                                            (nth 2 parsed-timestamp)))
+                                 (apply #'encode-time (org-parse-time-string (org-read-date)))
+                               (apply #'encode-time parsed-timestamp)))
+                 (diff (seconds-to-time
+                        (* 60 (string-to-number
+                               (read-string "Minutes spent: ")))))
+                 (end-time (time-add start-time diff)))
+            (org-clock-in nil start-time)
+            (org-clock-out nil nil end-time)
+            (when (eq arg 2)
+              (org-todo 'done)
+              (org-add-planning-info 'closed end-time)))))))
   (when (eq major-mode 'org-agenda-mode)
     (org-agenda-redo t)))
 
