@@ -677,6 +677,7 @@ When the chain is broken, the keyword is unset."
   (error "swiper in one heading not yet implemented"))
 
 ;; ——— Nouns: new heading ——————————————————————————————————————————————————————
+(require 'reveal)
 (defun worf-add (arg)
   "Add a new heading below.
 Positive ARG shifts the heading right.
