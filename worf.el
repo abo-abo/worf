@@ -598,6 +598,21 @@ When the chain is broken, the keyword is unset."
 (worf--set-change-switches "r" 'worf-change-shiftcontrol-mode)
 
 ;; ——— Nouns: arrows ———————————————————————————————————————————————————————————
+(defvar worf-recenter nil)
+(defun worf-recenter-mode ()
+  "Toggle centering on the current window line.
+
+`worf-down' and `worf-up' are affected by this, and will
+automatically recenter."
+  (interactive)
+  (if worf-recenter
+      (progn
+        (hl-line-mode -1)
+        (setq worf-recenter nil))
+    (hl-line-mode 1)
+    (setq worf-recenter (- (line-number-at-pos)
+                           (line-number-at-pos (window-start))))))
+
 (defun worf-up (arg)
   "Move ARG headings up."
   (interactive "p")
@@ -609,7 +624,9 @@ When the chain is broken, the keyword is unset."
         ((looking-at worf-sharp)
          (worf--sharp-up))
         (t
-         (zo-up arg))))
+         (zo-up arg)
+         (when worf-recenter
+           (recenter worf-recenter)))))
 
 (defun worf-down (arg)
   "Move ARG headings down."
@@ -622,7 +639,9 @@ When the chain is broken, the keyword is unset."
         ((looking-at worf-sharp)
          (worf--sharp-down))
         (t
-         (zo-down arg))))
+         (zo-down arg)
+         (when worf-recenter
+           (recenter worf-recenter)))))
 
 (defun worf-right ()
   "Move right."
@@ -1384,6 +1403,7 @@ calling `self-insert-command'."
   ;; ——— misc —————————————————————————————————
   (worf-define-key map "t" 'worf-todo)
   (worf-define-key map "u" 'undo)
+  (worf-define-key map "R" 'worf-recenter-mode)
   ;; ——— digit argument ———————————————————————
   (mapc (lambda (x) (worf-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9))
