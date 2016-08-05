@@ -776,13 +776,16 @@ Negative ARG shifts the heading left."
   (interactive)
   (org-back-to-heading))
 
+(defvar worf-beginning-of-line nil)
+
 (defun worf-beginning-of-line ()
   "Replaces `org-beginning-of-line'.
 When already at beginning of line, move back to heading."
   (interactive)
   (let ((pt (point)))
     (org-beginning-of-line)
-    (when (and (eq pt (point))
+    (when (and worf-beginning-of-line
+               (eq pt (point))
                (not (looking-at "^[*]")))
       (push-mark)
       (re-search-backward "^*"))))
