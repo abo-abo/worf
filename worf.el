@@ -383,6 +383,16 @@ _h_ ^+^ _l_    _n_ame    _e_dit    _i_: shift
  '(("i" org-clock-in :disable)
    ("o" org-clock-out :disable)))
 
+(defun worf-clock-in-from-end (end)
+  "Clock into the current heading from BEG to END.
+END is a time. BEG is END minus the amount of minutes entered."
+  (let* ((diff (seconds-to-time
+                (* 60 (string-to-number
+                       (read-string "Minutes spent: ")))))
+         (start-time (time-subtract end diff)))
+    (org-clock-in nil start-time)
+    (org-clock-out nil nil end)))
+
 (defun worf-clock-in-and-out (arg)
   "Clock-in and out of a missed deadline.
 
@@ -405,18 +415,15 @@ Works both in a buffer and in the agenda."
         (goto-char hdmarker)))
     (org-back-to-heading)
     (if (= arg 3)
-        (let* ((end-time (current-time))
-               (diff (seconds-to-time
-                      (* 60 (string-to-number
-                             (read-string "Minutes spent: ")))))
-               (start-time (time-subtract end-time diff)))
-          (org-clock-in nil start-time)
-          (org-clock-out nil nil end-time))
+        (worf-clock-in-from-end (current-time))
       (let* ((heading (org-element-at-point))
              (deadline (or (org-element-property :deadline heading)
                            (org-element-property :scheduled heading))))
         (if (null deadline)
-            (user-error "The current heading has no deadline")
+            (if (setq deadline (org-element-property :closed heading))
+                (worf-clock-in-from-end
+                 (org-timestamp--to-internal-time deadline))
+              (user-error "The current heading has no deadline"))
           (let* ((timestamp (org-element-property :raw-value deadline))
                  (parsed-timestamp (org-parse-time-string timestamp t))
                  (start-time (if (null (and (nth 1 parsed-timestamp)
