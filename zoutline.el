@@ -78,4 +78,26 @@ Return nil if moved 0 times."
 (defun zo-left (arg)
   (outline-up-heading arg))
 
+(defun zo-right-once ()
+  (let ((pt (point))
+        (lvl-1 (funcall outline-level))
+        lvl-2)
+    (if (outline-next-heading)
+        (progn
+          (setq lvl-2 (funcall outline-level))
+          (if (> lvl-2 lvl-1)
+              (progn
+                (goto-char pt)
+                nil)
+            1))
+      (goto-char pt)
+      nil)))
+
+(defun zo-right (arg)
+  (let ((i 0))
+    (while (and (< i arg)
+                (zo-right-once))
+      (cl-incf i))
+    i))
+
 (provide 'zoutline)
