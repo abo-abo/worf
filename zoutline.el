@@ -31,20 +31,23 @@
     out))
 
 (defun zo-down (arg)
-  "Move ARG times down by outline."
+  "Move ARG times down by outline.
+Return the amount of times moved.
+Return nil if moved 0 times."
   (interactive "p")
   (let ((pt 0)
         (i 0)
         (outline-ok t))
-    (while (and (<= (cl-incf i) arg)
-                (> (point) pt)
-                outline-ok)
+    (while (and outline-ok
+                (<= (cl-incf i) arg)
+                (> (point) pt))
       (setq pt (point))
       (condition-case nil
           (outline-forward-same-level 1)
         (error (setq outline-ok nil))))
-    (unless (= i (1+ arg))
-      (message "End reached after %s headings" i))))
+    (cl-decf i)
+    (unless (= 0 i)
+      i)))
 
 (defvar zo-lvl-re [nil
                    "\n\\* "
