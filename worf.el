@@ -880,6 +880,8 @@ When at a #+ marker, forward to `org-cycle'."
             (looking-at "#\\+end"))
       (worf--sharp-up))
     (cond
+      ((eq (car (org-element-at-point)) 'clock)
+       (org-clock-update-time-maybe))
       ((looking-at "#\\+")
        (org-cycle))
       ((looking-at "^:")
