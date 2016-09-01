@@ -776,7 +776,7 @@ Negative ARG shifts the heading left."
   (interactive)
   (org-back-to-heading))
 
-(defvar worf-beginning-of-line nil)
+(defvar worf-beginning-of-line t)
 
 (defun worf-beginning-of-line ()
   "Replaces `org-beginning-of-line'.
