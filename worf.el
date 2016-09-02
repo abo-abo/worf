@@ -977,11 +977,17 @@ If already there, return it to previous position."
 (defun worf-ace-link ()
   "Visit a link within current heading by ace jumping."
   (interactive)
-  (save-excursion
-    (save-restriction
-      (org-narrow-to-subtree)
-      (ignore-errors
-        (ace-link-org)))))
+  (let ((cands (save-excursion
+                 (save-restriction
+                   (org-narrow-to-subtree)
+                   (ace-link--org-collect)))))
+    (let ((pt (avy-with ace-link-org
+                (avy--process
+                 (mapcar
+                  #'cdr
+                  cands)
+                 #'avy--overlay-pre))))
+      (ace-link--org-action pt))))
 
 (defun worf-ace-link-eww ()
   "Visit a link within current heading by ace jumping."
