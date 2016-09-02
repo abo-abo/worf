@@ -937,7 +937,12 @@ _s_tartup
   "Hide/show everything.
 Forward to `org-shifttab' with ARG."
   (interactive "P")
-  (org-shifttab arg))
+  (if arg
+      (org-content)
+    (when (eq org-cycle-global-status 'overview)
+      (setq org-cycle-global-status 'contents))
+    (setq this-command last-command)
+    (org-cycle-internal-global)))
 
 (defun worf-more ()
   "Unhide current heading."
@@ -1369,6 +1374,7 @@ calling `self-insert-command'."
   (define-key map (kbd "DEL") 'worf-delete-backward-char)
   (define-key map (kbd "C-a") 'worf-beginning-of-line)
   (define-key map (kbd "<tab>") nil)
+  (define-key map (kbd "<S-iso-lefttab>") 'worf-shifttab)
   ;; ——— Local ————————————————————————————————
   (mapc (lambda (k) (worf-define-key map k 'worf-reserved))
         '("b" "B" "C" "D" "e" "E" "f" "G" "H" "J" "M" "n" "P" "Q"
