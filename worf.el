@@ -1201,7 +1201,8 @@ calling `self-insert-command'."
       (region-active-p)
       (looking-at worf-regex)
       (worf--at-property-p)
-      (looking-back "^\\*+" (line-beginning-position))))
+      (looking-back "^\\*+" (line-beginning-position))
+      (and (bolp) (looking-at "CLOCK:"))))
 
 (defun worf--invisible-p ()
   "Test if point is hidden by an `org-block' overlay."
