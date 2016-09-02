@@ -832,7 +832,7 @@ When already at beginning of line, move back to heading."
     (worf-more)))
 
 (defun worf-goto ()
-  "Jump to a heading with `helm'."
+  "Jump to a heading with completion."
   (interactive)
   (let ((cands (worf--goto-candidates)))
     (cond ((eq worf-completion-method 'helm)
@@ -899,6 +899,11 @@ When at a #+ marker, forward to `org-cycle'."
                   (get-char-property (1+ eoh) 'invisible))
              (outline-flag-region eoh eos nil)
            (outline-flag-region eoh eos t)))))))
+
+(defun worf-tab-contents ()
+  "Show only the names of the heading's children."
+  (interactive)
+  (worf-tab 0))
 
 (defun worf--end-positions ()
   "Return a cons of heding end and subtree end."
@@ -1380,6 +1385,7 @@ calling `self-insert-command'."
   (worf-define-key map "O" 'worf-ace-link-eww)
   ;; ——— hide/show ————————————————————————————
   (worf-define-key map "i" 'worf-tab)
+  (worf-define-key map "/" 'worf-tab-contents)
   (worf-define-key map "I" 'worf-shifttab)
   ;; (worf-define-key map "m" 'worf-more)
 
