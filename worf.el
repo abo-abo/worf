@@ -1416,6 +1416,7 @@ calling `self-insert-command'."
   (worf-define-key map "t" 'worf-todo)
   (worf-define-key map "u" 'undo)
   (worf-define-key map "R" 'worf-recenter-mode)
+  (worf-define-key map "," 'org-priority)
   ;; ——— digit argument ———————————————————————
   (mapc (lambda (x) (worf-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9))
