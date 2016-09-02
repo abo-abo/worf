@@ -1575,6 +1575,37 @@ calling `self-insert-command'."
                      (match-end 1)))
     (save-buffer)))
 
+;;* Agenda commands
+(defun worf-schedule ()
+  (interactive)
+  (if (null current-prefix-arg)
+      (call-interactively 'org-agenda-schedule)
+    (org-agenda-schedule 0 (format "+%dd" current-prefix-arg))))
+
+(defvar worf-agenda-files nil
+  "List of agenda groups.
+
+Each item is (DESCRIPTION AGENDA-FILES).
+DESCRIPTION is a string offered for completion.
+AGENDA-FILES is a list of files.")
+
+(defun worf-agenda-narrow-action (context)
+  (setq org-agenda-files (cadr context))
+  (org-agenda-redo))
+
+(defun worf-agenda-narrow ()
+  (interactive)
+  (ivy-read "agenda context:" worf-agenda-files
+            :action #'worf-agenda-narrow-action))
+
+(defun worf-agenda-widen ()
+  (interactive)
+  (setq org-agenda-files
+        (cl-remove-if-not
+         #'file-exists-p
+         (apply #'append (mapcar #'cadr worf-agenda-files))))
+  (org-agenda-redo))
+
 (provide 'worf)
 
 ;;; Local Variables:
