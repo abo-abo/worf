@@ -134,6 +134,7 @@
 (require 'org)
 (require 'org-id)
 (require 'org-clock)
+(require 'org-list)
 (require 'zoutline)
 (require 'flyspell)
 
@@ -149,7 +150,8 @@
 (defvar worf-regex "^\\(?:\\*\\|#\\+\\)"
   "Shortcut for worf's special regex.")
 
-(defvar worf-regex-full "^\\(?:\\*\\|#\\+\\|:\\)"
+(defvar worf-regex-full (format "^\\(?:\\*\\|#\\+\\|:\\|%s\\)"
+                                org-list-full-item-re)
   "Shortcut for worf's special regex.")
 
 (defvar worf-mode-map
@@ -630,6 +632,9 @@ automatically recenter."
          (worf--prev-property arg))
         ((looking-at worf-sharp)
          (worf--sharp-up))
+        ((looking-at org-list-full-item-re)
+         (dotimes (i arg)
+           (org-previous-item)))
         (t
          (zo-up arg)
          (when worf-recenter
@@ -645,6 +650,9 @@ automatically recenter."
          (worf--next-property arg))
         ((looking-at worf-sharp)
          (worf--sharp-down))
+        ((looking-at org-list-full-item-re)
+         (dotimes (i arg)
+           (org-next-item)))
         (t
          (zo-down arg)
          (when worf-recenter
@@ -656,23 +664,37 @@ automatically recenter."
   (let ((pt (point))
         result)
     (save-restriction
-      (org-narrow-to-subtree)
-      (forward-char)
-      (if (re-search-forward worf-regex nil t)
-          (progn
-            (goto-char (match-beginning 0))
-            (setq result t))
-        (goto-char pt)))
+      (cond ((looking-at org-list-full-item-re)
+             (let ((child (org-list-has-child-p (point) (org-list-struct))))
+               (when child (goto-char child))))
+            (t
+             (org-narrow-to-subtree)
+             (forward-char)
+             (if (re-search-forward worf-regex nil t)
+                 (progn
+                   (goto-char (match-beginning 0))
+                   (setq result t))
+               (goto-char pt)))))
     (worf--ensure-visible)
     result))
 
 (defun worf-left ()
   "Move one level up backwards."
   (interactive)
-  (if (looking-at worf-sharp)
-      (goto-char (car (worf--bounds-subtree)))
-    (ignore-errors
-      (org-up-heading-safe))))
+  (cond ((looking-at worf-sharp)
+         (goto-char (car (worf--bounds-subtree))))
+        ((looking-at org-list-full-item-re)
+         (let* ((struct (org-list-struct))
+                (parentpos
+                 (org-list-get-parent (point)
+                                      struct
+                                      (org-list-parents-alist struct))))
+           (when parentpos
+             (goto-char parentpos)
+             (worf--ensure-visible))))
+        (t
+         (ignore-errors
+           (org-up-heading-safe)))))
 
 ;; ——— Nouns: property —————————————————————————————————————————————————————————
 (defun worf-property ()
@@ -880,25 +902,27 @@ When at a #+ marker, forward to `org-cycle'."
             (looking-at "#\\+end"))
       (worf--sharp-up))
     (cond
-      ((eq (car (org-element-at-point)) 'clock)
-       (org-clock-update-time-maybe))
-      ((looking-at "#\\+")
-       (org-cycle))
-      ((looking-at "^:")
-       (org-cycle))
-      ((= arg 0)
-       (outline-flag-region (car bnd) (cdr bnd) t)
-       (org-cycle-internal-local))
-      ((and (= 2 (length v))
-            (string-match "[0-9]" (concat v)))
-       (org-shifttab arg))
-      (t
-       (let ((eoh (car bnd))
-             (eos (cdr bnd)))
-         (if (and (get-char-property (1- eos) 'invisible)
-                  (get-char-property (1+ eoh) 'invisible))
-             (outline-flag-region eoh eos nil)
-           (outline-flag-region eoh eos t)))))))
+     ((eq (car (org-element-at-point)) 'clock)
+      (org-clock-update-time-maybe))
+     ((looking-at "#\\+")
+      (org-cycle))
+     ((looking-at "^:")
+      (org-cycle))
+     ((looking-at org-list-full-item-re)
+      (org-cycle))
+     ((= arg 0)
+      (outline-flag-region (car bnd) (cdr bnd) t)
+      (org-cycle-internal-local))
+     ((and (= 2 (length v))
+           (string-match "[0-9]" (concat v)))
+      (org-shifttab arg))
+     (t
+      (let ((eoh (car bnd))
+            (eos (cdr bnd)))
+        (if (and (get-char-property (1- eos) 'invisible)
+                 (get-char-property (1+ eoh) 'invisible))
+            (outline-flag-region eoh eos nil)
+          (outline-flag-region eoh eos t)))))))
 
 (defun worf--end-positions ()
   "Return a cons of heding end and subtree end."
@@ -1184,6 +1208,7 @@ calling `self-insert-command'."
   (or (bobp)
       (region-active-p)
       (looking-at worf-regex)
+      (looking-at org-list-full-item-re)
       (worf--at-property-p)
       (looking-back "^\\*+" (line-beginning-position))))
 
