@@ -632,7 +632,8 @@ automatically recenter."
          (worf--prev-property arg))
         ((looking-at worf-sharp)
          (worf--sharp-up))
-        ((looking-at org-list-full-item-re)
+        ((and (org-in-item-p)
+              (looking-at org-list-full-item-re))
          (dotimes (i arg)
            (org-previous-item)))
         (t
@@ -650,7 +651,8 @@ automatically recenter."
          (worf--next-property arg))
         ((looking-at worf-sharp)
          (worf--sharp-down))
-        ((looking-at org-list-full-item-re)
+        ((and (org-in-item-p)
+              (looking-at org-list-full-item-re))
          (dotimes (i arg)
            (org-next-item)))
         (t
@@ -664,7 +666,8 @@ automatically recenter."
   (let ((pt (point))
         result)
     (save-restriction
-      (cond ((looking-at org-list-full-item-re)
+      (cond ((and (org-in-item-p)
+                  (looking-at org-list-full-item-re))
              (let ((child (org-list-has-child-p (point) (org-list-struct))))
                (when child (goto-char child))))
             (t
@@ -683,7 +686,8 @@ automatically recenter."
   (interactive)
   (cond ((looking-at worf-sharp)
          (goto-char (car (worf--bounds-subtree))))
-        ((looking-at org-list-full-item-re)
+        ((and (org-in-item-p)
+              (looking-at org-list-full-item-re))
          (let* ((struct (org-list-struct))
                 (parentpos
                  (org-list-get-parent (point)
@@ -908,7 +912,8 @@ When at a #+ marker, forward to `org-cycle'."
       (org-cycle))
      ((looking-at "^:")
       (org-cycle))
-     ((looking-at org-list-full-item-re)
+     ((and (org-in-item-p)
+           (looking-at org-list-full-item-re))
       (org-cycle))
      ((= arg 0)
       (outline-flag-region (car bnd) (cdr bnd) t)
