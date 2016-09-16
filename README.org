@@ -333,6 +333,9 @@ of deleting.
 Some other things included in worf, that don't fit into the
 verb-noun structure, are:
 
+** ~[~ - =worf-backward=
+Go backwards to closest special position. ~]~ does the same in the opposite direction. 
+
 ** ~i~ - =worf-tab=
 Wraps around =org-cycle=.
 
