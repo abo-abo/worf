@@ -5,7 +5,7 @@
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/worf
 ;; Version: 0.1
-;; Package-Requires: ((swiper "0.7.0") (ace-link "0.1.0") (hydra "0.13.0"))
+;; Package-Requires: ((swiper "0.7.0") (ace-link "0.1.0") (hydra "0.13.0") (zoutline "0.1.0"))
 ;; Keywords: lisp
 
 ;; This file is not part of GNU Emacs
