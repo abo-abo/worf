@@ -1197,8 +1197,7 @@ When ARG is true, add a CUSTOM_ID first."
   "Return t if point is special.
 When point is special, alphanumeric keys call commands instead of
 calling `self-insert-command'."
-  (or (bobp)
-      (region-active-p)
+  (or (region-active-p)
       (looking-at worf-regex)
       (worf--at-property-p)
       (looking-back "^\\*+" (line-beginning-position))
