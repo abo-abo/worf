@@ -1166,24 +1166,32 @@ When ARG is true, add a CUSTOM_ID first."
 (defun worf-todo (arg)
   "Forward to `org-todo' with ARG."
   (interactive "P")
-  (save-excursion
-    (let* ((all-keywords (append (cl-remove-if-not
-                                  (lambda (x)
-                                    (stringp (car x)))
-                                  org-todo-key-alist)
-                                 (list (cons "CLEAR" ?k))))
-           (done-keywords org-done-keywords)
-           (hint (mapconcat (lambda (x)
-                              (format "[%c] %s" (cdr x) (car x)))
-                            all-keywords
-                            " "))
-           (key (read-char hint))
-           (keyword-cons (rassoc key all-keywords))
-           (keyword (car keyword-cons)))
-      (when keyword
-        (if (string= keyword "CLEAR")
-            (org-todo 'none)
-          (org-todo keyword))))))
+  (let* ((marker (or (org-get-at-bol 'org-marker) (point)))
+         (buffer (if (eq major-mode 'org-agenda-mode)
+                     (marker-buffer marker)
+                   (current-buffer))))
+    (with-current-buffer buffer
+      (save-excursion
+        (goto-char marker)
+        (let* ((all-keywords (append (cl-remove-if-not
+                                      (lambda (x)
+                                        (stringp (car x)))
+                                      org-todo-key-alist)
+                                     (list (cons "CLEAR" ?k))))
+               (done-keywords org-done-keywords)
+               (hint (mapconcat (lambda (x)
+                                  (format "[%c] %s" (cdr x) (car x)))
+                                all-keywords
+                                " "))
+               (key (read-char hint))
+               (keyword-cons (rassoc key all-keywords))
+               (keyword (car keyword-cons)))
+          (when keyword
+            (if (string= keyword "CLEAR")
+                (org-todo 'none)
+              (org-todo keyword))))))
+    (when (eq major-mode 'org-agenda-mode)
+      (org-agenda-redo t))))
 
 (defun worf-reserved ()
   "Do some cybersquatting."
