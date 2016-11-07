@@ -4,7 +4,7 @@
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/worf
-;; Version: 0.1
+;; Version: 0.1.0
 ;; Package-Requires: ((swiper "0.7.0") (ace-link "0.1.0") (hydra "0.13.0") (zoutline "0.1.0"))
 ;; Keywords: lisp
 
@@ -784,6 +784,8 @@ When already at beginning of line, move back to heading."
   (interactive)
   (let ((pt (point)))
     (org-beginning-of-line)
+    (while (not (bolp))
+      (backward-char))
     (when (and worf-beginning-of-line
                (eq pt (point))
                (not (looking-at "^[*]")))
