@@ -1189,6 +1189,13 @@ When ARG is true, add a CUSTOM_ID first."
           (when keyword
             (if (string= keyword "CLEAR")
                 (org-todo 'none)
+              (when (string= keyword "DONE")
+                (save-excursion
+                  (org-back-to-heading)
+                  (when (looking-at ".*\\([0-9]+\\)")
+                    (let ((idx (string-to-number (match-string 1))))
+                      (replace-match (prin1-to-string (1+ idx))
+                                     nil t nil 1)))))
               (org-todo keyword))))))
     (when (eq major-mode 'org-agenda-mode)
       (org-agenda-redo t))))
