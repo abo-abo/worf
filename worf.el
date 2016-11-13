@@ -646,7 +646,10 @@ automatically recenter."
         ((looking-at worf-sharp)
          (worf--sharp-down))
         (t
-         (zo-down arg)
+         (let ((actual (zo-down arg)))
+           (when (< actual arg)
+             (message "Reached end after %d headings" actual)))
+
          (when worf-recenter
            (recenter worf-recenter)))))
 
