@@ -899,8 +899,8 @@ When at a #+ marker, forward to `org-cycle'."
       (t
        (let ((eoh (car bnd))
              (eos (cdr bnd)))
-         (if (and (get-char-property (1- eos) 'invisible)
-                  (get-char-property (1+ eoh) 'invisible))
+         (if (and (eq (get-char-property (1- eos) 'invisible) 'outline)
+                  (eq (get-char-property (1+ eoh) 'invisible) 'outline))
              (outline-flag-region eoh eos nil)
            (outline-flag-region eoh eos t)))))))
 
