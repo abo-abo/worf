@@ -702,7 +702,18 @@ automatically recenter."
 
 (defun worf-occur ()
   (interactive)
-  (error "swiper in one heading not yet implemented"))
+  (let* ((bnd (worf--bounds-subtree))
+         (candidates
+          (save-restriction
+            (narrow-to-region (car bnd) (cdr bnd))
+            (swiper--init)
+            (swiper--candidates))))
+    (ivy-read "pattern: " candidates
+              :require-match t
+              :update-fn #'swiper--update-input-ivy
+              :action #'swiper--action
+              :unwind #'swiper--cleanup
+              :caller 'worf-occur)))
 
 ;; ——— Nouns: new heading ——————————————————————————————————————————————————————
 (require 'reveal)
@@ -1439,7 +1450,7 @@ calling `self-insert-command'."
   ;; ——— verbs ————————————————————————————————
   (worf-define-key map "c" 'hydra-worf-change/body)
   (worf-define-key map "d" 'worf-delete-mode)
-  (worf-define-key map "y" 'worf-occur)
+  (worf-define-key map "y" 'worf-occur :break t)
   (worf-define-key map "C" 'worf-clock-mode)
   (worf-define-key map "T" 'worf-clock-in-and-out)
   (worf-define-key map "w" 'worf-keyword)
