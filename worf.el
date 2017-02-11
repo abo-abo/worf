@@ -430,9 +430,11 @@ Works both in a buffer and in the agenda."
                                             (nth 2 parsed-timestamp)))
                                  (apply #'encode-time (org-parse-time-string (org-read-date)))
                                (apply #'encode-time parsed-timestamp)))
-                 (diff (seconds-to-time
-                        (* 60 (string-to-number
-                               (read-string "Minutes spent: ")))))
+                 (time-str (read-string "Minutes spent: "))
+                 (diff (if (string= time-str "")
+                           (time-subtract (current-time) start-time)
+                         (seconds-to-time
+                          (* 60 (string-to-number time-str)))))
                  (end-time (time-add start-time diff)))
             (org-clock-in nil start-time)
             (org-clock-out nil nil end-time)
