@@ -1014,6 +1014,11 @@ If already there, return it to previous position."
   (interactive)
   (call-interactively 'org-attach-open))
 
+(defvar worf-visit-function 'find-file
+  "Function to call when visiting a file.
+For example, the user might prefer to visit pdf or mp4 with
+external applications.")
+
 (defun worf-visit (arg)
   "Forward to find file in project with ARG."
   (interactive "p")
@@ -1023,8 +1028,9 @@ If already there, return it to previous position."
                   (file (if (= (length files) 1)
                             (car files)
                           (completing-read "Open attachment: "
-                                           (mapcar #'list files) nil t))))
-             (find-file (expand-file-name file attach-dir))))
+                                           (mapcar #'list files) nil t)))
+                  (file (expand-file-name file attach-dir)))
+             (funcall worf-visit-function file)))
           ((= arg 1)
            (projectile-find-file nil))
           ((= arg 2)
