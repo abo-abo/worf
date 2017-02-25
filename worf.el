@@ -794,18 +794,9 @@ Negative ARG shifts the heading left."
 (defvar worf-beginning-of-line t)
 
 (defun worf-beginning-of-line ()
-  "Replaces `org-beginning-of-line'.
-When already at beginning of line, move back to heading."
+  "Replaces `org-beginning-of-line'."
   (interactive)
-  (let ((pt (point)))
-    (org-beginning-of-line)
-    (while (not (bolp))
-      (backward-char))
-    (when (and worf-beginning-of-line
-               (eq pt (point))
-               (not (looking-at "^[*]")))
-      (push-mark)
-      (re-search-backward "^*"))))
+  (beginning-of-line))
 
 (defcustom worf-completion-method 'ivy
   "Method to select a candidate from a list of strings."
