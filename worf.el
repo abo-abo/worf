@@ -1533,7 +1533,20 @@ calling `self-insert-command'."
            (org-archive-location
             (format "%s::%s %04d-%02d-%02d %s" afile
                     (make-string (org-get-valid-level 0 2) ?*) y m d
-                    (format-time-string "%A" (encode-time 0 0 0 d m y)))))
+                    (format-time-string "%A" (encode-time 0 0 0 d m y))))
+           (id (org-attach-dir)))
+      (when id
+        (let ((new-location
+               (file-name-directory
+                (expand-file-name
+                 (file-relative-name id)
+                 (file-name-directory afile))))
+              (id-parent (file-name-directory id)))
+          (make-directory new-location t)
+          (rename-file id new-location)
+          (when (equal (directory-files id-parent)
+                       '("." ".."))
+            (delete-directory id-parent))))
       (org-set-tags-to (org-get-tags-at))
       (if (null afile)
           (error "Invalid `org-archive-location'")
