@@ -1644,7 +1644,8 @@ AGENDA-FILES is a list of files.")
   (setq org-agenda-files
         (cl-remove-if-not
          #'file-exists-p
-         (apply #'append (mapcar #'cadr worf-agenda-files))))
+         (delete-dups
+          (apply #'append (mapcar #'cadr worf-agenda-files)))))
   (org-agenda-redo))
 
 (provide 'worf)
