@@ -440,8 +440,11 @@ Works both in a buffer and in the agenda."
             (org-clock-out nil nil end-time)
             (when (eq arg 2)
               (org-todo 'done)
-              (org-add-planning-info 'closed end-time)))))))
+              (org-add-planning-info 'closed end-time)
+              (save-buffer)))))))
   (when (eq major-mode 'org-agenda-mode)
+    ;; `org-agenda-list' uses `current-prefix-arg', why...
+    (setq current-prefix-arg nil)
     (org-agenda-redo t)))
 
 ;; ——— Verbs: delete ———————————————————————————————————————————————————————————
@@ -914,7 +917,7 @@ When at a #+ marker, forward to `org-cycle'."
   (worf-tab 0))
 
 (defun worf--end-positions ()
-  "Return a cons of heding end and subtree end."
+  "Return a cons of heading end and subtree end."
   (save-excursion
     (org-back-to-heading)
     (cons
