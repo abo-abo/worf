@@ -149,7 +149,7 @@
 (defvar worf-regex "^\\(?:\\*\\|#\\+\\)"
   "Shortcut for worf's special regex.")
 
-(defvar worf-regex-full "^\\(?:\\*\\|#\\+\\|:\\)"
+(defvar worf-regex-full "^\\(?:\\*+ \\|#\\+\\|:\\)"
   "Shortcut for worf's special regex.")
 
 (defvar worf-mode-map
