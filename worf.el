@@ -1402,10 +1402,28 @@ calling `self-insert-command'."
   (interactive)
   (org-set-property "ADDED" (format-time-string "[%Y-%m-%d %a]")))
 
+(defun worf-symbolize (arg)
+  "Quote all occurences of symbol at point with =.*=."
+  (interactive "p")
+  (if (eq arg 4)
+      (let* ((bnd (bounds-of-thing-at-point 'symbol))
+             (str (buffer-substring-no-properties (car bnd) (cdr bnd)))
+             (re (format "[^=]\\(\\_<%s\\_>\\)[^=]" str))
+             (cnt 0))
+        (undo-boundary)
+        (save-excursion
+          (goto-char (point-min))
+          (while (re-search-forward re nil t)
+            (replace-match (format "=%s=" str) nil t nil 1)
+            (cl-incf cnt))
+          (message "quoted %d symbol%s" cnt (if (> cnt 1) "s" ""))))
+    (self-insert-command arg)))
+
 (let ((map worf-mode-map))
   ;; ——— Global ———————————————————————————————
   (define-key map "[" 'worf-backward)
   (define-key map "]" 'worf-forward)
+  (define-key map "=" 'worf-symbolize)
   (define-key map (kbd "M-j") 'worf-meta-newline)
   (define-key map "\C-j" 'hydra-worf-cj/body)
   (define-key map (kbd "C-M-g") 'worf-goto)
