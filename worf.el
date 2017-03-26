@@ -1010,7 +1010,8 @@ If already there, return it to previous position."
 (defun worf-attach ()
   "Interface to attachments."
   (interactive)
-  (call-interactively 'org-attach))
+  (call-interactively 'org-attach)
+  (org-align-all-tags))
 
 (defun worf-attach-visit ()
   "Interface to attachments."
