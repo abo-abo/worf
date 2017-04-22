@@ -423,7 +423,7 @@ Works both in a buffer and in the agenda."
             (if (setq deadline (org-element-property :closed heading))
                 (worf-clock-in-from-end
                  (org-timestamp--to-internal-time deadline))
-              (user-error "The current heading has no deadline"))
+              (worf-clock-in-from-end (current-time)))
           (let* ((timestamp (org-element-property :raw-value deadline))
                  (parsed-timestamp (org-parse-time-string timestamp t))
                  (start-time (if (null (and (nth 1 parsed-timestamp)
@@ -438,10 +438,10 @@ Works both in a buffer and in the agenda."
                  (end-time (time-add start-time diff)))
             (org-clock-in nil start-time)
             (org-clock-out nil nil end-time)
-            (when (eq arg 2)
-              (org-todo 'done)
-              (org-add-planning-info 'closed end-time)
-              (save-buffer)))))))
+            (org-add-planning-info 'closed end-time)))
+        (when (eq arg 2)
+          (org-todo 'done)
+          (save-buffer)))))
   (when (eq major-mode 'org-agenda-mode)
     ;; `org-agenda-list' uses `current-prefix-arg', why...
     (setq current-prefix-arg nil)
