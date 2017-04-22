@@ -393,6 +393,24 @@ END is a time. BEG is END minus the amount of minutes entered."
     (org-clock-in nil start-time)
     (org-clock-out nil nil end)))
 
+(defun worf-log-time (start-time end-time)
+  "Insert clocking info from START-TIME to END-TIME into the current logbook."
+  (save-excursion
+    (org-back-to-heading)
+    (goto-char (org-log-beginning))
+    (if (looking-at ":LOGBOOK:")
+        (beginning-of-line 2)
+      (insert ":LOGBOOK:\n:END:\n")
+      (beginning-of-line 0))
+    (insert "CLOCK: ")
+    (org-insert-time-stamp start-time 'with-hm 'inactive)
+    (insert "--")
+    (org-insert-time-stamp end-time 'with-hm 'inactive)
+    (let* ((seconds (cadr (time-subtract end-time start-time)))
+           (hours (floor (/ seconds 3600)))
+           (minutes (/ (- seconds (* 3600 hours)) 60)))
+      (insert (format " =>  %d:%d\n" hours minutes)))))
+
 (defun worf-clock-in-and-out (arg)
   "Clock-in and out of a missed deadline.
 
@@ -436,11 +454,11 @@ Works both in a buffer and in the agenda."
                          (seconds-to-time
                           (* 60 (string-to-number time-str)))))
                  (end-time (time-add start-time diff)))
-            (org-clock-in nil start-time)
-            (org-clock-out nil nil end-time)
+            (worf-log-time start-time end-time)
             (org-add-planning-info 'closed end-time)))
         (when (eq arg 2)
-          (org-todo 'done)
+          (let ((org-log-done nil))
+            (org-todo 'done))
           (save-buffer)))))
   (when (eq major-mode 'org-agenda-mode)
     ;; `org-agenda-list' uses `current-prefix-arg', why...
