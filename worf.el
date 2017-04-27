@@ -1226,7 +1226,7 @@ When ARG is true, add a CUSTOM_ID first."
               (when (string= keyword "DONE")
                 (save-excursion
                   (org-back-to-heading)
-                  (when (looking-at ".*\\([0-9]+\\) *:recurring:$")
+                  (when (looking-at ".*?\\([0-9]+\\) *:recurring:$")
                     (let ((idx (string-to-number (match-string 1))))
                       (replace-match (prin1-to-string (1+ idx))
                                      nil t nil 1)))))
