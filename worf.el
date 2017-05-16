@@ -745,7 +745,12 @@ automatically recenter."
 Positive ARG shifts the heading right.
 Negative ARG shifts the heading left."
   (interactive "p")
-  (let ((lvl (org-current-level)))
+  (let ((lvl (org-current-level))
+        (spacing (buffer-substring-no-properties
+                  (save-excursion
+                    (skip-chars-backward "\n")
+                    (point))
+                  (point))))
     (if (zo-down-visible)
         (progn
           (backward-char)
@@ -753,7 +758,7 @@ Negative ARG shifts the heading left."
           (insert "\n"))
       (outline-end-of-subtree)
       (skip-chars-backward "\n")
-      (insert "\n")
+      (insert spacing)
       (reveal-post-command))
     (insert (concat (make-string lvl ?*) " "))
     (cond ((> arg 1)
