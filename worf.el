@@ -746,11 +746,10 @@ Positive ARG shifts the heading right.
 Negative ARG shifts the heading left."
   (interactive "p")
   (let ((lvl (org-current-level))
-        (spacing (buffer-substring-no-properties
-                  (save-excursion
-                    (skip-chars-backward "\n")
-                    (point))
-                  (point))))
+        (spacing (+ 1 (max (abs
+                            (save-excursion
+                              (skip-chars-backward "\n")))
+                           0))))
     (if (zo-down-visible)
         (progn
           (backward-char)
@@ -758,7 +757,8 @@ Negative ARG shifts the heading left."
           (insert "\n"))
       (outline-end-of-subtree)
       (skip-chars-backward "\n")
-      (insert spacing)
+      (dotimes (i spacing)
+        (insert "\n"))
       (reveal-post-command))
     (insert (concat (make-string lvl ?*) " "))
     (cond ((> arg 1)
