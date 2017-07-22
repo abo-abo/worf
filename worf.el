@@ -746,10 +746,10 @@ Positive ARG shifts the heading right.
 Negative ARG shifts the heading left."
   (interactive "p")
   (let ((lvl (org-current-level))
-        (spacing (+ 1 (max (abs
-                            (save-excursion
-                              (skip-chars-backward "\n")))
-                           0))))
+        (spacing (max (abs
+                       (save-excursion
+                         (skip-chars-backward "\n")))
+                      1)))
     (if (zo-down-visible)
         (progn
           (backward-char)
