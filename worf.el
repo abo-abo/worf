@@ -1112,7 +1112,9 @@ directory, the attachments will be moved."
                      (file-name-directory
                       (org-attach-dir t)) t)
         (when (equal (directory-files (file-name-directory adir1)) '("." ".."))
-          (dired-delete-file (file-name-directory adir1)))))))
+          (dired-delete-file (file-name-directory adir1)))))
+    (when (bound-and-true-p org-capture-mode)
+      (org-capture-kill))))
 
 (defun worf-refile-this (arg)
   "Interface to refile with :maxlevel set to ARG."
