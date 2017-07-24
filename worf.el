@@ -1459,7 +1459,7 @@ calling `self-insert-command'."
   (define-key map (kbd "<S-iso-lefttab>") 'worf-shifttab)
   ;; ——— Local ————————————————————————————————
   (mapc (lambda (k) (worf-define-key map k 'worf-reserved))
-        '("b" "B" "C" "D" "e" "E" "f" "G" "H" "J" "M" "n" "P" "Q"
+        '("b" "B" "C" "D" "e" "E" "f" "G" "H" "M" "n" "P" "Q"
           "S" "U" "w" "x" "X" "Y" "z" "Z"))
   ;; ——— navigation/arrows ————————————————————
   (worf-define-key map "j" 'worf-down)
@@ -1467,6 +1467,8 @@ calling `self-insert-command'."
   (worf-define-key map "h" 'worf-left)
   (worf-define-key map "l" 'worf-right)
   (worf-define-key map "f" 'hydra-worf-f/body)
+  (worf-define-key map "J" 'outline-next-visible-heading)
+  (worf-define-key map "K" 'outline-previous-visible-heading)
   ;; ——— navigation/unstructured ——————————————
   (worf-define-key map "g" 'worf-goto)
   (worf-define-key map "o" 'worf-ace-link)
