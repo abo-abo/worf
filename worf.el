@@ -1124,6 +1124,15 @@ directory, the attachments will be moved."
   (let ((org-refile-targets `((nil :maxlevel . ,arg))))
     (call-interactively 'org-refile)))
 
+(defun worf-refile-other-window ()
+  (interactive)
+  (let* ((fname (save-window-excursion
+                  (other-window 1)
+                  (buffer-file-name)))
+         (org-agenda-files nil)
+         (org-refile-targets `(((,fname) :maxlevel . 3))))
+    (call-interactively 'org-refile)))
+
 (defun worf-refile-last ()
   "Refile to the last location without prompting."
   (interactive)
@@ -1153,6 +1162,7 @@ _t_his
 
 "
   ("t" worf-refile-this)
+  ("w" worf-refile-other-window)
   ("o" worf-refile-other)
   ("l" worf-refile-last)
   ("k" (setq org-refile-keep (not org-refile-keep))
