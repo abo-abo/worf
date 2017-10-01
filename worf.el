@@ -1122,7 +1122,8 @@ directory, the attachments will be moved."
   (when (= arg 1)
     (setq arg 5))
   (let ((org-refile-targets `((nil :maxlevel . ,arg))))
-    (call-interactively 'org-refile)))
+    (call-interactively 'org-refile))
+  (save-buffer))
 
 (defun worf-refile-other-window ()
   (interactive)
