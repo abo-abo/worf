@@ -1688,8 +1688,9 @@ calling `self-insert-command'."
 ;;;###autoload
 (defun worf-archive-and-commit ()
   (interactive)
-  (let ((cmd (format "git add -u . && git commit -m \"%s: archive\""
-                     (file-name-nondirectory (buffer-file-name)))))
+  (let* ((default-directory (locate-dominating-file (buffer-file-name) ".git"))
+         (cmd (format "git add -u . && git commit -m \"%s: archive\""
+                      (file-name-nondirectory (buffer-file-name)))))
     (worf-archive)
     (shell-command cmd)))
 
