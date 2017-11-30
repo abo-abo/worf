@@ -1187,24 +1187,41 @@ _t_his
       (org-cut-subtree)
     (delete-char arg)))
 
+(defun worf-get-heading ()
+  (substring-no-properties
+   (org-get-heading)))
+
+(defun worf-heading-to-id (heading)
+  (let* ((heading-a
+          (if (string= (file-name-nondirectory (buffer-file-name))
+                       "Changelog.org")
+              (concat (save-excursion
+                        (org-back-to-heading)
+                        (zo-left 1000)
+                        (worf-get-heading))
+                      "-"
+                      heading)
+            heading-b))
+         (heading-b (replace-regexp-in-string
+                     "[=?]" ""
+                     (replace-regexp-in-string
+                      "," ""
+                      (replace-regexp-in-string
+                       " +" "-"
+                       (downcase heading-a))))))
+    heading-b))
+
 (defun worf-copy-heading-id (arg)
   "Copy the id link of current heading to kill ring.
 When ARG is true, add a CUSTOM_ID first."
   (interactive "P")
-  (let ((heading (substring-no-properties
-                  (org-get-heading)))
+  (let ((heading (worf-get-heading))
         id)
     (when (string-match "\\`\\(.*?\\) +:.*:\\'" heading)
       (setq heading (match-string-no-properties 1 heading)))
     (when arg
       (org-entry-put nil "CUSTOM_ID"
-                     (replace-regexp-in-string
-                      "[=?]" ""
-                      (replace-regexp-in-string
-                       "," ""
-                       (replace-regexp-in-string
-                        " +" "-"
-                        (downcase heading))))))
+                     (worf-heading-to-id heading)))
     (if (setq id (org-entry-get nil "CUSTOM_ID"))
         (kill-new (format "[[#%s][%s]]" id heading))
       (setq id (org-id-get nil 'create))
