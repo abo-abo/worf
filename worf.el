@@ -1173,6 +1173,7 @@ _t_his
 
 (defhydra hydra-worf-cj (:color teal)
   "C-j"
+  ("C-j" org-return-indent "indent")
   ("j" (org-open-at-point) "open")
   ("n" (worf-add 1) "same")
   ("m" (worf-add 2) "more")
@@ -1486,7 +1487,7 @@ calling `self-insert-command'."
   (define-key map "]" 'worf-forward)
   (define-key map "=" 'worf-symbolize)
   (define-key map (kbd "M-j") 'worf-meta-newline)
-  (define-key map "\C-j" 'hydra-worf-cj/body)
+  ;; (define-key map "\C-j" 'hydra-worf-cj/body)
   (define-key map (kbd "C-M-g") 'worf-goto)
   (define-key map (kbd "C-d") 'worf-delete-subtree)
   (define-key map (kbd "DEL") 'worf-delete-backward-char)
