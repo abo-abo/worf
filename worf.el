@@ -1472,9 +1472,17 @@ calling `self-insert-command'."
           (message "quoted %d symbol%s" cnt (if (> cnt 1) "s" ""))))
     (self-insert-command arg)))
 
+(defun worf-back-to-special ()
+  (interactive)
+  (if (bolp)
+      (lispy-pam-restore 'worf-back-to-special)
+    (lispy-pam-store 'worf-back-to-special)
+    (worf-backward)))
+
 (let ((map worf-mode-map))
   ;; ——— Global ———————————————————————————————
   (define-key map "[" 'worf-backward)
+  (define-key map (kbd "M-o") 'worf-back-to-special)
   (define-key map "]" 'worf-forward)
   (define-key map "=" 'worf-symbolize)
   (define-key map (kbd "M-j") 'worf-meta-newline)
