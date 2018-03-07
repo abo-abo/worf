@@ -1257,16 +1257,27 @@ When ARG is true, add a CUSTOM_ID first."
                (keyword-cons (rassoc key all-keywords))
                (keyword (car keyword-cons)))
           (when keyword
-            (if (string= keyword "CLEAR")
-                (org-todo 'none)
-              (when (string= keyword "DONE")
-                (save-excursion
-                  (org-back-to-heading)
-                  (when (looking-at ".*?\\([0-9]+\\) *:recurring:$")
-                    (let ((idx (string-to-number (match-string 1))))
-                      (replace-match (prin1-to-string (1+ idx))
-                                     nil t nil 1)))))
-              (org-todo keyword))))))
+            (cond ((string= keyword "CLEAR")
+                   (org-todo 'none))
+                  ((string= keyword "DONE")
+                   (save-excursion
+                     (org-back-to-heading)
+                     (when (looking-at ".*?\\([0-9]+\\) *:recurring:$")
+                       (let ((idx (string-to-number (match-string 1))))
+                         (replace-match (prin1-to-string (1+ idx))
+                                        nil t nil 1)))
+                     (when (looking-at ".*\nAdded: \\(.*\\)$")
+                       (let* ((timestamp (match-string-no-properties 1))
+                              (time-added (apply 'encode-time (org-parse-time-string timestamp)))
+                              (time-now (current-time))
+                              (time-diff (time-to-seconds (time-subtract time-now time-added))))
+                         (when (< time-diff (* 3600 12))
+                           (delete-region
+                            (line-beginning-position 2)
+                            (1+ (line-end-position 2))))))
+                     (org-todo "DONE")))
+                  (t
+                   (org-todo keyword)))))))
     (when (eq major-mode 'org-agenda-mode)
       (org-agenda-redo t))))
 
