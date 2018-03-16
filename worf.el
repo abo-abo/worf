@@ -909,7 +909,7 @@ i.e. `org-shifttab'.
 When at a #+ marker, forward to `org-cycle'."
   (interactive "p")
   (let ((v (this-command-keys-vector))
-        (bnd (worf--end-positions)))
+        (bnd (zo-bnd-subtree)))
     (when (let ((case-fold-search t))
             (looking-at "#\\+end"))
       (worf--sharp-up))
@@ -938,15 +938,6 @@ When at a #+ marker, forward to `org-cycle'."
   "Show only the names of the heading's children."
   (interactive)
   (worf-tab 0))
-
-(defun worf--end-positions ()
-  "Return a cons of heading end and subtree end."
-  (save-excursion
-    (org-back-to-heading)
-    (cons
-     (save-excursion (outline-end-of-heading) (point))
-     (save-excursion (org-end-of-subtree t t)
-                     (when (bolp) (backward-char)) (point)))))
 
 (defhydra hydra-org-tab (:color blue
                          :hint nil)
