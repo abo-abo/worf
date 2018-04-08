@@ -1183,6 +1183,12 @@ _t_his
   (substring-no-properties
    (org-get-heading)))
 
+(defun worf-parent-heading (lvl)
+  (save-excursion
+    (org-back-to-heading)
+    (zo-left lvl)
+    (worf-get-heading)))
+
 (defun worf-heading-to-id (heading)
   (let* ((heading-a
           (if (string= (file-name-nondirectory (buffer-file-name))
