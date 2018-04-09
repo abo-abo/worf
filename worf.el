@@ -1189,25 +1189,37 @@ _t_his
     (zo-left lvl)
     (worf-get-heading)))
 
+(defun worf-abbrev-changelog (s)
+  (cond
+    ((equal s "Fixes") "fx")
+    ((equal s "New Features") "nf")
+    ((equal s "New Commands") "nc")
+    (t (error "Unexpected: %s" s))))
+
 (defun worf-heading-to-id (heading)
-  (let* ((heading-a
-          (if (string= (file-name-nondirectory (buffer-file-name))
-                       "Changelog.org")
-              (concat (save-excursion
-                        (org-back-to-heading)
-                        (zo-left 1000)
-                        (worf-get-heading))
-                      "-"
-                      heading)
-            heading-b))
-         (heading-b (replace-regexp-in-string
-                     "[=?]" ""
-                     (replace-regexp-in-string
-                      "," ""
-                      (replace-regexp-in-string
-                       " +" "-"
-                       (downcase heading-a))))))
-    heading-b))
+  (let ((heading-a (downcase heading)))
+    (when (string= (file-name-nondirectory (buffer-file-name))
+                   "Changelog.org")
+      (cond ((= (org-current-level) 1))
+            ((= (org-current-level) 2)
+             (setq heading-a
+                   (concat (worf-parent-heading 1) "-" heading-a)))
+            ((= (org-current-level) 3)
+             (setq heading-a
+                   (concat
+                    (worf-parent-heading 2)
+                    "-"
+                    (worf-abbrev-changelog
+                     (worf-parent-heading 1))
+                    "-"
+                    heading-a)))))
+    (replace-regexp-in-string
+     "[=?]" ""
+     (replace-regexp-in-string
+      "," ""
+      (replace-regexp-in-string
+       " +" "-"
+       heading-a)))))
 
 (defun worf-copy-heading-id (arg)
   "Copy the id link of current heading to kill ring.
