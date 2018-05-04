@@ -1225,6 +1225,14 @@ When ARG is true, add a CUSTOM_ID first."
       (setq id (org-id-get nil 'create))
       (kill-new (format "[[id:%s][%s]]" id heading)))))
 
+(defun worf-delete-all-properties ()
+  (interactive)
+  (goto-char (point-min))
+  (while (re-search-forward "^:PROPERTIES:" nil t)
+    (let ((beg (match-beginning 0)))
+      (re-search-forward "^:END:\n")
+      (delete-region beg (point)))))
+
 (defun worf-quit ()
   "Remove modifiers."
   (interactive)
