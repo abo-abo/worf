@@ -1491,10 +1491,7 @@ calling `self-insert-command'."
 
 (defun worf-back-to-special ()
   (interactive)
-  (if (bolp)
-      (lispy-pam-restore 'worf-back-to-special)
-    (lispy-pam-store 'worf-back-to-special)
-    (worf-backward)))
+  (worf-backward))
 
 (let ((map worf-mode-map))
   ;; ——— Global ———————————————————————————————
