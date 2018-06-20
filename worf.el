@@ -1292,7 +1292,7 @@ When ARG is true, add a CUSTOM_ID first."
                            (delete-region
                             (line-beginning-position 2)
                             (1+ (line-end-position 2))))))
-                     (org-todo "DONE")))
+                     (org-todo keyword)))
                   (t
                    (org-todo keyword)))))))
     (when (eq major-mode 'org-agenda-mode)
