@@ -1150,7 +1150,7 @@ directory, the attachments will be moved."
 Refile:^^   _k_eep: %`org-refile-keep
 ----------------------------------
 _l_ast      _a_rchive
-_o_ther
+_o_ther     _e_nd
 _t_his
 
 "
@@ -1161,8 +1161,17 @@ _t_his
   ("l" worf-refile-last)
   ("k" (setq org-refile-keep (not org-refile-keep))
        :exit nil)
+  ("e" worf-move-move-subtree-way-down)
   ("a" (org-archive-subtree))
   ("q" nil "quit"))
+
+(defun worf-move-move-subtree-way-down ()
+  "\"Refile\" the item to the end of the parent subtree."
+  (interactive)
+  (save-excursion
+    (ignore-errors
+      (while t
+        (org-move-subtree-down 1)))))
 
 (defhydra hydra-worf-cj (:color teal)
   "C-j"
