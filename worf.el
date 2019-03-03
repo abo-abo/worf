@@ -1155,6 +1155,7 @@ _t_his
 
 "
   ("t" worf-refile-this)
+  ("T" (worf-refile-this 5))
   ("w" worf-refile-other-window)
   ("o" worf-refile-other)
   ("l" worf-refile-last)
