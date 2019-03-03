@@ -1,11 +1,11 @@
 ;;; worf.el --- A warrior does not press so many keys! (in org-mode)
 
-;; Copyright (C) 2014 Oleh Krehel
+;; Copyright (C) 2014-2019 Oleh Krehel
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/worf
 ;; Version: 0.1.0
-;; Package-Requires: ((swiper "0.7.0") (ace-link "0.1.0") (hydra "0.13.0") (zoutline "0.1.0"))
+;; Package-Requires: ((swiper "0.11.0") (ace-link "0.1.0") (hydra "0.13.0") (zoutline "0.1.0"))
 ;; Keywords: lisp
 
 ;; This file is not part of GNU Emacs
@@ -1128,10 +1128,11 @@ directory, the attachments will be moved."
 (defun worf-refile-last ()
   "Refile to the last location without prompting."
   (interactive)
-  (let ((completing-read-function
-         (lambda (_p coll _pred _rm _ii _h default &rest _)
-           default)))
-    (worf-refile-other 1)))
+  (save-excursion
+    (let ((completing-read-function
+           (lambda (_p coll _pred _rm _ii _h default &rest _)
+             default)))
+      (worf-refile-other 1))))
 
 (defhydra hydra-worf-promote (:color teal)
   "meta"
