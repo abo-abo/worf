@@ -1262,8 +1262,9 @@ When ARG is true, add a CUSTOM_ID first."
   (mapc (lambda (x) (funcall x -1)) worf-known-verbs))
 
 (defun worf-todo (arg)
-  "Forward to `org-todo' with ARG."
-  (interactive "P")
+  "Forward to `org-todo'.
+When ARG is 2, and the item was scheduled, make it done at that time."
+  (interactive "p")
   (let* ((marker (or (org-get-at-bol 'org-marker) (point)))
          (buffer (if (eq major-mode 'org-agenda-mode)
                      (marker-buffer marker)
@@ -1290,20 +1291,25 @@ When ARG is true, add a CUSTOM_ID first."
                   ((string= keyword "DONE")
                    (save-excursion
                      (org-back-to-heading)
-                     (when (looking-at ".*?\\([0-9]+\\) *:recurring:$")
-                       (let ((idx (string-to-number (match-string 1))))
-                         (replace-match (prin1-to-string (1+ idx))
-                                        nil t nil 1)))
-                     (when (looking-at ".*\nAdded: \\(.*\\)$")
-                       (let* ((timestamp (match-string-no-properties 1))
-                              (time-added (apply 'encode-time (org-parse-time-string timestamp)))
-                              (time-now (current-time))
-                              (time-diff (time-to-seconds (time-subtract time-now time-added))))
-                         (when (< time-diff (* 3600 12))
-                           (delete-region
-                            (line-beginning-position 2)
-                            (1+ (line-end-position 2))))))
-                     (org-todo keyword)))
+                     (if (and (eq arg 2)
+                              (looking-at "\\(.*\\)TODO\\(.*\\)\nSCHEDULED: <\\(.*\\)>"))
+                         (replace-match "\\1DONE\\2\nCLOSED: [\\3]")
+                       (when (looking-at ".*?\\([0-9]+\\) *:recurring:$")
+                         (let ((idx (string-to-number (match-string 1))))
+                           (replace-match (prin1-to-string (1+ idx))
+                                          nil t nil 1)))
+                       (when (looking-at ".*\nAdded: \\(.*\\)$")
+                         (let* ((timestamp (match-string-no-properties 1))
+                                (time-added (apply 'encode-time (org-parse-time-string timestamp)))
+                                (time-now (current-time))
+                                (time-diff (time-to-seconds (time-subtract time-now time-added))))
+                           (when (< time-diff (* 3600 12))
+                             (delete-region
+                              (line-beginning-position 2)
+                              (min
+                               (point-max)
+                               (1+ (line-end-position 2)))))))
+                       (org-todo keyword))))
                   (t
                    (org-todo keyword)))))))
     (when (eq major-mode 'org-agenda-mode)
