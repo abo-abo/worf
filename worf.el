@@ -1309,7 +1309,8 @@ When ARG is 2, and the item was scheduled, make it done at that time."
                               (min
                                (point-max)
                                (1+ (line-end-position 2)))))))
-                       (org-todo keyword))))
+                       (org-todo keyword))
+                     (save-buffer)))
                   (t
                    (org-todo keyword)))))))
     (when (eq major-mode 'org-agenda-mode)
