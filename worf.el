@@ -312,7 +312,7 @@ DEF is modified by `worf--insert-or-call'."
    ("k" org-metaup)
    ("h" org-metaleft)
    ("l" org-metaright)
-   ("t" org-set-tags :disable)
+   ("t" org-set-tags-command :disable)
    ("n" worf-change-name :disable :break)
    ("a" org-meta-return :disable :break)))
 
@@ -336,7 +336,7 @@ _h_ ^+^ _l_    _n_ame    _e_dit    _i_: shift
   ("r" worf-change-shiftcontrol-mode :exit t)
   ;; misc
   ("p" org-set-property :exit t)
-  ("t" org-set-tags :exit t)
+  ("t" org-set-tags-command :exit t)
   ("n" worf-change-name :exit t)
   ("a" org-meta-return :exit t)
   ("o" hydra-worf-keyword/body :exit t)
