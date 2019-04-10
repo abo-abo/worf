@@ -1116,13 +1116,31 @@ directory, the attachments will be moved."
     (call-interactively 'org-refile))
   (save-buffer))
 
+(defun worf--refile-setup-default (fname)
+  "When FNAME has a \"Tasks\" heading, make it the default during the selection.
+This is accomplished by putting it at the start of `org-refile-history'."
+  (when (with-current-buffer (find-file-noselect fname)
+          (save-excursion
+            (goto-char (point-min))
+            (re-search-forward "\\* Tasks" nil t)))
+    (let ((default-target (format "Tasks (%s)"
+                                  (file-name-nondirectory fname))))
+      (unless (string= (car org-refile-history) default-target)
+        (push default-target org-refile-history)))))
+
 (defun worf-refile-other-window ()
   (interactive)
-  (let* ((fname (save-window-excursion
-                  (other-window 1)
+  (let* ((this-window (selected-window))
+         (target-window (cl-find-if
+                         (lambda (w)
+                           (with-selected-window w
+                             (eq major-mode 'org-mode)))
+                         (delete this-window (window-list))))
+         (fname (with-selected-window target-window
                   (buffer-file-name)))
          (org-agenda-files nil)
          (org-refile-targets `(((,fname) :maxlevel . 3))))
+    (worf--refile-setup-default fname)
     (call-interactively 'org-refile)))
 
 (defun worf-refile-last ()
