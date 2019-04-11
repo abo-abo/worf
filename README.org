@@ -325,3 +325,20 @@ package that uses this method to navigate Lisp code.
 ** ~L~ - =worf-copy-heading-id=
 Copy the link to current heading to the kill ring. This may be useful
 when you want to create a lot of links.
+
+** ~cT~ - el:worf-change-time
+:PROPERTIES:
+:CUSTOM_ID: worf-change-time
+:END:
+Set the "current" time  for this buffer only. All timestamps inserted by el:org-todo in
+this buffer will use this time.
+
+To un-set the "current" time, press ~C-g~ during the selection.
+
+-----
+#+BEGIN_EXPORT html
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+#+END_EXPORT
