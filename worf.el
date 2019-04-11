@@ -157,14 +157,18 @@
 
 ;;;###autoload
 (define-minor-mode worf-mode
-    "Minor mode for navigating and editing `org-mode' files.
+  "Minor mode for navigating and editing `org-mode' files.
 
 When `worf-mode' is on, various unprefixed keys call commands
 if the (looking-back \"^*+\") is true.
 
 \\{worf-mode-map}"
   :group 'worf
-  :lighter " ✇")
+  :lighter " ✇"
+  (if worf-mode
+      (advice-add 'org-current-effective-time
+                  :around #'worf--current-effective-time)
+    (advice-remove 'org-current-effective-time #'worf--current-effective-time)))
 
 ;; ——— Macros ——————————————————————————————————————————————————————————————————
 (defmacro worf-dotimes-protect (n &rest bodyform)
@@ -321,7 +325,7 @@ DEF is modified by `worf--insert-or-call'."
   "
 ^ ^ _w_ ^ ^    _t_ags    _p_rop    _r_: shiftcontrol
 _h_ ^+^ _l_    _n_ame    _e_dit    _i_: shift
-^ ^ _s_ ^ ^    _a_dd     ^ ^       _f_: shiftmeta (tree)"
+^ ^ _s_ ^ ^    _a_dd     _T_ime    _f_: shiftmeta (tree)"
   ;; arrows
   ("j" worf-down :exit t)
   ("k" worf-up :exit t)
@@ -337,12 +341,28 @@ _h_ ^+^ _l_    _n_ame    _e_dit    _i_: shift
   ;; misc
   ("p" org-set-property :exit t)
   ("t" org-set-tags-command :exit t)
+  ("T" worf-change-time :exit t)
   ("n" worf-change-name :exit t)
   ("a" org-meta-return :exit t)
   ("o" hydra-worf-keyword/body :exit t)
   ("m" worf-archive-and-commit :exit t)
   ("q" nil)
   ("c" nil))
+
+(defvar-local worf--current-effective-time nil)
+
+(defun worf--current-effective-time (orig-fn)
+  (or worf--current-effective-time
+      (funcall orig-fn)))
+
+(defun worf-change-time ()
+  "Set `current-time' in the current buffer for `org-todo' timestamps.
+Use `keyboard-quit' to unset it."
+  (interactive)
+  (setq worf--current-effective-time
+        (condition-case nil
+            (org-read-date t 'totime)
+          (quit nil))))
 
 (defhydra hydra-worf-f (:idle 1.0
                         :exit t)
