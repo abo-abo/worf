@@ -3,11 +3,11 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2016-09-17 Sat 10:22 -->
+<!-- 2019-04-11 Thu 16:20 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>worf.el documentation</title>
-<meta name="generator" content="Org-mode" />
+<meta name="generator" content="Org mode" />
 <meta name="author" content="Oleh Krehel" />
 <link rel="stylesheet" type="text/css" href="style.css"/>
 </head>
@@ -21,18 +21,18 @@
 <a href="https://github.com/abo-abo/worf">Back to github.</a>
 </p>
 
-<div id="outline-container-org14101ca" class="outline-2">
-<h2 id="org14101ca">Intro</h2>
-<div class="outline-text-2" id="text-org14101ca">
+<div id="outline-container-orgab4a3c0" class="outline-2">
+<h2 id="orgab4a3c0">Intro</h2>
+<div class="outline-text-2" id="text-orgb86008d">
 <p>
 This extension works similar to <a href="http://orgmode.org/manual/Speed-keys.html">org-mode's speed keys</a>, while adding in
 a bit of <i>vi</i> flavor, specifically:
 </p>
 </div>
 
-<div id="outline-container-orgf94eb22" class="outline-3">
-<h3 id="orgf94eb22">Modal editing</h3>
-<div class="outline-text-3" id="text-orgf94eb22">
+<div id="outline-container-orgfad4f55" class="outline-3">
+<h3 id="orgfad4f55">Modal editing</h3>
+<div class="outline-text-3" id="text-org050b941">
 <p>
 This is just what the speed keys do: pressing <kbd>a</kbd> - <kbd>z</kbd>, <kbd>A</kbd> - <kbd>Z</kbd>, or
 <kbd>0</kbd> - <kbd>9</kbd> while the point is positioned as below will call a command
@@ -41,19 +41,16 @@ instead of inserting these characters:
 
 <table><tbody><tr><td>
 <div class="org-src-container">
-
 <pre class="src src-text"><cursor>*</cursor> foo
 </pre>
 </div>
 </td><td>
 <div class="org-src-container">
-
 <pre class="src src-text">*<cursor>*</cursor> bar
 </pre>
 </div>
 </td><td>
 <div class="org-src-container">
-
 <pre class="src src-text"><cursor>#</cursor>+ baz
 </pre>
 </div>
@@ -68,9 +65,9 @@ followed by <code>#+</code> which will further be referred to as markup.
 </div>
 
 
-<div id="outline-container-orgc8a5c97" class="outline-3">
-<h3 id="orgc8a5c97">Nouns and verbs</h3>
-<div class="outline-text-3" id="text-orgc8a5c97">
+<div id="outline-container-orgad4e858" class="outline-3">
+<h3 id="orgad4e858">Nouns and verbs</h3>
+<div class="outline-text-3" id="text-orgbba1359">
 <p>
 It's just an intuitive way of organizing the key bindings borrowed
 from vi: the commands are sentences - combinations of a verb and a
@@ -83,9 +80,9 @@ arrow keys. These and additional nouns are listed in the tables below.
 </p>
 </div>
 
-<div id="outline-container-orga90ae68" class="outline-4">
-<h4 id="orga90ae68">Nouns table</h4>
-<div class="outline-text-4" id="text-orga90ae68">
+<div id="outline-container-org94f1c4d" class="outline-4">
+<h4 id="org94f1c4d">Nouns table</h4>
+<div class="outline-text-4" id="text-org8f65bda">
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
@@ -140,9 +137,9 @@ arrow keys. These and additional nouns are listed in the tables below.
 </div>
 </div>
 
-<div id="outline-container-org2b52b00" class="outline-4">
-<h4 id="org2b52b00">Verbs table</h4>
-<div class="outline-text-4" id="text-org2b52b00">
+<div id="outline-container-org08b53b0" class="outline-4">
+<h4 id="org08b53b0">Verbs table</h4>
+<div class="outline-text-4" id="text-orgbf5e37d">
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
@@ -209,11 +206,12 @@ arrow keys. These and additional nouns are listed in the tables below.
 </div>
 </div>
 
-<div id="outline-container-orgbc6d560" class="outline-2">
-<h2 id="orgbc6d560">Nouns</h2>
-<div class="outline-text-2" id="text-orgbc6d560">
-</div><div id="outline-container-org709240f" class="outline-3">
-<h3 id="down"><a id="org709240f"></a><kbd>j</kbd> - down</h3>
+<div id="outline-container-org81b6b99" class="outline-2">
+<h2 id="org81b6b99">Nouns</h2>
+<div class="outline-text-2" id="text-org144f4e6">
+</div>
+<div id="outline-container-org0ce41d1" class="outline-3">
+<h3 id="down"><a href="#down" class="anchor">*</a> <kbd>j</kbd> - down</h3>
 <div class="outline-text-3" id="text-down">
 <p>
 Move <i>down</i> across headings and markup. Use a number prefix to move
@@ -238,12 +236,12 @@ to move all the way to the last markup of the heading.
 The exception to both restrictions is the first markup in the file
 that does not belong to any heading.
 </p>
-<hr  />
+<hr />
 </div>
 </div>
 
-<div id="outline-container-org8a86af9" class="outline-3">
-<h3 id="up"><a id="org8a86af9"></a><kbd>k</kbd> - up</h3>
+<div id="outline-container-org5b77c17" class="outline-3">
+<h3 id="up"><a href="#up" class="anchor">*</a> <kbd>k</kbd> - up</h3>
 <div class="outline-text-3" id="text-up">
 <p>
 Move <i>up</i> across headings and markup. Use a number prefix to move
@@ -253,12 +251,12 @@ several times at once, i.e. <kbd>3k</kbd> will move three headings up.
 <p>
 Same rules as <a href="#down"><kbd>j</kbd></a> apply.
 </p>
-<hr  />
+<hr />
 </div>
 </div>
 
-<div id="outline-container-org46ee5f1" class="outline-3">
-<h3 id="left"><a id="org46ee5f1"></a><kbd>h</kbd> - left</h3>
+<div id="outline-container-org3f0c086" class="outline-3">
+<h3 id="left"><a href="#left" class="anchor">*</a> <kbd>h</kbd> - left</h3>
 <div class="outline-text-3" id="text-left">
 <p>
 Move <i>left</i> i.e. to the parent heading of current heading or markup.
@@ -269,50 +267,50 @@ You can use it e.g. to go from fifth level 3 heading to its parent
 level 2 heading, or from the second source block to the parent
 heading.
 </p>
-<hr  />
+<hr />
 </div>
 </div>
 
-<div id="outline-container-orgd51b612" class="outline-3">
-<h3 id="right"><a id="orgd51b612"></a><kbd>l</kbd> - right</h3>
+<div id="outline-container-org5f532a5" class="outline-3">
+<h3 id="right"><a href="#right" class="anchor">*</a> <kbd>l</kbd> - right</h3>
 <div class="outline-text-3" id="text-right">
 <p>
 Move <i>right</i> (i.e. to the first child of current heading).  You can
 use it to get to the first markup of the current heading.
 </p>
-<hr  />
+<hr />
 </div>
 </div>
 
-<div id="outline-container-orgc9939eb" class="outline-3">
-<h3 id="added"><a id="orgc9939eb"></a><kbd>a</kbd> - added</h3>
+<div id="outline-container-orgb34cee4" class="outline-3">
+<h3 id="added"><a href="#added" class="anchor">*</a> <kbd>a</kbd> - added</h3>
 <div class="outline-text-3" id="text-added">
 <p>
 Represents <i>added</i> heading. The behavior depends on the currently
 active verb:
 </p>
 </div>
-<div id="outline-container-org965c8bc" class="outline-4">
-<h4 id="org965c8bc">goto</h4>
-<div class="outline-text-4" id="text-org965c8bc">
+<div id="outline-container-orgd7c181b" class="outline-4">
+<h4 id="orgd7c181b">goto</h4>
+<div class="outline-text-4" id="text-orge8c37d3">
 <p>
 Forward to <code>org-insert-heading-respect-content</code> (bound to <kbd>C-RET</kbd> in <code>org-mode</code>).
 </p>
 </div>
 </div>
 
-<div id="outline-container-org10d7388" class="outline-4">
-<h4 id="org10d7388">change</h4>
-<div class="outline-text-4" id="text-org10d7388">
+<div id="outline-container-org7a690c1" class="outline-4">
+<h4 id="org7a690c1">change</h4>
+<div class="outline-text-4" id="text-org7b0977b">
 <p>
 Forward to <code>org-meta-return</code> (bound to <kbd>M-RET</kbd> in <code>org-mode</code>).
 </p>
 </div>
 </div>
 
-<div id="outline-container-orgb653d0a" class="outline-4">
-<h4 id="orgb653d0a">keyword</h4>
-<div class="outline-text-4" id="text-orgb653d0a">
+<div id="outline-container-org31c23ea" class="outline-4">
+<h4 id="org31c23ea">keyword</h4>
+<div class="outline-text-4" id="text-org05b03c0">
 <p>
 Add a new heading with a corresponding keyword.
 </p>
@@ -321,13 +319,13 @@ Add a new heading with a corresponding keyword.
 For example <kbd>wta</kbd> will add a new <b>TODO</b>, and <kbd>wna</kbd> will add a new
 <b>NEXT</b>.
 </p>
-<hr  />
+<hr />
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgd768ded" class="outline-3">
-<h3 id="property"><a id="orgd768ded"></a><kbd>p</kbd> - property</h3>
+<div id="outline-container-org7fca3a9" class="outline-3">
+<h3 id="property"><a href="#property" class="anchor">*</a> <kbd>p</kbd> - property</h3>
 <div class="outline-text-3" id="text-property">
 <p>
 Represents current heading's <i>property</i>. The behavior depends on the
@@ -335,9 +333,9 @@ currently active verb:
 </p>
 </div>
 
-<div id="outline-container-org515183f" class="outline-4">
-<h4 id="org515183f">goto</h4>
-<div class="outline-text-4" id="text-org515183f">
+<div id="outline-container-org8c8abe0" class="outline-4">
+<h4 id="org8c8abe0">goto</h4>
+<div class="outline-text-4" id="text-org488b45e">
 <p>
 Move to the property, i.e. open the property drawer and place the
 point on the first property.
@@ -345,9 +343,9 @@ point on the first property.
 </div>
 </div>
 
-<div id="outline-container-org7acd593" class="outline-4">
-<h4 id="org7acd593">change</h4>
-<div class="outline-text-4" id="text-org7acd593">
+<div id="outline-container-org2d3f422" class="outline-4">
+<h4 id="org2d3f422">change</h4>
+<div class="outline-text-4" id="text-org7d1f0b1">
 <p>
 Change property. This forwards to <code>org-set-property</code>, which will
 prompt you for the name of the property and it's value.
@@ -359,19 +357,19 @@ You can use this to add new properties as well.
 </div>
 </div>
 
-<div id="outline-container-org6e21343" class="outline-4">
-<h4 id="org6e21343">delete</h4>
-<div class="outline-text-4" id="text-org6e21343">
+<div id="outline-container-org7c7ef2d" class="outline-4">
+<h4 id="org7c7ef2d">delete</h4>
+<div class="outline-text-4" id="text-org553b889">
 <p>
 Delete property. This forwards to <code>org-delete-property</code>.
 </p>
-<hr  />
+<hr />
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgb9e3acf" class="outline-3">
-<h3 id="tags"><a id="orgb9e3acf"></a><kbd>t</kbd> - tags</h3>
+<div id="outline-container-org4d19ef5" class="outline-3">
+<h3 id="tags"><a href="#tags" class="anchor">*</a> <kbd>t</kbd> - tags</h3>
 <div class="outline-text-3" id="text-tags">
 <p>
 Represents current heading's <i>tags</i>.
@@ -381,14 +379,14 @@ Represents current heading's <i>tags</i>.
 Currently, the only meaningful sentence is <kbd>ct</kbd>, which forwards to
 <code>org-set-tags</code>.
 </p>
-<hr  />
+<hr />
 </div>
 </div>
 </div>
 
-<div id="outline-container-org73c1b8c" class="outline-2">
-<h2 id="org73c1b8c">Verbs</h2>
-<div class="outline-text-2" id="text-org73c1b8c">
+<div id="outline-container-org31d8534" class="outline-2">
+<h2 id="org31d8534">Verbs</h2>
+<div class="outline-text-2" id="text-org35ebbdc">
 <p>
 Some verbs, such as <a href="#/change/"><kbd>c</kbd></a> (change), or <a href="#change-tree"><kbd>cf</kbd></a> (change tree) are <i>sticky</i>: once you
 activate them, they stick around until deactivated or you switch to
@@ -408,22 +406,22 @@ deactivate themselves after the first command.
 And just to add to the confusion, some nouns will deactivate a verb
 (e.g. <kbd>cwd</kbd>), while others won't (e.g. <kbd>cj</kbd>).
 </p>
-<hr  />
+<hr />
 </div>
 
-<div id="outline-container-orgeb5ae6c" class="outline-3">
-<h3 id="goto"><a id="orgeb5ae6c"></a><i>goto</i></h3>
+<div id="outline-container-org2b3135f" class="outline-3">
+<h3 id="goto"><a href="#goto" class="anchor">*</a> <i>goto</i></h3>
 <div class="outline-text-3" id="text-goto">
 <p>
 This verb is active by default. Its effect on the nouns is to move the
 point appropriately.
 </p>
-<hr  />
+<hr />
 </div>
 </div>
 
-<div id="outline-container-org6cfb14c" class="outline-3">
-<h3 id="/change/"><a id="org6cfb14c"></a><kbd>c</kbd> - <i>change</i></h3>
+<div id="outline-container-orgdfa00a4" class="outline-3">
+<h3 id="/change/"><a href="#/change/" class="anchor">*</a> <kbd>c</kbd> - <i>change</i></h3>
 <div class="outline-text-3" id="text-/change/">
 <p>
 Call <code>worf-change-mode</code>.
@@ -452,12 +450,12 @@ arrow keys in the default org.
 <li><kbd>ca</kbd> will add heading above instead of below, like <kbd>a</kbd> does</li>
 <li><kbd>cn</kbd> will change the name of a source block</li>
 </ul>
-<hr  />
+<hr />
 </div>
 </div>
 
-<div id="outline-container-org41098ae" class="outline-3">
-<h3 id="change-tree"><a id="org41098ae"></a><kbd>cf</kbd> - <i>change tree</i></h3>
+<div id="outline-container-org97139ff" class="outline-3">
+<h3 id="change-tree"><a href="#change-tree" class="anchor">*</a> <kbd>cf</kbd> - <i>change tree</i></h3>
 <div class="outline-text-3" id="text-change-tree">
 <p>
 Call <code>worf-change-tree-mode</code>.
@@ -471,8 +469,8 @@ heading tree in appropriate directions: it's the same as holding
 </div>
 </div>
 
-<div id="outline-container-orgcfa941d" class="outline-3">
-<h3 id="change-shift"><a id="orgcfa941d"></a><kbd>cs</kbd> - <i>change shift</i></h3>
+<div id="outline-container-orga86c005" class="outline-3">
+<h3 id="change-shift"><a href="#change-shift" class="anchor">*</a> <kbd>cs</kbd> - <i>change shift</i></h3>
 <div class="outline-text-3" id="text-change-shift">
 <p>
 Call <code>worf-change-shift-mode</code>.
@@ -482,12 +480,12 @@ Call <code>worf-change-shift-mode</code>.
 While <code>worf-change-shift-mode</code> is active, <kbd>hjkl</kbd> act as
 <kbd>S-</kbd> and arrows in the default org.
 </p>
-<hr  />
+<hr />
 </div>
 </div>
 
-<div id="outline-container-orgd81a554" class="outline-3">
-<h3 id="keyword"><a id="orgd81a554"></a><kbd>w</kbd> <i>keyword</i></h3>
+<div id="outline-container-orgc1b5fdc" class="outline-3">
+<h3 id="keyword"><a href="#keyword" class="anchor">*</a> <kbd>w</kbd> <i>keyword</i></h3>
 <div class="outline-text-3" id="text-keyword">
 <p>
 Call <code>worf-keyword-mode</code>.
@@ -502,12 +500,12 @@ selected keyword, skipping all other headings.
 Additionally, <kbd>a</kbd> will add a new heading with the appropriate keyword,
 e.g. <kbd>wta</kbd> will add a new <b>TODO</b>, and <kbd>wna</kbd> will add a new <b>NEXT</b>.
 </p>
-<hr  />
+<hr />
 </div>
 </div>
 
-<div id="outline-container-org82ecc77" class="outline-3">
-<h3 id="clock"><a id="org82ecc77"></a><kbd>C</kbd> - <i>clock</i></h3>
+<div id="outline-container-org20327a9" class="outline-3">
+<h3 id="clock"><a href="#clock" class="anchor">*</a> <kbd>C</kbd> - <i>clock</i></h3>
 <div class="outline-text-3" id="text-clock">
 <p>
 Call <code>worf-clock-mode</code>.
@@ -520,12 +518,12 @@ This one isn't sticky and has only two nouns that work with it:
 <li><kbd>i</kbd> (<code>org-clock-in</code>)</li>
 <li><kbd>o</kbd> (<code>org-clock-out</code>)</li>
 </ul>
-<hr  />
+<hr />
 </div>
 </div>
 
-<div id="outline-container-org7bfe24b" class="outline-3">
-<h3 id="delete"><a id="org7bfe24b"></a><kbd>d</kbd> - <i>delete</i></h3>
+<div id="outline-container-org3112a7f" class="outline-3">
+<h3 id="delete"><a href="#delete" class="anchor">*</a> <kbd>d</kbd> - <i>delete</i></h3>
 <div class="outline-text-3" id="text-delete">
 <p>
 Call <code>worf-delete-mode</code>.
@@ -541,12 +539,12 @@ i.e. <kbd>d3j</kbd> will delete 3 headings at once.
 <li><kbd>dp</kbd> will delete the selected property</li>
 <li><kbd>dn</kbd> will delete the name of the current source block</li>
 </ul>
-<hr  />
+<hr />
 </div>
 </div>
 
-<div id="outline-container-org5d0f1f8" class="outline-3">
-<h3 id="yank"><a id="org5d0f1f8"></a><kbd>y</kbd> - <i>yank</i></h3>
+<div id="outline-container-org15ef52d" class="outline-3">
+<h3 id="yank"><a href="#yank" class="anchor">*</a> <kbd>y</kbd> - <i>yank</i></h3>
 <div class="outline-text-3" id="text-yank">
 <p>
 Call <code>worf-yank-mode</code>.
@@ -556,12 +554,12 @@ Call <code>worf-yank-mode</code>.
 It's similar to <a href="#delete"><kbd>d</kbd></a>, but will copy the headings into
 the kill ring instead of deleting.
 </p>
-<hr  />
+<hr />
 </div>
 </div>
 
-<div id="outline-container-orgcc70df7" class="outline-3">
-<h3 id="mark"><a id="orgcc70df7"></a><kbd>m</kbd> - <i>mark</i></h3>
+<div id="outline-container-org64c2dce" class="outline-3">
+<h3 id="mark"><a href="#mark" class="anchor">*</a> <kbd>m</kbd> - <i>mark</i></h3>
 <div class="outline-text-3" id="text-mark">
 <p>
 Call <code>worf-mark-mode</code>.
@@ -571,32 +569,32 @@ Call <code>worf-mark-mode</code>.
 It's similar to <a href="#delete"><kbd>d</kbd></a>, but will mark the headings instead
 of deleting.
 </p>
-<hr  />
+<hr />
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgdd9a8a3" class="outline-2">
-<h2 id="orgdd9a8a3">Miscellaneous commands</h2>
-<div class="outline-text-2" id="text-orgdd9a8a3">
+<div id="outline-container-org1a33c5c" class="outline-2">
+<h2 id="org1a33c5c">Miscellaneous commands</h2>
+<div class="outline-text-2" id="text-orge509a03">
 <p>
 Some other things included in worf, that don't fit into the
 verb-noun structure, are:
 </p>
 </div>
 
-<div id="outline-container-orgad7e02e" class="outline-3">
-<h3 id="orgad7e02e"><kbd>[</kbd> - <code>worf-backward</code></h3>
-<div class="outline-text-3" id="text-orgad7e02e">
+<div id="outline-container-orgdaa5604" class="outline-3">
+<h3 id="orgdaa5604"><kbd>[</kbd> - <code>worf-backward</code></h3>
+<div class="outline-text-3" id="text-org42861aa">
 <p>
-Go backwards to closest special position. <kbd>]</kbd> does the same in the opposite direction. 
+Go backwards to closest special position. <kbd>]</kbd> does the same in the opposite direction.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org7d96733" class="outline-3">
-<h3 id="org7d96733"><kbd>i</kbd> - <code>worf-tab</code></h3>
-<div class="outline-text-3" id="text-org7d96733">
+<div id="outline-container-org1ebe8d2" class="outline-3">
+<h3 id="org1ebe8d2"><kbd>i</kbd> - <code>worf-tab</code></h3>
+<div class="outline-text-3" id="text-org92d9fbb">
 <p>
 Wraps around <code>org-cycle</code>.
 </p>
@@ -608,18 +606,18 @@ level 3 etc.
 </div>
 </div>
 
-<div id="outline-container-orgf90e50f" class="outline-3">
-<h3 id="orgf90e50f"><kbd>I</kbd> - <code>worf-shifttab</code></h3>
-<div class="outline-text-3" id="text-orgf90e50f">
+<div id="outline-container-org7319433" class="outline-3">
+<h3 id="org7319433"><kbd>I</kbd> - <code>worf-shifttab</code></h3>
+<div class="outline-text-3" id="text-org8412a62">
 <p>
 Just a wrapper for <code>org-shifttab</code>.
 </p>
 </div>
 </div>
 
-<div id="outline-container-orgfaae43e" class="outline-3">
-<h3 id="orgfaae43e"><kbd>o</kbd> - <code>worf-ace-link</code></h3>
-<div class="outline-text-3" id="text-orgfaae43e">
+<div id="outline-container-org73bc890" class="outline-3">
+<h3 id="org73bc890"><kbd>o</kbd> - <code>worf-ace-link</code></h3>
+<div class="outline-text-3" id="text-orgddad5cc">
 <p>
 Open a link within current heading that's visible on screen. See
 <a href="https://github.com/abo-abo/ace-link">ace-link</a> for a package that uses this method in other modes.
@@ -627,9 +625,9 @@ Open a link within current heading that's visible on screen. See
 </div>
 </div>
 
-<div id="outline-container-org5432b52" class="outline-3">
-<h3 id="org5432b52"><kbd>g</kbd> - <code>worf-goto</code></h3>
-<div class="outline-text-3" id="text-org5432b52">
+<div id="outline-container-org43f59bc" class="outline-3">
+<h3 id="org43f59bc"><kbd>g</kbd> - <code>worf-goto</code></h3>
+<div class="outline-text-3" id="text-orgee73ddb">
 <p>
 Open a <code>helm</code> outline of the current buffer.  It's very good when you
 want to search/navigate to a heading by word or level. See <a href="https://github.com/abo-abo/lispy">lispy</a> for a
@@ -638,13 +636,33 @@ package that uses this method to navigate Lisp code.
 </div>
 </div>
 
-<div id="outline-container-org578774c" class="outline-3">
-<h3 id="org578774c"><kbd>L</kbd> - <code>worf-copy-heading-id</code></h3>
-<div class="outline-text-3" id="text-org578774c">
+<div id="outline-container-orgcced268" class="outline-3">
+<h3 id="orgcced268"><kbd>L</kbd> - <code>worf-copy-heading-id</code></h3>
+<div class="outline-text-3" id="text-org1c612b8">
 <p>
 Copy the link to current heading to the kill ring. This may be useful
 when you want to create a lot of links.
 </p>
+</div>
+</div>
+
+<div id="outline-container-org8aef088" class="outline-3">
+<h3 id="worf-change-time"><a href="#worf-change-time" class="anchor">*</a> <kbd>cT</kbd> - <code>worf-change-time</code></h3>
+<div class="outline-text-3" id="text-worf-change-time">
+<p>
+Set the "current" time  for this buffer only. All timestamps inserted by <code>org-todo</code> in
+this buffer will use this time.
+</p>
+
+<p>
+To un-set the "current" time, press <kbd>C-g</kbd> during the selection.
+</p>
+
+<hr />
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 </div>
 </div>
 </div>

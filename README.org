@@ -7,7 +7,8 @@
 
 * Setup                                                                               :noexport:
 #+begin_src emacs-lisp :exports results :results silent
-(load-file "worf-ox.el")
+(add-to-list 'load-path default-directory)
+(require 'worf-ox)
 #+end_src
 
 * Intro

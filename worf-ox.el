@@ -51,6 +51,23 @@
                   :post-blank ,(plist-get plist :post-blank)
                   :parent ,(plist-get plist :parent)))
              tree)))
+        ((eq (car tree) 'headline)
+         (let* ((plist (nth 1 tree))
+                (id (plist-get plist :CUSTOM_ID)))
+           (when id
+             (let ((p (cl-position :title plist)))
+               (when p
+                 (setf (nth (1+ p) plist)
+                       (cons `(link
+                               (
+                                :type "custom-id"
+                                :attr_html (":class anchor")
+                                :path ,id
+                                :post-blank 1)
+                               "*")
+                             (plist-get plist :title))))))
+           tree)
+         (cons 'headline (el-filter-tree (cdr tree))))
         ((eq (car tree) :parent)
          tree)
         (t

@@ -11,6 +11,13 @@ body a {
     color: blue;
 }
 
+body a.anchor {
+    color: black;
+    text-decoration: none;
+    position: relative;
+    top: 0.15em;
+}
+
 body a kbd {
     color: blue;
 }
