@@ -132,6 +132,7 @@
 ;; ——— Requires ————————————————————————————————————————————————————————————————
 (require 'ace-link)
 (require 'org)
+(require 'org-agenda)
 (require 'org-id)
 (require 'org-clock)
 (require 'zoutline)
@@ -460,7 +461,7 @@ Works both in a buffer and in the agenda."
         (if (null deadline)
             (if (setq deadline (org-element-property :closed heading))
                 (worf-clock-in-from-end
-                 (org-timestamp--to-internal-time deadline))
+                 (org-timestamp-to-time deadline))
               (worf-clock-in-from-end (current-time)))
           (let* ((timestamp (org-element-property :raw-value deadline))
                  (parsed-timestamp (org-parse-time-string timestamp t))
@@ -1027,7 +1028,7 @@ If already there, return it to previous position."
                    (org-narrow-to-subtree)
                    (ace-link--org-collect)))))
     (let ((pt (avy-with ace-link-org
-                (avy--process
+                (avy-process
                  (mapcar
                   #'cdr
                   cands)
@@ -1045,7 +1046,7 @@ If already there, return it to previous position."
   "Interface to attachments."
   (interactive)
   (call-interactively 'org-attach)
-  (org-align-all-tags))
+  (org-align-tags t))
 
 (defun worf-attach-visit ()
   "Interface to attachments."
@@ -1714,7 +1715,7 @@ calling `self-insert-command'."
           (when (equal (directory-files id-parent)
                        '("." ".."))
             (delete-directory id-parent))))
-      (org-set-tags-to (org-get-tags-at))
+      (org-set-tags (org-get-tags))
       (if (null afile)
           (error "Invalid `org-archive-location'")
         (org-cut-subtree)
