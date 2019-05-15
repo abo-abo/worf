@@ -1331,8 +1331,8 @@ When ARG is 2, and the item was scheduled, make it done at that time."
                    (save-excursion
                      (org-back-to-heading)
                      (if (and (eq arg 2)
-                              (looking-at "\\(.*\\)TODO\\(.*\\)\nSCHEDULED: <\\(.*\\)>"))
-                         (replace-match "\\1DONE\\2\nCLOSED: [\\3]")
+                              (looking-at "\\(.*\\)TODO\\(.*\\)\n\\(\\(?:SCHEDULED\\|DEADLINE\\): <\\([0-9-]+ [^ ]+\\).*>\\)"))
+                         (replace-match "\\1DONE\\2\nCLOSED: [\\4] \\3")
                        (when (looking-at ".*?\\([0-9]+\\) *:recurring:$")
                          (let ((idx (string-to-number (match-string 1))))
                            (replace-match (prin1-to-string (1+ idx))
