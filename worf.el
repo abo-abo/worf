@@ -1300,6 +1300,12 @@ When ARG is true, add a CUSTOM_ID first."
   (interactive)
   (mapc (lambda (x) (funcall x -1)) worf-known-verbs))
 
+(defun worf--todo-close-on-same-day ()
+  "When a task was due on a past date, close it on that date."
+  (when (looking-at "\\(.*\\)TODO\\(.*\\)\n\\(\\(?:SCHEDULED\\|DEADLINE\\): <\\([0-9-]+ [^ ]+\\).*>\\)")
+    (replace-match "\\1DONE\\2\nCLOSED: [\\4] \\3")
+    t))
+
 (defun worf-todo (arg)
   "Forward to `org-todo'.
 When ARG is 2, and the item was scheduled, make it done at that time."
@@ -1330,9 +1336,8 @@ When ARG is 2, and the item was scheduled, make it done at that time."
                   ((string= keyword "DONE")
                    (save-excursion
                      (org-back-to-heading)
-                     (if (and (eq arg 2)
-                              (looking-at "\\(.*\\)TODO\\(.*\\)\n\\(\\(?:SCHEDULED\\|DEADLINE\\): <\\([0-9-]+ [^ ]+\\).*>\\)"))
-                         (replace-match "\\1DONE\\2\nCLOSED: [\\4] \\3")
+                     (unless (and (eq arg 2)
+                                  (worf--todo-close-on-same-day))
                        (when (looking-at ".*?\\([0-9]+\\) *:recurring:$")
                          (let ((idx (string-to-number (match-string 1))))
                            (replace-match (prin1-to-string (1+ idx))
