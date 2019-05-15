@@ -1313,6 +1313,21 @@ When ARG is true, add a CUSTOM_ID first."
       (replace-match (prin1-to-string (1+ idx))
                      nil t nil 1))))
 
+(defun worf--cleanup-added-timestamp ()
+  "In case not much time has passed, clean up the \"Added: \" timestamp.
+It corresponds to entries in `org-capture-templates' like \"...Added: %T...\"."
+  (when (looking-at ".*\nAdded: \\(.*\\)$")
+    (let* ((timestamp (match-string-no-properties 1))
+           (time-added (apply 'encode-time (org-parse-time-string timestamp)))
+           (time-now (current-time))
+           (time-diff (time-to-seconds (time-subtract time-now time-added))))
+      (when (< time-diff (* 3600 12))
+        (delete-region
+         (line-beginning-position 2)
+         (min
+          (point-max)
+          (1+ (line-end-position 2))))))))
+
 (defun worf-todo (arg)
   "Forward to `org-todo'.
 When ARG is 2, and the item was scheduled, make it done at that time."
@@ -1346,17 +1361,7 @@ When ARG is 2, and the item was scheduled, make it done at that time."
                      (unless (and (eq arg 2)
                                   (worf--todo-close-on-same-day))
                        (worf--todo-recurring-incf)
-                       (when (looking-at ".*\nAdded: \\(.*\\)$")
-                         (let* ((timestamp (match-string-no-properties 1))
-                                (time-added (apply 'encode-time (org-parse-time-string timestamp)))
-                                (time-now (current-time))
-                                (time-diff (time-to-seconds (time-subtract time-now time-added))))
-                           (when (< time-diff (* 3600 12))
-                             (delete-region
-                              (line-beginning-position 2)
-                              (min
-                               (point-max)
-                               (1+ (line-end-position 2)))))))
+                       (worf--cleanup-added-timestamp)
                        (org-todo keyword))
                      (save-buffer)))
                   (t
