@@ -1302,7 +1302,7 @@ When ARG is true, add a CUSTOM_ID first."
 
 (defun worf--todo-close-on-same-day ()
   "When a task was due on a past date, close it on that date."
-  (when (looking-at "\\(.*\\)TODO\\(.*\\)\n\\(\\(?:SCHEDULED\\|DEADLINE\\): <\\([0-9-]+ [^ ]+\\).*>\\)")
+  (when (looking-at "\\(.*\\)TODO\\(.*\\)\n\\(\\(?:SCHEDULED\\|DEADLINE\\|Added\\): <\\([0-9-]+ [^ ]+\\).*>\\)")
     (replace-match "\\1DONE\\2\nCLOSED: [\\4] \\3")
     t))
 
