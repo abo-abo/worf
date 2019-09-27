@@ -775,7 +775,8 @@ Negative ARG shifts the heading left."
         (progn
           (backward-char)
           (skip-chars-backward "\n")
-          (insert "\n"))
+          (insert "\n")
+          (worf--ensure-visible))
       (outline-end-of-subtree)
       (skip-chars-backward "\n")
       (dotimes (i spacing)
