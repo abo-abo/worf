@@ -1163,7 +1163,10 @@ This is accomplished by putting it at the start of `org-refile-history'."
          (org-agenda-files nil)
          (org-refile-targets `(((,fname) :maxlevel . 3))))
     (worf--refile-setup-default fname)
-    (call-interactively 'org-refile)))
+    (call-interactively 'org-refile)
+    (save-buffer)
+    (with-selected-window target-window
+      (save-buffer))))
 
 (defun worf-refile-last ()
   "Refile to the last location without prompting."
