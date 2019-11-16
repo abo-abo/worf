@@ -1580,6 +1580,26 @@ calling `self-insert-command'."
   (interactive)
   (worf-backward))
 
+(defun worf-eval ()
+  "Eval the first source statement in the outline."
+  (interactive)
+  (let ((pt (point)))
+    (worf-right)
+    (let ((context
+           (org-element-lineage
+            (org-element-context)
+            ;; only interested in source blocks
+            '(src-block)
+            t)))
+      (if (not context)
+          (user-error "No #+begin_src to eval")
+        (org-babel-eval-wipe-error-buffer)
+        (org-babel-execute-src-block
+         current-prefix-arg
+         (org-babel-get-src-block-info nil context)
+         nil)))
+    (goto-char pt)))
+
 (let ((map worf-mode-map))
   ;; ——— Global ———————————————————————————————
   (define-key map "[" 'worf-backward)
@@ -1627,7 +1647,7 @@ calling `self-insert-command'."
   (worf-define-key map "x" 'hydra-worf-promote/body)
   (worf-define-key map "L" 'worf-copy-heading-id)
   (worf-define-key map "a" 'worf-add :break t)
-  (worf-define-key map "e" 'move-end-of-line :break t)
+  (worf-define-key map "e" 'worf-eval)
   (worf-define-key map "s" 'worf-save)
   ;; ——— narrow/widen —————————————————————————
   (worf-define-key map "N" 'org-narrow-to-subtree)
