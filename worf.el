@@ -1168,6 +1168,23 @@ This is accomplished by putting it at the start of `org-refile-history'."
     (with-selected-window target-window
       (save-buffer))))
 
+(defun worf-refile-tasks ()
+  (interactive)
+  (let* ((fname (expand-file-name
+                 (concat (let ((ivy-inhibit-action t))
+                           (plain-org-wiki))
+                         ".org")
+                 plain-org-wiki-directory))
+         (rfloc
+          (with-current-buffer (find-file-noselect fname)
+            (goto-char (point-min))
+            (re-search-forward "^\\* Tasks")
+            (list (save-match-data (org-get-heading))
+                  (buffer-file-name)
+                  org-heading-regexp
+                  (match-beginning 0)))))
+    (org-refile nil nil rfloc)))
+
 (defun worf-refile-last ()
   "Refile to the last location without prompting."
   (interactive)
@@ -1194,10 +1211,11 @@ Refile:^^   _k_eep: %`org-refile-keep
 ----------------------------------
 _l_ast      _a_rchive
 _o_ther     _e_nd
-_t_his
-
+_h_ere
+_t_asks
 "
-  ("t" worf-refile-this)
+  ("h" worf-refile-this)
+  ("t" worf-refile-tasks)
   ("T" (worf-refile-this 5))
   ("w" worf-refile-other-window)
   ("o" worf-refile-other)
