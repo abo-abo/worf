@@ -1737,8 +1737,17 @@ calling `self-insert-command'."
      'face
      'org-meta-line)))
 
-(declare-function org-get-local-archive-location "org-archive")
-(declare-function org-extract-archive-file "org-archive")
+(defun org-extract-archive-file (&optional location)
+  "Extract and expand the file name from archive LOCATION.
+if LOCATION is not given, the value of `org-archive-location' is used."
+  (setq location (or location org-archive-location))
+  (if (string-match "\\(.*\\)::\\(.*\\)" location)
+      (if (= (match-beginning 1) (match-end 1))
+          (buffer-file-name (buffer-base-buffer))
+        (expand-file-name
+         (format (match-string 1 location)
+                 (file-name-nondirectory
+                  (buffer-file-name (buffer-base-buffer))))))))
 
 ;;;###autoload
 (defun worf-archive ()
@@ -1748,13 +1757,15 @@ calling `self-insert-command'."
   (if (not (org-entry-is-done-p))
       (user-error "not done")
     (let* ((time (org-time-string-to-time
-                  (cdar (org-entry-properties nil "CLOSED"))))
+                  (cdar (or (org-entry-properties nil "DEADLINE")
+                            (org-entry-properties nil "SCHEDULED")
+                            (org-entry-properties nil "CLOSED")))))
            (dct (decode-time time))
            (y (nth 5 dct))
            (m (nth 4 dct))
            (d (nth 3 dct))
            (this-buffer (current-buffer))
-           (location (org-get-local-archive-location))
+           (location org-archive-location)
            (afile (org-extract-archive-file location))
            (org-archive-location
             (format "%s::%s %04d-%02d-%02d %s" afile
