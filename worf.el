@@ -887,6 +887,8 @@ Negative ARG shifts the heading left."
     (outline-show-children 1000)
     (worf-more)))
 
+(declare-function helm "ext:helm")
+
 (defun worf-goto ()
   "Jump to a heading with completion."
   (interactive)
@@ -1168,6 +1170,15 @@ This is accomplished by putting it at the start of `org-refile-history'."
     (with-selected-window target-window
       (save-buffer))))
 
+(defun worf--rfloc (fname)
+  (with-current-buffer (find-file-noselect fname)
+    (goto-char (point-min))
+    (re-search-forward "^\\* Tasks")
+    (list (save-match-data (org-get-heading))
+          (buffer-file-name)
+          org-heading-regexp
+          (match-beginning 0))))
+
 (defun worf-refile-tasks ()
   (interactive)
   (let* ((fname (expand-file-name
@@ -1176,14 +1187,26 @@ This is accomplished by putting it at the start of `org-refile-history'."
                          ".org")
                  plain-org-wiki-directory))
          (rfloc
-          (with-current-buffer (find-file-noselect fname)
-            (goto-char (point-min))
-            (re-search-forward "^\\* Tasks")
-            (list (save-match-data (org-get-heading))
-                  (buffer-file-name)
-                  org-heading-regexp
-                  (match-beginning 0)))))
+          (worf--rfloc fname)))
     (org-refile nil nil rfloc)))
+
+(defun worf-refile-gtd ()
+  (interactive)
+  (let ((tag (file-name-base (buffer-file-name)))
+        tags fname)
+    (if (string= tag "gtd")
+        (progn
+          (setq fname (concat (car (org-get-tags)) ".org"))
+          (setq tags nil))
+      (setq fname "../gtd.org")
+      (setq tags (list tag)))
+    (org-set-tags tags)
+    (let ((rfloc (worf--rfloc
+                  (expand-file-name fname plain-org-wiki-directory))))
+      (org-refile nil nil rfloc)
+      (with-current-buffer (find-file-noselect (nth 1 rfloc))
+        (save-buffer)))
+    (save-buffer)))
 
 (defun worf-refile-last ()
   "Refile to the last location without prompting."
@@ -1211,7 +1234,7 @@ Refile:^^   _k_eep: %`org-refile-keep
 ----------------------------------
 _l_ast      _a_rchive
 _o_ther     _e_nd
-_h_ere
+_h_ere      _g_td
 _t_asks
 "
   ("h" worf-refile-this)
@@ -1224,6 +1247,7 @@ _t_asks
        :exit nil)
   ("e" worf-move-move-subtree-way-down)
   ("a" (org-archive-subtree))
+  ("g" worf-refile-gtd)
   ("q" nil "quit"))
 
 (defun worf-move-move-subtree-way-down ()
@@ -1539,7 +1563,7 @@ calling `self-insert-command'."
   (setq str (or str ""))
   (setq str (propertize str 'face (nth (1- lvl) org-level-faces)))
   (let (desc)
-    (while (and (string-match org-bracket-link-regexp str)
+    (while (and (string-match org-link-bracket-re str)
                 (stringp (setq desc (match-string 3 str))))
       (setq str (replace-match
                  (propertize desc 'face 'org-link)
