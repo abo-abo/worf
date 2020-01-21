@@ -1596,6 +1596,8 @@ calling `self-insert-command'."
 
 (defun worf-back-to-special ()
   (interactive)
+  (when current-input-method
+    (toggle-input-method))
   (worf-backward))
 
 (defun worf-eval ()
