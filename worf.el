@@ -1190,6 +1190,23 @@ This is accomplished by putting it at the start of `org-refile-history'."
           (worf--rfloc fname)))
     (org-refile nil nil rfloc)))
 
+(defun worf-extract-project ()
+  (interactive)
+  (let* ((heading (substring-no-properties (org-get-heading t)))
+         (name (downcase (replace-regexp-in-string " " "-" heading)))
+         (dname (expand-file-name
+                 (concat
+                  "../projects/"
+                  (format-time-string "%Y-%m-")
+                  name)
+                 plain-org-wiki-directory))
+         (fname (expand-file-name (concat name ".org") dname)))
+    (make-directory dname t)
+    (org-refile nil nil (list nil fname nil nil))
+    (save-buffer)
+    (with-current-buffer (find-file-noselect fname)
+      (save-buffer))))
+
 (defun worf-refile-gtd ()
   (interactive)
   (let ((tag (file-name-base (buffer-file-name)))
