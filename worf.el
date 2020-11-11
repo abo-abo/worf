@@ -427,10 +427,10 @@ END is a time. BEG is END minus the amount of minutes entered."
     (org-insert-time-stamp start-time 'with-hm 'inactive)
     (insert "--")
     (org-insert-time-stamp end-time 'with-hm 'inactive)
-    (let* ((seconds (cadr (time-subtract end-time start-time)))
+    (let* ((seconds (time-subtract end-time start-time))
            (hours (floor (/ seconds 3600)))
            (minutes (/ (- seconds (* 3600 hours)) 60)))
-      (insert (format " =>  %d:%d\n" hours minutes)))))
+      (insert (format " =>  %d:%02d\n" hours minutes)))))
 
 (defun worf-clock-in-and-out (arg)
   "Clock-in and out of a missed deadline.
