@@ -825,7 +825,9 @@ Negative ARG shifts the heading left."
   "Go backwards to closest special position."
   (interactive)
   (re-search-backward worf-regex-full nil t)
-  (while (worf--invisible-p)
+  (while (or (worf--invisible-p)
+             (not (looking-at "[*#]"))
+             (not (bolp)))
     (worf-backward)))
 
 (defun worf-forward ()
