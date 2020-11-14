@@ -1,6 +1,6 @@
 ;;; worf.el --- A warrior does not press so many keys! (in org-mode)
 
-;; Copyright (C) 2014-2019 Oleh Krehel
+;; Copyright (C) 2014-2020 Oleh Krehel
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/worf
@@ -131,12 +131,17 @@
 
 ;; ——— Requires ————————————————————————————————————————————————————————————————
 (require 'ace-link)
+(require 'dired)
+(require 'flyspell)
 (require 'org)
 (require 'org-agenda)
-(require 'org-id)
+(require 'org-attach)
+(require 'org-capture)
 (require 'org-clock)
+(require 'org-element)
+(require 'org-id)
+(require 'swiper)
 (require 'zoutline)
-(require 'flyspell)
 
 (defgroup worf nil
   "Navigate Org-mode with plain keys."
@@ -1063,6 +1068,9 @@ If already there, return it to previous position."
 For example, the user might prefer to visit pdf or mp4 with
 external applications.")
 
+(declare-function projectile-find-file "ext:projectile")
+(declare-function projectile-find-file-other-window "ext:projectile")
+
 (defun worf-visit (arg)
   "Forward to find file in project with ARG."
   (interactive "p")
@@ -1196,6 +1204,8 @@ This is accomplished by putting it at the start of `org-refile-history'."
           org-heading-regexp
           (match-beginning 0))))
 
+(declare-function plain-org-wiki "ext:plain-org-wiki")
+
 (defun worf-refile-tasks ()
   (interactive)
   (let* ((fname (cdr (let ((ivy-inhibit-action #'identity))
@@ -1203,6 +1213,8 @@ This is accomplished by putting it at the start of `org-refile-history'."
          (rfloc
           (worf--rfloc fname)))
     (org-refile nil nil rfloc)))
+
+(defvar plain-org-wiki-directory)
 
 (defun worf-extract-project ()
   (interactive)
@@ -1247,6 +1259,8 @@ This is accomplished by putting it at the start of `org-refile-history'."
            (lambda (_p coll _pred _rm _ii _h default &rest _)
              default)))
       (worf-refile-other 1))))
+
+(declare-function org-pomodoro "ext:org-pomodoro")
 
 (defhydra hydra-worf-promote (:color teal)
   "meta"
