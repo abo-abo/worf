@@ -1197,11 +1197,8 @@ This is accomplished by putting it at the start of `org-refile-history'."
 
 (defun worf-refile-tasks ()
   (interactive)
-  (let* ((fname (expand-file-name
-                 (concat (let ((ivy-inhibit-action t))
-                           (plain-org-wiki))
-                         ".org")
-                 plain-org-wiki-directory))
+  (let* ((fname (cdr (let ((ivy-inhibit-action #'identity))
+                       (plain-org-wiki))))
          (rfloc
           (worf--rfloc fname)))
     (org-refile nil nil rfloc)))
