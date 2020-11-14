@@ -688,7 +688,8 @@ automatically recenter."
         ((worf--at-property-p)
          (worf--next-property arg))
         ((looking-at worf-sharp)
-         (worf--sharp-down))
+         (worf-dotimes-protect arg
+           (worf--sharp-down)))
         (t
          (let ((actual (zo-down arg)))
            (when (and (numberp actual) (< actual arg))
@@ -1560,10 +1561,16 @@ calling `self-insert-command'."
 (defun worf--sharp-down ()
   "Move down to the next #+."
   (let ((pt (point))
-        (bnd (worf--bounds-subtree)))
-    (forward-char)
-    (while (and (re-search-forward worf-sharp (cdr bnd) t)
+        (bnd (worf--bounds-subtree))
+        found-sharp)
+    (forward-char 2)
+    (while (and (if (re-search-forward worf-sharp (cdr bnd) t)
+                    (setq found-sharp t)
+                  t)
                 (worf--invisible-p)))
+    (unless found-sharp
+      (forward-char -2)
+      (user-error "at end"))
     (cond ((worf--invisible-p)
            (goto-char pt))
           ((looking-back worf-sharp (line-beginning-position))
