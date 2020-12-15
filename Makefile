@@ -1,10 +1,10 @@
 emacs ?= emacs
 
 update:
-	$(emacs) -batch -l targets/install-deps.el
+	cook :emacs install ace-link hydra swiper zoutline
 
 compile:
-	$(emacs) -batch -l elpa.el -l targets/compile.el
+	cook :emacs byte_compile worf.el
 
 plain:
 	@echo "Using $(shell which $(emacs))..."
