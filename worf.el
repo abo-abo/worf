@@ -1479,10 +1479,12 @@ When ARG is 2, and the item was scheduled, make it done at that time."
 When point is special, alphanumeric keys call commands instead of
 calling `self-insert-command'."
   (or (region-active-p)
-      (looking-at worf-regex)
-      (worf--at-property-p)
-      (looking-back "^\\*+" (line-beginning-position))
-      (and (bolp) (looking-at "CLOCK:"))))
+      (and (bolp)
+           (or
+            (looking-at worf-regex)
+            (worf--at-property-p)
+            (looking-back "^\\*+" (line-beginning-position))
+            (looking-at "CLOCK:")))))
 
 (defun worf--invisible-p ()
   "Test if point is hidden by an `org-block' overlay."
