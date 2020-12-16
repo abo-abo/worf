@@ -1503,19 +1503,24 @@ calling `self-insert-command'."
 
 (defun worf-delete-backward-char (arg)
   (interactive "p")
-  (if (region-active-p)
-      (delete-active-region)
-    (let (ov expose)
-      (if (and (eolp)
-               (setq ov (car (overlays-at (1- (point)))))
-               (invisible-p (overlay-get ov 'invisible)))
-          (progn
-            (goto-char (1- (overlay-end ov)))
-            (when (and (invisible-p (overlay-get ov 'invisible))
-                       (setq expose (overlay-get ov 'isearch-open-invisible)))
-              (funcall expose ov)
-              (forward-char 1)))
-        (org-delete-backward-char arg)))))
+  (cond ((region-active-p)
+         (delete-active-region))
+        ((looking-back "\\[" (line-beginning-position))
+         (goto-char (match-beginning 0))
+         (backward-up-list 1)
+         (backward-delete-char arg))
+        (t
+         (let (ov expose)
+           (if (and (eolp)
+                    (setq ov (car (overlays-at (1- (point)))))
+                    (invisible-p (overlay-get ov 'invisible)))
+               (progn
+                 (goto-char (1- (overlay-end ov)))
+                 (when (and (invisible-p (overlay-get ov 'invisible))
+                            (setq expose (overlay-get ov 'isearch-open-invisible)))
+                   (funcall expose ov)
+                   (forward-char 1)))
+             (org-delete-backward-char arg))))))
 
 ;; ——— Pure ————————————————————————————————————————————————————————————————————
 (defun worf--bounds-subtree ()
