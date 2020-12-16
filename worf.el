@@ -1196,13 +1196,17 @@ This is accomplished by putting it at the start of `org-refile-history'."
       (save-buffer))))
 
 (defun worf--rfloc (fname)
-  (with-current-buffer (find-file-noselect fname)
-    (goto-char (point-min))
-    (re-search-forward "^\\* Tasks")
-    (list (save-match-data (org-get-heading))
-          (buffer-file-name)
-          org-heading-regexp
-          (match-beginning 0))))
+  (let ((regex "^\\* Tasks"))
+    (with-current-buffer (find-file-noselect fname)
+      (goto-char (point-min))
+      (unless (re-search-forward regex nil t)
+        (goto-char (point-max))
+        (insert "* Tasks")
+        (looking-back regex (line-beginning-position)))
+      (list (save-match-data (org-get-heading))
+            (buffer-file-name)
+            org-heading-regexp
+            (match-beginning 0)))))
 
 (declare-function plain-org-wiki "ext:plain-org-wiki")
 
