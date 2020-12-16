@@ -1158,12 +1158,12 @@ This is accomplished by putting it at the start of `org-refile-history'."
       (let ((default-target
              (cond
                ((save-excursion
-                  (zo-left 1)
+                  (ignore-errors (zo-left 1))
                   (looking-at "\\* Projects"))
                 (concat (substring-no-properties
                          (org-get-heading)) " (" bname ")"))
                ((save-excursion
-                  (zo-left 2)
+                  (ignore-errors (zo-left 2))
                   (looking-at "\\* Projects"))
                 (save-excursion
                   (zo-left 1)
