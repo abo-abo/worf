@@ -693,8 +693,11 @@ automatically recenter."
         ((worf--at-property-p)
          (worf--next-property arg))
         ((looking-at worf-sharp)
-         (worf-dotimes-protect arg
-           (worf--sharp-down)))
+         (if (save-excursion
+               (re-search-backward (concat "^\\(?:" outline-regexp "\\)") nil t))
+             (worf-dotimes-protect arg
+               (worf--sharp-down))
+           (org-next-visible-heading arg)))
         (t
          (let ((actual (zo-down arg)))
            (when (and (numberp actual) (< actual arg))
