@@ -1222,10 +1222,19 @@ This is accomplished by putting it at the start of `org-refile-history'."
     (save-buffer)))
 
 (defun worf-refile-tasks ()
+  "Refile to one of the `plain-org-wiki' files."
   (interactive)
   (worf--refile-to-file
    (cdr (let ((ivy-inhibit-action #'identity))
           (plain-org-wiki)))))
+
+(defun worf-refile-roam ()
+  "Refile to one of the `org-roam' files."
+  (interactive)
+  (worf--refile-to-file
+   (let* ((completions (org-roam--get-title-path-completions))
+          (name (ivy-read "File: " completions)))
+     (plist-get (cdr (assoc name completions)) :path))))
 
 (defvar plain-org-wiki-directory)
 
@@ -1293,9 +1302,10 @@ Refile:^^   _k_eep: %`org-refile-keep
 _l_ast      _a_rchive
 _o_ther     _e_nd
 _h_ere      _g_td
-_t_asks
+_t_asks     _r_oam
 "
   ("h" worf-refile-this)
+  ("r" worf-refile-roam)
   ("t" worf-refile-tasks)
   ("T" (worf-refile-this 5))
   ("w" worf-refile-other-window)
