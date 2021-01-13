@@ -1219,7 +1219,10 @@ This is accomplished by putting it at the start of `org-refile-history'."
                        (plain-org-wiki))))
          (rfloc
           (worf--rfloc fname)))
-    (org-refile nil nil rfloc)))
+    (org-refile nil nil rfloc)
+    (with-current-buffer (find-file-noselect fname)
+      (save-buffer))
+    (save-buffer)))
 
 (defvar plain-org-wiki-directory)
 
