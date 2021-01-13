@@ -1213,16 +1213,19 @@ This is accomplished by putting it at the start of `org-refile-history'."
 
 (declare-function plain-org-wiki "ext:plain-org-wiki")
 
-(defun worf-refile-tasks ()
-  (interactive)
-  (let* ((fname (cdr (let ((ivy-inhibit-action #'identity))
-                       (plain-org-wiki))))
-         (rfloc
-          (worf--rfloc fname)))
+(defun worf--refile-to-file (fname)
+  (let ((rfloc
+         (worf--rfloc fname)))
     (org-refile nil nil rfloc)
     (with-current-buffer (find-file-noselect fname)
       (save-buffer))
     (save-buffer)))
+
+(defun worf-refile-tasks ()
+  (interactive)
+  (worf--refile-to-file
+   (cdr (let ((ivy-inhibit-action #'identity))
+          (plain-org-wiki)))))
 
 (defvar plain-org-wiki-directory)
 
