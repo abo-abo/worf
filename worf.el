@@ -1228,9 +1228,16 @@ This is accomplished by putting it at the start of `org-refile-history'."
    (cdr (let ((ivy-inhibit-action #'identity))
           (plain-org-wiki)))))
 
+(defun worf-maybe-rebuild-roam-cache ()
+  (let ((n1 (length (org-roam--get-title-path-completions)))
+        (n2 (length (directory-files org-roam-directory nil "org$"))))
+    (unless (= n1 n2)
+      (org-roam-db-build-cache))))
+
 (defun worf-refile-roam ()
   "Refile to one of the `org-roam' files."
   (interactive)
+  (worf-maybe-rebuild-roam-cache)
   (worf--refile-to-file
    (let* ((completions (org-roam--get-title-path-completions))
           (name (ivy-read "File: " completions)))
