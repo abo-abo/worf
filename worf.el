@@ -1293,8 +1293,19 @@ This is accomplished by putting it at the start of `org-refile-history'."
 
 (defhydra hydra-worf-promote (:color teal)
   "meta"
-  ("p" org-pomodoro "pomodoro")
+  ("p" worf-pomodoro "pomodoro")
   ("q" nil "quit"))
+
+(defun worf-pomodoro ()
+  "Forward to `org-pomodoro' with `org-journal' integration."
+  (interactive)
+  (if (featurep 'org-journal)
+      (let ((link (org-store-link nil)))
+        (org-pomodoro)
+        (save-window-excursion
+          (org-journal-new-entry nil)
+          (insert "pomodoro " link)))
+    (org-pomodoro)))
 
 (defun worf-x ()
   "A prefix for other commands."
