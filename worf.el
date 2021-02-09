@@ -1308,9 +1308,10 @@ This is accomplished by putting it at the start of `org-refile-history'."
       (let ((link (org-store-link nil)))
         (org-pomodoro)
         (save-window-excursion
-          (org-journal-new-entry nil)
-          (insert "pomodoro " link)))
-    (org-pomodoro)))
+         (org-journal-new-entry nil)
+         (insert "pomodoro " link)
+         (save-buffer)))
+      (org-pomodoro)))
 
 (defun worf-x ()
   "A prefix for other commands."
