@@ -1302,17 +1302,17 @@ This is accomplished by putting it at the start of `org-refile-history'."
   ("q" nil "quit"))
 
 (defun worf--log-to-journal (item)
-  (let ((link (org-store-link nil)))
-    (save-window-excursion
-     (org-journal-new-entry nil)
-     (insert item " " link)
-     (save-buffer))))
+  (when (featurep 'org-journal)
+    (let ((link (org-store-link nil)))
+      (save-window-excursion
+       (org-journal-new-entry nil)
+       (insert item " " link)
+       (save-buffer)))))
 
 (defun worf-pomodoro ()
   "Forward to `org-pomodoro' with `org-journal' integration."
   (interactive)
-  (when (featurep 'org-journal)
-    (worf--log-to-journal "pomodoro"))
+  (worf--log-to-journal "pomodoro")
   (org-pomodoro))
 
 (defun worf-x ()
