@@ -950,6 +950,11 @@ When at a #+ marker, forward to `org-cycle'."
       (worf--sharp-up))
     (cond ((eq (car (org-element-at-point)) 'clock)
            (org-clock-update-time-maybe))
+          ((looking-at "#\\+DOWNLOADED:")
+           (let ((end (save-excursion (search-forward "]]" (cdr bnd)))))
+             (if (eq (get-char-property (1- end) 'invisible) 'outline)
+                 (outline-flag-region (line-end-position) end nil)
+                 (outline-flag-region (line-end-position) end t))))
           ((looking-at "#\\+")
            (org-cycle))
           ((looking-at "^:")
@@ -966,7 +971,7 @@ When at a #+ marker, forward to `org-cycle'."
              (if (and (memq (get-char-property (1- eos) 'invisible) '(outline org-hide-drawer))
                       (eq (get-char-property (1+ eoh) 'invisible) 'outline))
                  (outline-flag-region eoh eos nil)
-               (outline-flag-region eoh eos t)))))))
+                 (outline-flag-region eoh eos t)))))))
 
 (defun worf-tab-contents ()
   "Show only the names of the heading's children."
