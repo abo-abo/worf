@@ -373,7 +373,8 @@ Use `keyboard-quit' to unset it."
 (defhydra hydra-worf-f (:idle 1.0
                         :exit t)
   ("f" (setq prefix-arg 9999) "fast-forward")
-  ("s" worf-schedule-today "schedule today"))
+  ("s" worf-schedule-today "schedule today")
+  ("d" org-schedule "delay"))
 
 (defun worf-schedule-today (arg)
   (interactive "p")
