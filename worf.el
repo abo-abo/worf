@@ -1497,6 +1497,7 @@ When ARG is 2, and the item was scheduled, make it done at that time."
             (cond ((string= keyword "CLEAR")
                    (org-todo 'none))
                   ((string= keyword "DONE")
+                   (worf--log-to-journal "done")
                    (save-excursion
                      (org-back-to-heading)
                      (unless (and (eq arg 2)
