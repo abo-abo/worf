@@ -977,7 +977,10 @@ When at a #+ marker, forward to `org-cycle'."
 (defun worf-tab-contents ()
   "Show only the names of the heading's children."
   (interactive)
-  (worf-tab 0))
+  (let ((bnd (zo-bnd-subtree)))
+    (if (get-char-property (1- (cdr bnd)) 'invisible)
+        (outline-flag-region (car bnd) (cdr bnd) nil)
+      (worf-tab 0))))
 
 (defhydra hydra-org-tab (:color blue
                          :hint nil)
