@@ -1446,9 +1446,12 @@ When ARG is true, add a CUSTOM_ID first."
 
 (defun worf--todo-close-on-same-day ()
   "When a task was due on a past date, close it on that date."
-  (when (looking-at "\\(.*\\)TODO\\(.*\\)\n\\(\\(?:SCHEDULED\\|DEADLINE\\|Added\\): [[<]\\([0-9-]+ [^\n ]+\\).*[]>]\\)")
-    (replace-match "\\1DONE\\2\nCLOSED: [\\4]")
-    t))
+  (let* ((kws (mapconcat #'identity org-not-done-keywords "\\|"))
+         (regex (format "\\(.*\\)\\(?:%s\\)\\(.*\\)\n\\(\\(?:SCHEDULED\\|DEADLINE\\|Added\\): [[<]\\([0-9-]+ [^\n ]+\\).*[]>]\\)"
+                        kws)))
+    (when (looking-at regex)
+      (replace-match "\\1DONE\\2\nCLOSED: [\\4]")
+      t)))
 
 (defun worf--todo-recurring-incf ()
   "When a task ends with a number and :recurring: tag, increase the number."
