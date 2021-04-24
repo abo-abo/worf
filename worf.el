@@ -978,7 +978,8 @@ When at a #+ marker, forward to `org-cycle'."
   "Show only the names of the heading's children."
   (interactive)
   (let ((bnd (zo-bnd-subtree)))
-    (if (get-char-property (1- (cdr bnd)) 'invisible)
+    (if (and (get-char-property (line-end-position 2) 'invisible)
+             (not (get-char-property (line-beginning-position 2) 'invisible)))
         (outline-flag-region (car bnd) (cdr bnd) nil)
       (worf-tab 0))))
 
