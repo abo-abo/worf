@@ -1208,13 +1208,13 @@ This is accomplished by putting it at the start of `org-refile-history'."
     (with-selected-window target-window
       (save-buffer))))
 
-(defun worf--rfloc (fname)
-  (let ((regex "^\\* Tasks"))
+(defun worf--rfloc (fname heading)
+  (let ((regex (concat "^\\* " heading)))
     (with-current-buffer (find-file-noselect fname)
       (goto-char (point-min))
       (unless (re-search-forward regex nil t)
         (goto-char (point-max))
-        (insert "* Tasks")
+        (insert "* " heading)
         (looking-back regex (line-beginning-position)))
       (list (save-match-data (org-get-heading))
             (buffer-file-name)
@@ -1225,7 +1225,7 @@ This is accomplished by putting it at the start of `org-refile-history'."
 
 (defun worf--refile-to-file (fname)
   (let ((rfloc
-         (worf--rfloc fname)))
+         (worf--rfloc fname "Tasks")))
     (org-refile nil nil rfloc)
     (with-current-buffer (find-file-noselect fname)
       (save-buffer))
@@ -1284,7 +1284,8 @@ This is accomplished by putting it at the start of `org-refile-history'."
       (setq tags (list tag)))
     (org-set-tags tags)
     (let ((rfloc (worf--rfloc
-                  (expand-file-name fname plain-org-wiki-directory))))
+                  (expand-file-name fname plain-org-wiki-directory)
+                  "Tasks")))
       (org-refile nil nil rfloc)
       (with-current-buffer (find-file-noselect (nth 1 rfloc))
         (save-buffer)))
