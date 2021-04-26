@@ -1211,21 +1211,22 @@ This is accomplished by putting it at the start of `org-refile-history'."
 (defun worf--rfloc (fname heading)
   (let ((regex (concat "^\\* " heading)))
     (with-current-buffer (find-file-noselect fname)
-      (goto-char (point-min))
-      (unless (re-search-forward regex nil t)
-        (goto-char (point-max))
-        (insert "* " heading)
-        (looking-back regex (line-beginning-position)))
-      (list (save-match-data (org-get-heading))
-            (buffer-file-name)
-            org-heading-regexp
-            (match-beginning 0)))))
+      (save-excursion
+        (goto-char (point-min))
+        (unless (re-search-forward regex nil t)
+          (goto-char (point-max))
+          (insert "* " heading)
+          (looking-back regex (line-beginning-position)))
+        (list (save-match-data (org-get-heading))
+              (buffer-file-name)
+              org-heading-regexp
+              (match-beginning 0))))))
 
 (declare-function plain-org-wiki "ext:plain-org-wiki")
 
-(defun worf--refile-to-file (fname)
+(defun worf--refile-to-file (fname heading)
   (let ((rfloc
-         (worf--rfloc fname "Tasks")))
+         (worf--rfloc fname heading)))
     (org-refile nil nil rfloc)
     (with-current-buffer (find-file-noselect fname)
       (save-buffer))
@@ -1236,7 +1237,8 @@ This is accomplished by putting it at the start of `org-refile-history'."
   (interactive)
   (worf--refile-to-file
    (cdr (let ((ivy-inhibit-action #'identity))
-          (plain-org-wiki)))))
+          (plain-org-wiki)))
+   "Tasks"))
 
 (defun worf-maybe-rebuild-roam-cache ()
   (let ((n1 (length (org-roam--get-title-path-completions)))
@@ -1251,7 +1253,8 @@ This is accomplished by putting it at the start of `org-refile-history'."
   (worf--refile-to-file
    (let* ((completions (org-roam--get-title-path-completions))
           (name (ivy-read "File: " completions)))
-     (plist-get (cdr (assoc name completions)) :path))))
+     (plist-get (cdr (assoc name completions)) :path))
+   "Tasks"))
 
 (defvar plain-org-wiki-directory)
 
@@ -1346,9 +1349,17 @@ _t_asks     _r_oam
   ("k" (setq org-refile-keep (not org-refile-keep))
        :exit nil)
   ("e" worf-move-move-subtree-way-down)
-  ("a" (org-archive-subtree))
+  ("A" (org-archive-subtree))
+  ("a" worf-refile-archive)
   ("g" worf-refile-gtd)
   ("q" nil "quit"))
+
+(defun worf-refile-archive ()
+  "Refile the current heading to an Archive heading in the current file."
+  (interactive)
+  (worf--refile-to-file
+   (buffer-file-name)
+   "Archive"))
 
 (defun worf-move-move-subtree-way-down ()
   "\"Refile\" the item to the end of the parent subtree."
