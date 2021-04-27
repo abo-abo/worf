@@ -1802,6 +1802,7 @@ calling `self-insert-command'."
   (worf-define-key map "g" 'worf-goto)
   (worf-define-key map "o" 'worf-ace-link)
   (worf-define-key map "O" 'worf-ace-link-eww)
+  (worf-define-key map "b" 'org-mark-ring-goto)
   ;; ——— hide/show ————————————————————————————
   (worf-define-key map "i" 'worf-tab)
   (worf-define-key map "/" 'worf-tab-contents)
