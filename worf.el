@@ -1126,6 +1126,12 @@ external applications.")
          (lambda (x) (null (car x)))
          org-refile-targets)))
 
+(defvar roamy-directory)
+(declare-function roamy-get-title "ext:roamy")
+(declare-function roamy-insert-action "ext:roamy")
+(declare-function roamy-find-file "ext:roamy")
+(declare-function roamy-find-file-action "ext:roamy")
+
 (defun worf-refile-other (arg)
   "Refile the current heading to another heading.
 
@@ -1136,23 +1142,41 @@ files are eligible for refiling, even if they aren't on
 When the heading has attachments and the target is in another
 directory, the attachments will be moved."
   (interactive "p")
-  (let* ((id (org-entry-properties nil "ID"))
-         (dir1 default-directory)
-         (adir1 (and id (org-attach-dir)))
-         (org-refile-targets (worf-refile-targets (+ arg 2))))
-    (org-refile)
-    (save-buffer)
-    (save-window-excursion
-      (org-refile-goto-last-stored)
+  (if (file-equal-p default-directory roamy-directory)
+      (worf-refile-roamy-peer)
+    (let* ((id (org-entry-properties nil "ID"))
+           (dir1 default-directory)
+           (adir1 (and id (org-attach-dir)))
+           (org-refile-targets (worf-refile-targets (+ arg 2))))
+      (org-refile)
       (save-buffer)
-      (when (and adir1 (not (equal default-directory dir1)))
-        (rename-file adir1
-                     (file-name-directory
-                      (org-attach-dir t)) t)
-        (when (equal (directory-files (file-name-directory adir1)) '("." ".."))
-          (dired-delete-file (file-name-directory adir1)))))
-    (when (bound-and-true-p org-capture-mode)
-      (org-capture-kill))))
+      (save-window-excursion
+        (org-refile-goto-last-stored)
+        (save-buffer)
+        (when (and adir1 (not (equal default-directory dir1)))
+          (rename-file adir1
+                       (file-name-directory
+                        (org-attach-dir t)) t)
+          (when (equal (directory-files (file-name-directory adir1)) '("." ".."))
+            (dired-delete-file (file-name-directory adir1)))))
+      (when (bound-and-true-p org-capture-mode)
+        (org-capture-kill)))))
+
+(defun worf-refile-roamy-peer ()
+  "Refile the current headling to the linked zettel."
+  (let* ((hl (org-element-context))
+         (title (org-element-property :title hl)))
+    (if (string-match "\\`\\[\\[file:\\([^]]+\\)\\]" title)
+        (let ((fname (match-string-no-properties 1 title))
+              (this-fname (file-name-nondirectory (buffer-file-name)))
+              (this-title (roamy-get-title)))
+          (skip-chars-forward "* ")
+          (delete-region (point) (line-end-position))
+          (roamy-insert-action this-title)
+          (beginning-of-line)
+          (worf--refile-to-file fname "Tasks"))
+      (user-error
+       "The current link is not to a zettel."))))
 
 (defun worf-refile-this (arg)
   "Interface to refile with :maxlevel set to ARG."
