@@ -1232,19 +1232,24 @@ This is accomplished by putting it at the start of `org-refile-history'."
     (with-selected-window target-window
       (save-buffer))))
 
-(defun worf--rfloc (fname heading)
+(defun worf--goto-heading (heading)
+  "Goto a top-level HEADING and set the match data.
+Insert HEADING if it doesn't exist."
   (let ((regex (concat "^\\* " heading)))
-    (with-current-buffer (find-file-noselect fname)
-      (save-excursion
-        (goto-char (point-min))
-        (unless (re-search-forward regex nil t)
-          (goto-char (point-max))
-          (insert "* " heading)
-          (looking-back regex (line-beginning-position)))
-        (list (save-match-data (org-get-heading))
-              (buffer-file-name)
-              org-heading-regexp
-              (match-beginning 0))))))
+    (goto-char (point-min))
+    (unless (re-search-forward regex nil t)
+      (goto-char (point-max))
+      (insert "* " heading)
+      (looking-back regex (line-beginning-position)))))
+
+(defun worf--rfloc (fname heading)
+  (with-current-buffer (find-file-noselect fname)
+    (save-excursion
+      (worf--goto-heading heading)
+      (list (save-match-data (org-get-heading))
+            (buffer-file-name)
+            org-heading-regexp
+            (match-beginning 0)))))
 
 (declare-function plain-org-wiki "ext:plain-org-wiki")
 
