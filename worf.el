@@ -1273,7 +1273,9 @@ Insert HEADING if it doesn't exist."
   "Refile to one of the `org-roam' files."
   (interactive)
   (worf--refile-to-file
-   (roamy-expand (plist-get (let ((ivy-inhibit-action #'cdr)) (roamy-find-file)) :fname))
+   (save-window-excursion
+     (roamy-find-file)
+     (buffer-file-name))
    "Tasks"))
 
 (defvar plain-org-wiki-directory)
