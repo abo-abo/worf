@@ -1333,17 +1333,22 @@ Insert HEADING if it doesn't exist."
   ("q" nil "quit"))
 
 (defun worf--log-to-journal (item)
-  (when (featurep 'org-journal)
-    (let ((link (org-store-link nil)))
-      (save-window-excursion
-       (org-journal-new-entry nil)
-       (insert item " " link)
-       (save-buffer)))))
+  (let ((link (org-store-link nil)))
+    (save-window-excursion
+      (roamy-find-file-action (format-time-string "%Y-%m-%d"))
+      (worf--goto-heading
+       (if (string= item "pomo")
+           "Pomos"
+         "Tasks"))
+      (goto-char (cdr (zo-bnd-subtree)))
+      (insert "\n** " (format-time-string "%H:%M "))
+      (insert item " " link)
+      (save-buffer))))
 
 (defun worf-pomodoro ()
-  "Forward to `org-pomodoro' with `org-journal' integration."
+  "Forward to `org-pomodoro'."
   (interactive)
-  (worf--log-to-journal "pomodoro")
+  (worf--log-to-journal "pomo")
   (org-pomodoro))
 
 (defun worf-x ()
