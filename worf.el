@@ -1398,7 +1398,7 @@ _t_asks     _r_oam
 
 (defhydra hydra-worf-cj (:color teal)
   "C-j"
-  ("C-j" org-return-indent "indent")
+  ("C-j" (org-return t) "indent")
   ("j" (org-open-at-point) "open")
   ("n" (worf-add 1) "same")
   ("m" (worf-add 2) "more")
