@@ -1381,12 +1381,50 @@ _t_asks     _r_oam
   ("g" worf-refile-gtd)
   ("q" nil "quit"))
 
+(defun worf-refile-archive-to-log ()
+  (when (save-excursion
+          (zo-left 1)
+          (looking-at "\\* Archive"))
+    (let ((hl (org-element-context)))
+      (unless (eq (org-element-property :todo-type hl) 'done)
+        (user-error "Not yeat DONE!"))
+      (let* ((zettle-from (roamy-get-title))
+             (beg (save-excursion
+                    (goto-char (org-element-property :contents-begin hl))
+                    (line-beginning-position 2)))
+             (end (org-element-property :end hl))
+             (contents
+              (concat (org-element-property :title hl)
+                      "\n"
+                      (buffer-substring-no-properties beg end))))
+        (delete-region (line-beginning-position) end)
+        (save-buffer)
+        (let* ((closed (org-element-property :closed hl))
+               (date (substring (org-element-property :raw-value closed) 1 11))
+               (time (substring (org-element-property :raw-value closed) -6 -1)))
+          (save-window-excursion
+            (roamy-find-file-action date)
+            (worf--goto-heading "Tasks")
+            (if (re-search-forward time nil t)
+                (delete-region (point) (line-end-position))
+              (while (and (re-search-forward "^\\*\\* \\([0-9]\\{2\\}:[0-9]\\{2\\}\\)" nil t)
+                          (string< (match-string-no-properties 1) time))
+                (end-of-line -1)
+                (insert "\n** " time)))
+            (insert " done ")
+            (roamy-insert-action zettle-from)
+            (insert "/")
+            (insert (string-trim-right contents))
+            (save-buffer)))))
+    t))
+
 (defun worf-refile-archive ()
   "Refile the current heading to an Archive heading in the current file."
   (interactive)
-  (worf--refile-to-file
-   (buffer-file-name)
-   "Archive"))
+  (or (worf-refile-archive-to-log)
+      (worf--refile-to-file
+       (buffer-file-name)
+       "Archive")))
 
 (defun worf-move-move-subtree-way-down ()
   "\"Refile\" the item to the end of the parent subtree."
