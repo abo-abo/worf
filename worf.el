@@ -1048,7 +1048,12 @@ If already there, return it to previous position."
   (interactive)
   (let ((cands (save-excursion
                  (save-restriction
-                   (org-narrow-to-subtree)
+                   (if (looking-at "\\*")
+                       (org-narrow-to-subtree)
+                     (narrow-to-region
+                      (point)
+                      (re-search-forward "^\\*")))
+
                    (ace-link--org-collect)))))
     (let ((pt (avy-with ace-link-org
                 (avy-process
