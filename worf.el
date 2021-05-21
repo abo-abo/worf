@@ -1264,7 +1264,9 @@ Insert HEADING if it doesn't exist."
     (org-refile nil nil rfloc)
     (with-current-buffer (find-file-noselect fname)
       (save-buffer))
-    (save-buffer)))
+    (save-buffer)
+    (push (format "Tasks (%s)" (file-name-nondirectory fname))
+          org-refile-history)))
 
 (defun worf-refile-tasks ()
   "Refile to one of the `plain-org-wiki' files."
