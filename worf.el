@@ -1279,11 +1279,10 @@ Insert HEADING if it doesn't exist."
 (defun worf-refile-roam ()
   "Refile to one of the `org-roam' files."
   (interactive)
-  (worf--refile-to-file
-   (save-window-excursion
-     (roamy-find-file)
-     (buffer-file-name))
-   "Tasks"))
+  (let ((fname (save-window-excursion
+                 (roamy-find-file)
+                 (buffer-file-name))))
+    (worf--refile-to-file fname "Tasks")))
 
 (defvar plain-org-wiki-directory)
 
