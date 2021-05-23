@@ -1339,9 +1339,16 @@ Insert HEADING if it doesn't exist."
   ("q" nil "quit"))
 
 (defun worf--log-to-journal (item)
-  (let ((link (org-store-link nil)))
+  (let ((link (if (file-in-directory-p (buffer-file-name) roamy-directory)
+                  (let ((title (substring-no-properties (org-get-heading t t t t))))
+                    (org-make-link-string
+                     (concat "roam:"
+                             (file-relative-name (buffer-file-name) roamy-directory)
+                             "::" title)
+                     (org-link-display-format title)))
+                (org-store-link nil))))
     (save-window-excursion
-      (roamy-find-file-action (format-time-string "%Y-%m-%d"))
+      (roamy-find-file-action (format-time-string roamy-journal-format))
       (worf--goto-heading
        (if (string= item "pomo")
            "Pomos"
