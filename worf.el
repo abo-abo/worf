@@ -1413,7 +1413,8 @@ _t_asks     _r_oam
         (delete-region (line-beginning-position) end)
         (save-buffer)
         (let* ((closed (org-element-property :closed hl))
-               (date (substring (org-element-property :raw-value closed) 1 11))
+               (date
+                (format-time-string roamy-journal-format (org-timestamp-to-time closed)))
                (time (substring (org-element-property :raw-value closed) -6 -1)))
           (save-window-excursion
             (roamy-find-file-action date)
