@@ -1460,10 +1460,13 @@ _t_asks     _r_oam
 (defun worf-delete-subtree (arg)
   "Delete subtree or ARG chars."
   (interactive "p")
-  (if (and (looking-at "\\*")
-           (looking-back "^\\**" (line-beginning-position)))
-      (org-cut-subtree)
-    (delete-char arg)))
+  (cond ((and (looking-at "\\*")
+              (looking-back "^\\**" (line-beginning-position)))
+         (org-cut-subtree))
+        ((looking-at org-link-any-re)
+         (delete-region (match-beginning 0) (match-end 0)))
+        (t
+         (delete-char arg))))
 
 (defun worf-get-heading ()
   (substring-no-properties
