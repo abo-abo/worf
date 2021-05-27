@@ -1856,6 +1856,11 @@ calling `self-insert-command'."
          nil)))
     (goto-char pt)))
 
+(defun worf-back-link ()
+  (interactive)
+  (org-mark-ring-goto 0)
+  (worf-back-to-special))
+
 (let ((map worf-mode-map))
   ;; ——— Global ———————————————————————————————
   (define-key map "[" 'worf-backward)
@@ -1886,7 +1891,7 @@ calling `self-insert-command'."
   (worf-define-key map "g" 'worf-goto)
   (worf-define-key map "o" 'worf-ace-link)
   (worf-define-key map "O" 'worf-ace-link-eww)
-  (worf-define-key map "b" 'org-mark-ring-goto)
+  (worf-define-key map "b" 'worf-back-link)
   ;; ——— hide/show ————————————————————————————
   (worf-define-key map "i" 'worf-tab)
   (worf-define-key map "/" 'worf-tab-contents)
