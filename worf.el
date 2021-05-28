@@ -1338,10 +1338,12 @@ Insert HEADING if it doesn't exist."
   ("p" worf-pomodoro "pomodoro")
   ("q" nil "quit"))
 
+(defvar roamy-journal-format)
+
 (defun worf--log-to-journal (item)
   (let ((link (if (file-in-directory-p (buffer-file-name) roamy-directory)
                   (let ((title (substring-no-properties (org-get-heading t t t t))))
-                    (org-make-link-string
+                    (org-link-make-string
                      (concat "roam:"
                              (file-relative-name (buffer-file-name) roamy-directory)
                              "::" title)
