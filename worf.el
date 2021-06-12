@@ -1043,9 +1043,9 @@ If already there, return it to previous position."
         (worf-more))
     (error (newline-and-indent))))
 
-(defun worf-ace-link ()
+(defun worf-ace-link (&optional arg)
   "Visit a link within current heading by ace jumping."
-  (interactive)
+  (interactive "P")
   (let ((cands (save-excursion
                  (save-restriction
                    (if (looking-at "\\*")
@@ -1061,7 +1061,8 @@ If already there, return it to previous position."
                   #'cdr
                   cands)
                  #'avy--overlay-pre))))
-      (ace-link--org-action pt))))
+      (goto-char pt)
+      (org-open-at-point arg))))
 
 (defun worf-ace-link-eww ()
   "Visit a link within current heading by ace jumping."
