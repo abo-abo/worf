@@ -1839,25 +1839,27 @@ calling `self-insert-command'."
     (toggle-input-method))
   (worf-backward))
 
-(defun worf-eval ()
+(defun worf-eval (&optional arg)
   "Eval the first source statement in the outline."
-  (interactive)
-  (let ((pt (point)))
-    (worf-right)
-    (let ((context
-           (org-element-lineage
-            (org-element-context)
-            ;; only interested in source blocks
-            '(src-block)
-            t)))
-      (if (not context)
-          (user-error "No #+begin_src to eval")
-        (org-babel-eval-wipe-error-buffer)
-        (org-babel-execute-src-block
-         current-prefix-arg
-         (org-babel-get-src-block-info nil context)
-         nil)))
-    (goto-char pt)))
+  (interactive "p")
+  (if (eq arg 2)
+      (org-babel-load-in-session)
+    (let ((pt (point)))
+      (worf-right)
+      (let ((context
+             (org-element-lineage
+              (org-element-context)
+              ;; only interested in source blocks
+              '(src-block)
+              t)))
+        (if (not context)
+            (user-error "No #+begin_src to eval")
+          (org-babel-eval-wipe-error-buffer)
+          (org-babel-execute-src-block
+           current-prefix-arg
+           (org-babel-get-src-block-info nil context)
+           nil)))
+      (goto-char pt))))
 
 (defun worf-back-link ()
   (interactive)
