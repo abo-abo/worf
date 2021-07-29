@@ -1148,7 +1148,7 @@ files are eligible for refiling, even if they aren't on
 When the heading has attachments and the target is in another
 directory, the attachments will be moved."
   (interactive "p")
-  (if (file-equal-p default-directory roamy-directory)
+  (if (string-prefix-p roamy-directory default-directory)
       (worf-refile-roamy-peer)
     (let* ((id (org-entry-properties nil "ID"))
            (dir1 default-directory)
