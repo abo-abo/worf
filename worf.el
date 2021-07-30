@@ -1172,7 +1172,7 @@ directory, the attachments will be moved."
   "Refile the current headling to the linked zettel."
   (let* ((hl (org-element-context))
          (title (org-element-property :title hl)))
-    (if (string-match "\\`\\[\\[file:\\([^]]+\\)\\]" title)
+    (if (string-match "\\`\\[\\[roam:\\([^]]+\\)\\]" title)
         (let ((fname (match-string-no-properties 1 title))
               (this-fname (file-name-nondirectory (buffer-file-name)))
               (this-title (roamy-get-title)))
