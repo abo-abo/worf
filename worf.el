@@ -1180,7 +1180,7 @@ directory, the attachments will be moved."
           (delete-region (point) (line-end-position))
           (roamy-insert-action this-title)
           (beginning-of-line)
-          (worf--refile-to-file fname "Tasks"))
+          (worf--refile-to-file (roamy-expand-fname fname) "Tasks"))
       (user-error
        "The current link is not to a zettel."))))
 
