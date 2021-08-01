@@ -1235,6 +1235,9 @@ This is accomplished by putting it at the start of `org-refile-history'."
     (worf--refile-setup-default fname)
     (call-interactively 'org-refile)
     (save-buffer)
+    (let ((heading (when (string-match "\\(.*?\\) (" (car org-refile-history))
+                     (match-string-no-properties 1 (car org-refile-history)))))
+      (setq worf--refile-last (cons fname heading)))
     (with-selected-window target-window
       (save-buffer))))
 
@@ -1266,6 +1269,7 @@ Insert HEADING if it doesn't exist."
     (with-current-buffer (find-file-noselect fname)
       (save-buffer))
     (save-buffer)
+    (setq worf--refile-last (cons fname heading))
     (push (format "Tasks (%s)" (file-name-nondirectory fname))
           org-refile-history)))
 
@@ -1323,14 +1327,12 @@ Insert HEADING if it doesn't exist."
         (save-buffer)))
     (save-buffer)))
 
+(defvar worf--refile-last nil)
+
 (defun worf-refile-last ()
   "Refile to the last location without prompting."
   (interactive)
-  (save-excursion
-    (let ((completing-read-function
-           (lambda (_p coll _pred _rm _ii _h default &rest _)
-             default)))
-      (worf-refile-other 1))))
+  (worf--refile-to-file (car worf--refile-last) (cdr worf--refile-last)))
 
 (declare-function org-pomodoro "ext:org-pomodoro")
 
