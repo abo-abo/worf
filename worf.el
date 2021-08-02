@@ -1428,13 +1428,19 @@ _t_asks     _r_oam
                 (delete-region (point) (line-end-position))
               (while (and (re-search-forward "^\\*\\* \\([0-9]\\{2\\}:[0-9]\\{2\\}\\)" nil t)
                           (string< (match-string-no-properties 1) time)))
-              (end-of-line -1)
+              (outline-end-of-subtree)
               (insert "\n** " time))
             (insert " done ")
-            (roamy-insert-action zettle-from)
-            (insert "/")
+            (when zettle-from
+              (roamy-insert-action zettle-from)
+              (insert "/"))
             (insert (string-trim-right contents))
-            (save-buffer)))))
+            (save-buffer)
+            (let ((bookmark-name (plist-get org-bookmark-names-plist
+                                            :last-refile)))
+              (when bookmark-name
+                (with-demoted-errors
+                    (bookmark-set bookmark-name))))))))
     t))
 
 (defun worf-refile-archive ()
