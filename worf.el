@@ -1354,8 +1354,7 @@ Insert HEADING if it doesn't exist."
   (interactive)
   (hydra-worf-promote/body))
 
-(defhydra hydra-refile (:hint nil
-                        :color teal)
+(defhydra worf-hydra-refile (:hint nil :color teal)
   "
 Refile:^^   _k_eep: %`org-refile-keep
 ----------------------------------
@@ -1897,7 +1896,7 @@ calling `self-insert-command'."
   (worf-define-key map "A" 'worf-attach)
   (worf-define-key map "V" 'worf-visit)
   ;; ——— refile ———————————————————————————————
-  (worf-define-key map "r" 'hydra-refile/body)
+  (worf-define-key map "r" 'worf-hydra-refile/body)
   ;; ——— misc —————————————————————————————————
   (worf-define-key map "x" 'hydra-worf-promote/body)
   (worf-define-key map "L" 'worf-copy-heading-id)
