@@ -1321,32 +1321,12 @@ Insert HEADING if it doesn't exist."
   ("p" worf-pomodoro "pomodoro")
   ("q" nil "quit"))
 
-(defvar roamy-journal-format)
-
-(defun worf--log-to-journal (item)
-  (let ((link (if (file-in-directory-p (buffer-file-name) roamy-directory)
-                  (let ((title (substring-no-properties (org-get-heading t t t t))))
-                    (org-link-make-string
-                     (concat "roam:"
-                             (file-relative-name (buffer-file-name) roamy-directory)
-                             "::" title)
-                     (org-link-display-format title)))
-                (org-store-link nil))))
-    (save-window-excursion
-      (roamy-find-file-action (format-time-string roamy-journal-format))
-      (worf--goto-heading
-       (if (string= item "pomo")
-           "Pomos"
-         "Tasks"))
-      (goto-char (cdr (zo-bnd-subtree)))
-      (insert "\n** " (format-time-string "%H:%M "))
-      (insert item " " link)
-      (save-buffer))))
+(defvar worf-log-to-journal-function #'ignore)
 
 (defun worf-pomodoro ()
   "Forward to `org-pomodoro'."
   (interactive)
-  (worf--log-to-journal "pomo")
+  (funcall worf-log-to-journal-function "pomo")
   (org-pomodoro))
 
 (defun worf-x ()
@@ -1377,6 +1357,8 @@ _t_asks     _r_oam
   ("a" worf-refile-archive)
   ("g" worf-refile-gtd)
   ("q" nil "quit"))
+
+(defvar roamy-journal-format)
 
 (defun worf-refile-archive-to-log ()
   (when (save-excursion
@@ -1588,7 +1570,7 @@ When ARG is 2, and the item was scheduled, make it done at that time."
             (cond ((string= keyword "CLEAR")
                    (org-todo 'none))
                   ((string= keyword "DONE")
-                   (worf--log-to-journal "done")
+                   (funcall worf-log-to-journal-function "done")
                    (save-excursion
                      (org-back-to-heading)
                      (unless (and (eq arg 2)
