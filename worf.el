@@ -1226,7 +1226,7 @@ This is accomplished by putting it at the start of `org-refile-history'."
 (defun worf--rfloc (fname heading)
   (with-current-buffer (find-file-noselect fname)
     (save-excursion
-      (zo-goto-heading heading)
+      (zo-goto-headings (list heading))
       (list (save-match-data (org-get-heading))
             (buffer-file-name)
             org-heading-regexp
