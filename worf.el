@@ -1253,14 +1253,6 @@ This is accomplished by putting it at the start of `org-refile-history'."
           (plain-org-wiki)))
    "Tasks"))
 
-(defun worf-refile-roam ()
-  "Refile to one of the `org-roam' files."
-  (interactive)
-  (let ((fname (save-window-excursion
-                 (roamy-find-file)
-                 (buffer-file-name))))
-    (worf--refile-to-file fname "Tasks")))
-
 (defvar plain-org-wiki-directory)
 
 (defun worf-extract-project ()
@@ -1333,10 +1325,9 @@ Refile:^^   _k_eep: %`org-refile-keep
 _l_ast      _a_rchive
 _o_ther     _e_nd
 _h_ere      _g_td
-_t_asks     _r_oam
+_t_asks
 "
   ("h" worf-refile-this)
-  ("r" worf-refile-roam)
   ("t" worf-refile-tasks)
   ("T" (worf-refile-this 5))
   ("w" worf-refile-other-window)
