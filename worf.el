@@ -974,7 +974,7 @@ When at a #+ marker, forward to `org-cycle'."
              (if (and (memq (get-char-property (1- eos) 'invisible) '(outline org-hide-drawer))
                       (eq (get-char-property (1+ eoh) 'invisible) 'outline))
                  (outline-flag-region eoh eos nil)
-                 (outline-flag-region eoh eos t)))))))
+               (outline-flag-region eoh eos t)))))))
 
 (defun worf-tab-contents ()
   "Show only the names of the heading's children."
@@ -1452,7 +1452,7 @@ When ARG is true, add a CUSTOM_ID first."
 (defun worf--todo-close-on-same-day ()
   "When a task was due on a past date, close it on that date."
   (let* ((kws (mapconcat #'identity org-not-done-keywords "\\|"))
-         (regex (format "\\(.*\\)\\(?:%s\\)\\(.*\\)\n\\(\\(?:SCHEDULED\\|DEADLINE\\|Added\\): [[<]\\([0-9-]+ [^\n ]+\\).*[]>]\\)"
+         (regex (format "\\(.*\\)\\(?:%s\\)\\(.*\\)\n\\(\\(?:SCHEDULED\\|DEADLINE\\|Added\\): [[<]\\([^>]+\\)>\\)"
                         kws)))
     (when (looking-at regex)
       (replace-match "\\1DONE\\2\nCLOSED: [\\4]")
