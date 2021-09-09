@@ -1505,7 +1505,7 @@ When ARG is 2, and the item was scheduled, make it done at that time."
                (keyword-cons (rassoc key all-keywords))
                (keyword (car keyword-cons)))
           (when keyword
-            (cond ((string= keyword "CLEAR")
+            (cond ((string= keyword "DROP")
                    (org-todo 'none))
                   ((string= keyword "DONE")
                    (funcall worf-log-to-journal-function "done")
