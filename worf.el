@@ -1530,7 +1530,7 @@ When ARG is 2, and the item was scheduled, make it done at that time."
 ;; ——— Predicates ——————————————————————————————————————————————————————————————
 (defun worf--at-property-p ()
   "Return t if point is at property."
-  (looking-at "^:\\(?:property\\|end\\)"))
+  (looking-at "^:\\(?:property\\|properties\\|end\\|logbook\\)"))
 
 (defun worf--special-p ()
   "Return t if point is special.
