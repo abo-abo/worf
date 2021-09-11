@@ -1569,6 +1569,8 @@ calling `self-insert-command'."
          (backward-delete-char arg))
         ((looking-back "\\[\\[.*?\\]\\[.*?\\]\\]" (line-beginning-position))
          (delete-region (match-beginning 0) (match-end 0)))
+        ((looking-back "\\[.*\\]" (line-beginning-position))
+         (delete-region (match-beginning 0) (match-end 0)))
         (t
          (let (ov expose)
            (if (and (eolp)
