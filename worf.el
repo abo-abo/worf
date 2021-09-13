@@ -1508,7 +1508,6 @@ When ARG is 2, and the item was scheduled, make it done at that time."
             (cond ((string= keyword "DROP")
                    (org-todo 'none))
                   ((string= keyword "DONE")
-                   (funcall worf-log-to-journal-function "done")
                    (save-excursion
                      (org-back-to-heading)
                      (unless (and (eq arg 2)
@@ -1516,7 +1515,8 @@ When ARG is 2, and the item was scheduled, make it done at that time."
                        (worf--todo-recurring-incf)
                        (worf--cleanup-added-timestamp)
                        (org-todo keyword))
-                     (save-buffer)))
+                     (save-buffer))
+                   (funcall worf-log-to-journal-function "done"))
                   (t
                    (org-todo keyword)))))))
     (when (eq major-mode 'org-agenda-mode)
