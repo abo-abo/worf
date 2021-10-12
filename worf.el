@@ -983,7 +983,7 @@ When at a #+ marker, forward to `org-cycle'."
     (if (and (get-char-property (line-end-position 2) 'invisible)
              (not (get-char-property (line-beginning-position 2) 'invisible)))
         (outline-flag-region (car bnd) (cdr bnd) nil)
-      (worf-tab 0))))
+      (zo-fold-heading 'current))))
 
 (defhydra hydra-org-tab (:color blue
                          :hint nil)
