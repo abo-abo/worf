@@ -1506,7 +1506,7 @@ When ARG is 2, and the item was scheduled, make it done at that time."
                (keyword (car keyword-cons)))
           (when keyword
             (cond ((string= keyword "DROP")
-                   (org-todo 'none))
+                   (org-todo keyword))
                   ((string= keyword "DONE")
                    (save-excursion
                      (org-back-to-heading)
