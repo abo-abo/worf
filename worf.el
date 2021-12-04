@@ -1282,7 +1282,8 @@ This is accomplished by putting it at the start of `org-refile-history'."
           (setq tags nil))
       (setq fname "../gtd.org")
       (setq tags (list tag)))
-    (org-set-tags tags)
+    (unless (string= tag "inbox")
+      (org-set-tags tags))
     (let ((rfloc (worf--rfloc
                   (expand-file-name fname plain-org-wiki-directory)
                   "Tasks")))
