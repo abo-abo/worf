@@ -599,7 +599,8 @@ Works both in a buffer and in the agenda."
   :group 'worf
   :lighter worf-keyword-mode-lighter
   (cond (worf-keyword-mode
-         (call-interactively 'worf-keyword))
+         (call-interactively 'worf-keyword)
+         (add-hook 'post-command-hook 'worf--invalidate-keyword))
         (t
          (setq worf--keyword nil))))
 
@@ -608,7 +609,7 @@ Works both in a buffer and in the agenda."
 All next `worf-down' and `worf-up' will move by this keyword.
 When the chain is broken, the keyword is unset."
   (interactive)
-  (setq keyword
+  (setq worf--keyword
         (or keyword
             (let* ((c (read-char "[t]odo, [d]one, [n]ext, [c]ancelled")))
               (message
@@ -616,8 +617,7 @@ When the chain is broken, the keyword is unset."
                  (?t "TODO")
                  (?d "DONE")
                  (?n "NEXT")
-                 (?c "CANCELLED"))))))
-  (org-todo keyword))
+                 (?c "CANCELLED")))))))
 
 (defhydra hydra-worf-keyword (:idle 1.5 :color teal)
   ("t" (org-todo "TODO") "TODO")
@@ -1836,7 +1836,7 @@ calling `self-insert-command'."
   (worf-define-key map "y" 'worf-occur :break t)
   (worf-define-key map "C" 'worf-clock-mode)
   (worf-define-key map "T" 'worf-clock-in-and-out)
-  (worf-define-key map "w" 'worf-keyword)
+  (worf-define-key map "w" 'worf-keyword-mode)
   (define-key map "m" 'worf-mark)
   (worf-define-key map "q" 'worf-quit)
   (worf-define-key map "n" 'worf-new-copy)
