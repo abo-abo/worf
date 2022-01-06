@@ -133,6 +133,7 @@
 (require 'ace-link)
 (require 'dired)
 (require 'flyspell)
+(require 'hydra)
 (require 'org)
 (require 'org-agenda)
 (require 'org-attach)
