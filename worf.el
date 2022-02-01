@@ -1779,9 +1779,11 @@ calling `self-insert-command'."
 
 (let ((map worf-mode-map))
   ;; ——— Global ———————————————————————————————
-  (define-key map "[" 'worf-backward)
+  (define-key worf-mode-map (kbd "[")
+    `(menu-item "" worf-backward :filter ,(lambda (cmd) (unless (region-active-p) cmd))))
   (define-key map (kbd "M-o") 'worf-back-to-special)
-  (define-key map "]" 'worf-forward)
+  (define-key worf-mode-map (kbd "]")
+    `(menu-item "" worf-forward :filter ,(lambda (cmd) (unless (region-active-p) cmd))))
   (define-key map "=" 'worf-symbolize)
   (define-key map (kbd "M-j") 'worf-meta-newline)
   ;; (define-key map "\C-j" 'hydra-worf-cj/body)
